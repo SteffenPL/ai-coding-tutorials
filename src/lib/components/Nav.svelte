@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { themeStore } from '$lib/stores/theme.svelte';
 	import { langStore, t } from '$lib/stores/lang.svelte';
 
@@ -13,7 +14,7 @@
 	<div class="nav__inner">
 		<div class="nav__left">
 			{#if showBack}
-				<a href="/" class="nav__back" aria-label={t({ en: 'Back to tutorials', ja: 'チュートリアル一覧に戻る' })}>
+				<a href="{base}/" class="nav__back" aria-label={t({ en: 'Back to tutorials', ja: 'チュートリアル一覧に戻る' })}>
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M19 12H5m7-7-7 7 7 7" />
 					</svg>
@@ -21,7 +22,7 @@
 				</a>
 				<div class="nav__sep" aria-hidden="true"></div>
 			{/if}
-			<a href="/" class="nav__logo" aria-label="AI Coding Tutorials Home">
+			<a href="{base}/" class="nav__logo" aria-label="AI Coding Tutorials Home">
 				<div class="nav__logo-mark">A</div>
 				<span class="nav__logo-text">
 					{t({ en: 'AI Tutorials', ja: 'AI チュートリアル' })}

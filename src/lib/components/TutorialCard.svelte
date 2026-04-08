@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import Tag from './Tag.svelte';
 	import { langStore, t } from '$lib/stores/lang.svelte';
 	import type { Tutorial } from '$lib/data/markdown';
@@ -11,7 +12,7 @@
 	let meta = $derived(tutorial.getMeta(langStore.current));
 </script>
 
-<a href="/tutorials/{tutorial.slug}" class="card">
+<a href="{base}/tutorials/{tutorial.slug}" class="card">
 	<div class="card__image">
 		<svg viewBox="0 0 120 120" fill="none">
 			{#if meta.tags.includes('bioinformatics') && meta.tags.includes('python')}
