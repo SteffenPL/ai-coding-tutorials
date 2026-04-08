@@ -1,0 +1,147 @@
+/* ═══════════════════════════════════════════
+   ASHBi Coding Tutorials — Design System
+   ═══════════════════════════════════════════ */
+
+:root {
+	/* Shark Blue Palette */
+	--shark-500: #0077be;
+	--shark-400: #0091e2;
+	--shark-300: #33aaef;
+	--shark-600: #005a8e;
+	--shark-700: #004570;
+	--shark-100: #e6f3fb;
+	--shark-50: #f0f8fe;
+
+	/* Typography */
+	--font-display: 'Sora', 'Noto Sans JP', sans-serif;
+	--font-body: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
+
+	/* Transitions */
+	--transition-theme: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Light Theme ─── */
+[data-theme='light'] {
+	--bg-primary: #fafbfc;
+	--bg-secondary: #ffffff;
+	--bg-hover: #f0f4f8;
+	--bg-grid: rgba(0, 119, 190, 0.04);
+	--text-primary: #1a2332;
+	--text-secondary: #4a5568;
+	--text-tertiary: #8896a6;
+	--border-color: #e2e8f0;
+	--border-subtle: #edf2f7;
+	--shark: var(--shark-500);
+	--shark-glow: rgba(0, 119, 190, 0.12);
+	--shark-tag-bg: var(--shark-50);
+	--shark-tag-border: var(--shark-300);
+	--shark-tag-text: var(--shark-600);
+	--card-shadow: 0 1px 3px rgba(26, 35, 50, 0.06), 0 1px 2px rgba(26, 35, 50, 0.04);
+	--card-shadow-hover: 0 4px 12px rgba(0, 119, 190, 0.1), 0 2px 4px rgba(26, 35, 50, 0.06);
+	--hero-gradient: linear-gradient(160deg, #fafbfc 0%, #e6f3fb 50%, #f0f8fe 100%);
+	--nav-bg: rgba(250, 251, 252, 0.85);
+	--toggle-bg: #e2e8f0;
+	--toggle-knob: #ffffff;
+	--code-bg: #1e2533;
+	--code-text: #e8edf2;
+	--code-header: #161c27;
+	--prompt-bg: #f0f8fe;
+	--prompt-border: var(--shark-300);
+	--prompt-text: var(--text-primary);
+}
+
+/* ─── Dark Theme ─── */
+[data-theme='dark'] {
+	--bg-primary: #0f1419;
+	--bg-secondary: #1a2332;
+	--bg-hover: #243044;
+	--bg-grid: rgba(0, 168, 232, 0.03);
+	--text-primary: #e8edf2;
+	--text-secondary: #a0aec0;
+	--text-tertiary: #6b7c93;
+	--border-color: #2d3f56;
+	--border-subtle: #1e2d40;
+	--shark: #00a8e8;
+	--shark-glow: rgba(0, 168, 232, 0.15);
+	--shark-tag-bg: rgba(0, 168, 232, 0.12);
+	--shark-tag-border: rgba(0, 168, 232, 0.3);
+	--shark-tag-text: #33aaef;
+	--card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+	--card-shadow-hover: 0 4px 16px rgba(0, 168, 232, 0.12), 0 2px 6px rgba(0, 0, 0, 0.2);
+	--hero-gradient: linear-gradient(160deg, #0f1419 0%, #112233 50%, #0f1a26 100%);
+	--nav-bg: rgba(15, 20, 25, 0.88);
+	--toggle-bg: #2d3f56;
+	--toggle-knob: #e8edf2;
+	--code-bg: #0d1117;
+	--code-text: #c9d1d9;
+	--code-header: #090d13;
+	--prompt-bg: rgba(0, 168, 232, 0.08);
+	--prompt-border: rgba(0, 168, 232, 0.4);
+	--prompt-text: var(--text-primary);
+}
+
+/* ─── Reset & Base ─── */
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	font-family: var(--font-body);
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+	line-height: 1.6;
+	transition:
+		background-color var(--transition-theme),
+		color var(--transition-theme);
+	min-height: 100vh;
+	overflow-x: hidden;
+}
+
+/* ─── Graph Paper Background ─── */
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	background-image:
+		linear-gradient(var(--bg-grid) 1px, transparent 1px),
+		linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+	background-size: 32px 32px;
+	pointer-events: none;
+	z-index: 0;
+}
+
+a {
+	color: var(--shark);
+	text-decoration: none;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}

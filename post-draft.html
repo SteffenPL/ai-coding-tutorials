@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started with Python for Bioinformatics — ASHBi Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       ASHBi Coding Tutorials — Design System
+       (shared with index-draft.html)
+       ═══════════════════════════════════════════ */
+
+    :root {
+      --shark-500: #0077BE;
+      --shark-400: #0091E2;
+      --shark-300: #33AAEF;
+      --shark-600: #005A8E;
+      --shark-700: #004570;
+      --shark-100: #E6F3FB;
+      --shark-50: #F0F8FE;
+
+      --font-display: 'Sora', 'Noto Sans JP', sans-serif;
+      --font-body: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-jp: 'Noto Sans JP', sans-serif;
+
+      --transition-theme: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #FAFBFC;
+      --bg-secondary: #FFFFFF;
+      --bg-hover: #F0F4F8;
+      --bg-grid: rgba(0, 119, 190, 0.04);
+      --text-primary: #1A2332;
+      --text-secondary: #4A5568;
+      --text-tertiary: #8896A6;
+      --border-color: #E2E8F0;
+      --border-subtle: #EDF2F7;
+      --shark: var(--shark-500);
+      --shark-glow: rgba(0, 119, 190, 0.12);
+      --shark-tag-bg: var(--shark-50);
+      --shark-tag-border: var(--shark-300);
+      --shark-tag-text: var(--shark-600);
+      --nav-bg: rgba(250, 251, 252, 0.85);
+      --toggle-bg: #E2E8F0;
+      --toggle-knob: #FFFFFF;
+      --code-bg: #1E2533;
+      --code-text: #E8EDF2;
+      --code-header: #161C27;
+      --prompt-bg: #F0F8FE;
+      --prompt-border: var(--shark-300);
+      --prompt-text: var(--text-primary);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0F1419;
+      --bg-secondary: #1A2332;
+      --bg-hover: #243044;
+      --bg-grid: rgba(0, 168, 232, 0.03);
+      --text-primary: #E8EDF2;
+      --text-secondary: #A0AEC0;
+      --text-tertiary: #6B7C93;
+      --border-color: #2D3F56;
+      --border-subtle: #1E2D40;
+      --shark: #00A8E8;
+      --shark-glow: rgba(0, 168, 232, 0.15);
+      --shark-tag-bg: rgba(0, 168, 232, 0.12);
+      --shark-tag-border: rgba(0, 168, 232, 0.3);
+      --shark-tag-text: #33AAEF;
+      --nav-bg: rgba(15, 20, 25, 0.88);
+      --toggle-bg: #2D3F56;
+      --toggle-knob: #E8EDF2;
+      --code-bg: #0D1117;
+      --code-text: #C9D1D9;
+      --code-header: #090D13;
+      --prompt-bg: rgba(0, 168, 232, 0.08);
+      --prompt-border: rgba(0, 168, 232, 0.4);
+      --prompt-text: var(--text-primary);
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color var(--transition-theme), color var(--transition-theme);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       Navigation (identical to homepage)
+       ═══════════════════════════════════════════ */
+
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: blur(16px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .nav__inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav__left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav__back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav__back:hover {
+      color: var(--shark);
+    }
+
+    .nav__back svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .nav__sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border-color);
+      transition: background var(--transition-theme);
+    }
+
+    .nav__logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      transition: color var(--transition-theme);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav__logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--shark);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: background var(--transition-theme);
+    }
+
+    .nav__controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lang-switch {
+      display: flex;
+      align-items: center;
+      background: var(--toggle-bg);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+      transition: background var(--transition-theme);
+    }
+
+    .lang-switch__btn {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-tertiary);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .lang-switch__btn.active {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 28px;
+      background: var(--toggle-bg);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: background var(--transition-theme);
+      flex-shrink: 0;
+    }
+
+    .theme-toggle__knob {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      background: var(--toggle-knob);
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background var(--transition-theme);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-toggle__knob svg {
+      width: 12px;
+      height: 12px;
+      transition: opacity 0.2s ease;
+    }
+
+    .theme-toggle__knob .icon-sun { display: block; }
+    .theme-toggle__knob .icon-moon { display: none; }
+    [data-theme="dark"] .theme-toggle__knob { transform: translateX(16px); }
+    [data-theme="dark"] .theme-toggle__knob .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle__knob .icon-moon { display: block; }
+
+    /* ═══════════════════════════════════════════
+       Post Layout
+       ═══════════════════════════════════════════ */
+
+    .post {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 88px 24px 80px;
+    }
+
+    /* ─── Post Header ─── */
+    .post__header {
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .post__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      transition: color var(--transition-theme);
+    }
+
+    .post__meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--shark-tag-bg);
+      border: 1px solid var(--shark-tag-border);
+      color: var(--shark-tag-text);
+      transition: all var(--transition-theme);
+      white-space: nowrap;
+    }
+
+    .post__date {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      transition: color var(--transition-theme);
+    }
+
+    /* ─── Video Embed ─── */
+    .post__video {
+      margin-bottom: 28px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--code-bg);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .post__video-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+    }
+
+    .post__video-wrap iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Placeholder for when no video URL is set */
+    .post__video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .post__video-placeholder svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.4;
+    }
+
+    .post__video-placeholder span {
+      font-size: 0.85rem;
+      opacity: 0.5;
+    }
+
+    /* ─── Links & Resources ─── */
+    .post__links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.15s forwards;
+    }
+
+    .post__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--shark);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--shark-tag-border);
+      background: var(--shark-tag-bg);
+      transition: all 0.2s ease;
+    }
+
+    .post__link:hover {
+      background: var(--shark);
+      color: #FFFFFF;
+      border-color: var(--shark);
+    }
+
+    .post__link svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* ═══════════════════════════════════════════
+       Post Content (Markdown-rendered styles)
+       ═══════════════════════════════════════════ */
+
+    .post__content {
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .post__content h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-top: 40px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: color var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .post__content h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      margin-top: 28px;
+      margin-bottom: 12px;
+      transition: color var(--transition-theme);
+    }
+
+    .post__content p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      transition: color var(--transition-theme);
+    }
+
+    .post__content a {
+      color: var(--shark);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-color: var(--shark-tag-border);
+      transition: text-decoration-color 0.2s ease;
+    }
+
+    .post__content a:hover {
+      text-decoration-color: var(--shark);
+    }
+
+    .post__content strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .post__content ul,
+    .post__content ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .post__content li {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      transition: color var(--transition-theme);
+    }
+
+    .post__content li::marker {
+      color: var(--shark);
+    }
+
+    /* Inline code */
+    .post__content code:not(pre code) {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border-subtle);
+      color: var(--shark-tag-text);
+      transition: all var(--transition-theme);
+    }
+
+    /* ─── Code Blocks ─── */
+    .code-block {
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      transition: border-color var(--transition-theme);
+    }
+
+    .code-block__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: var(--code-header);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .code-block__lang {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .code-block__copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--shark-tag-text);
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .code-block__copy:hover {
+      background: var(--shark);
+      color: #FFFFFF;
+      border-color: var(--shark);
+    }
+
+    .code-block__copy.copied {
+      background: #2ea043;
+      color: #FFFFFF;
+      border-color: #2ea043;
+    }
+
+    .code-block__copy svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .code-block pre {
+      padding: 16px;
+      background: var(--code-bg);
+      overflow-x: auto;
+      transition: background var(--transition-theme);
+    }
+
+    .code-block pre code {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--code-text);
+      tab-size: 4;
+    }
+
+    /* Syntax highlighting tokens */
+    .tok-keyword { color: #FF7B72; }
+    .tok-string { color: #A5D6FF; }
+    .tok-comment { color: #6B7C93; font-style: italic; }
+    .tok-function { color: #D2A8FF; }
+    .tok-number { color: #79C0FF; }
+    .tok-builtin { color: #FFA657; }
+    .tok-variable { color: #FFA657; }
+    .tok-operator { color: #FF7B72; }
+
+    /* ─── LLM Prompt Box ─── */
+    .prompt-box {
+      margin: 24px 0;
+      border-radius: 10px;
+      border: 1px solid var(--prompt-border);
+      border-left: 4px solid var(--shark);
+      background: var(--prompt-bg);
+      overflow: hidden;
+      transition: all var(--transition-theme);
+    }
+
+    .prompt-box__header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--prompt-border);
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--shark);
+    }
+
+    .prompt-box__header svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .prompt-box__content {
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: var(--prompt-text);
+      white-space: pre-wrap;
+    }
+
+    .prompt-box__copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--shark-tag-text);
+      background: transparent;
+      border: 1px solid var(--shark-tag-border);
+      border-radius: 5px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .prompt-box__copy:hover {
+      background: var(--shark);
+      color: #FFFFFF;
+      border-color: var(--shark);
+    }
+
+    .prompt-box__copy.copied {
+      background: #2ea043;
+      color: #FFFFFF;
+      border-color: #2ea043;
+    }
+
+    .prompt-box__copy svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    /* ─── Blockquotes ─── */
+    .post__content blockquote {
+      margin: 20px 0;
+      padding: 12px 20px;
+      border-left: 3px solid var(--border-color);
+      background: var(--bg-hover);
+      border-radius: 0 8px 8px 0;
+      transition: all var(--transition-theme);
+    }
+
+    .post__content blockquote p {
+      font-size: 0.9rem;
+      color: var(--text-tertiary);
+      margin-bottom: 0;
+    }
+
+    /* ─── Horizontal Rule ─── */
+    .post__content hr {
+      border: none;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 36px 0;
+      transition: background var(--transition-theme);
+    }
+
+    /* ═══════════════════════════════════════════
+       Footer
+       ═══════════════════════════════════════════ */
+
+    .footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border-subtle);
+      padding: 32px 24px;
+      text-align: center;
+      transition: border-color var(--transition-theme);
+    }
+
+    .footer__text {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      transition: color var(--transition-theme);
+    }
+
+    .footer__text a {
+      color: var(--shark);
+      text-decoration: none;
+    }
+
+    .footer__text a:hover {
+      text-decoration: underline;
+    }
+
+    /* ═══════════════════════════════════════════
+       Animations
+       ═══════════════════════════════════════════ */
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       Responsive
+       ═══════════════════════════════════════════ */
+
+    @media (max-width: 640px) {
+      .nav__inner {
+        padding: 0 16px;
+        height: 52px;
+      }
+
+      .nav__logo-text { display: none; }
+      .nav__sep { display: none; }
+
+      .post {
+        padding: 80px 16px 64px;
+      }
+
+      .post__title {
+        font-size: 1.5rem;
+      }
+
+      .post__links {
+        flex-direction: column;
+      }
+
+      .post__link {
+        justify-content: center;
+      }
+
+      .code-block pre {
+        padding: 12px;
+      }
+
+      .code-block pre code {
+        font-size: 0.76rem;
+      }
+
+      .lang-switch__btn {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+      }
+    }
+
+    /* ─── Language display ─── */
+    [data-lang="ja"] .ja { display: inline; }
+    [data-lang="ja"] .en { display: none; }
+    [data-lang="en"] .ja { display: none; }
+    [data-lang="en"] .en { display: inline; }
+
+    [data-lang="ja"] .ja-block { display: block; }
+    [data-lang="ja"] .en-block { display: none; }
+    [data-lang="en"] .ja-block { display: none; }
+    [data-lang="en"] .en-block { display: block; }
+
+    [data-lang="ja"] .ja-flex { display: flex; }
+    [data-lang="ja"] .en-flex { display: none; }
+    [data-lang="en"] .ja-flex { display: none; }
+    [data-lang="en"] .en-flex { display: flex; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ Navigation ═══ -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <div class="nav__left">
+        <a href="index-draft.html" class="nav__back" aria-label="Back to tutorials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5m7-7-7 7 7 7"/>
+          </svg>
+          <span class="en">All Tutorials</span>
+          <span class="ja">すべてのチュートリアル</span>
+        </a>
+        <div class="nav__sep" aria-hidden="true"></div>
+        <a href="index-draft.html" class="nav__logo" aria-label="ASHBi Coding Tutorials Home">
+          <div class="nav__logo-mark">A</div>
+          <span class="nav__logo-text">
+            <span class="en">ASHBi Tutorials</span>
+            <span class="ja">ASHBi チュートリアル</span>
+          </span>
+        </a>
+      </div>
+      <div class="nav__controls">
+        <div class="lang-switch" role="group" aria-label="Language switcher">
+          <button class="lang-switch__btn active" data-lang-btn="en" aria-label="English">EN</button>
+          <button class="lang-switch__btn" data-lang-btn="ja" aria-label="Japanese">JA</button>
+        </div>
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+          <div class="theme-toggle__knob">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ Post Content ═══ -->
+  <article class="post">
+
+    <!-- Post Header -->
+    <header class="post__header">
+      <h1 class="post__title">
+        <span class="en-block">Getting Started with Python for Bioinformatics</span>
+        <span class="ja-block">バイオインフォマティクスのためのPython入門</span>
+      </h1>
+      <div class="post__meta-row">
+        <span class="tag">python</span>
+        <span class="tag">bioinformatics</span>
+        <span class="tag">beginner</span>
+        <span class="post__date">
+          <span class="en">Updated: April 2026</span>
+          <span class="ja">更新: 2026年4月</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Video Embed -->
+    <div class="post__video">
+      <div class="post__video-wrap">
+        <!-- Replace src with actual YouTube/Vimeo embed URL -->
+        <!-- <iframe src="https://www.youtube.com/embed/VIDEO_ID" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+        <div class="post__video-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5,3 19,12 5,21" fill="currentColor" opacity="0.3"/>
+          </svg>
+          <span>Video embed placeholder</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Links & Resources -->
+    <div class="post__links">
+      <a href="#" class="post__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+        </svg>
+        <span class="en">GitHub Repository</span>
+        <span class="ja">GitHubリポジトリ</span>
+      </a>
+      <a href="#" class="post__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        <span class="en">Biopython Documentation</span>
+        <span class="ja">Biopython ドキュメント</span>
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="post__content">
+      <div class="en-block">
+        <h2>Introduction</h2>
+        <p>This tutorial will walk you through setting up Python for bioinformatics research. We'll cover the essential libraries, how to read and manipulate biological sequence data, and how to perform basic analyses that are common in computational biology workflows at ASHBi.</p>
+        <p>By the end, you'll have a working environment with <code>Biopython</code>, <code>pandas</code>, and <code>matplotlib</code> ready for your research.</p>
+
+        <h2>Setting Up Your Environment</h2>
+        <p>First, let's create a dedicated conda environment for this tutorial. Using isolated environments is a best practice that prevents dependency conflicts between projects.</p>
+      </div>
+      <div class="ja-block">
+        <h2>はじめに</h2>
+        <p>このチュートリアルでは、バイオインフォマティクス研究のためのPython環境のセットアップを解説します。必須ライブラリの導入、生物学的配列データの読み込みと操作、そしてASHBiでの計算生物学ワークフローで一般的な基本的な分析方法をカバーします。</p>
+        <p>チュートリアル終了時には、<code>Biopython</code>、<code>pandas</code>、<code>matplotlib</code>が使える研究環境が整います。</p>
+
+        <h2>環境のセットアップ</h2>
+        <p>まず、このチュートリアル用の専用conda環境を作成しましょう。環境を分離することは、プロジェクト間の依存関係の競合を防ぐベストプラクティスです。</p>
+      </div>
+
+      <!-- Code Block with copy -->
+      <div class="code-block">
+        <div class="code-block__header">
+          <span class="code-block__lang">bash</span>
+          <button class="code-block__copy" onclick="copyCode(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="en">Copy</span><span class="ja">コピー</span>
+          </button>
+        </div>
+        <pre><code><span class="tok-comment"># Create a new environment</span>
+conda create -n bioinfo python=<span class="tok-number">3.11</span>
+conda activate bioinfo
+
+<span class="tok-comment"># Install essential packages</span>
+pip install biopython pandas matplotlib seaborn</code></pre>
+      </div>
+
+      <div class="en-block">
+        <h2>Reading Sequence Data</h2>
+        <p>Biopython's <code>SeqIO</code> module is the standard way to read biological sequence files. It supports FASTA, GenBank, and many other formats.</p>
+      </div>
+      <div class="ja-block">
+        <h2>配列データの読み込み</h2>
+        <p>Biopythonの<code>SeqIO</code>モジュールは、生物学的配列ファイルを読み込む標準的な方法です。FASTA、GenBankなど多くのフォーマットに対応しています。</p>
+      </div>
+
+      <!-- Code Block -->
+      <div class="code-block">
+        <div class="code-block__header">
+          <span class="code-block__lang">python</span>
+          <button class="code-block__copy" onclick="copyCode(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="en">Copy</span><span class="ja">コピー</span>
+          </button>
+        </div>
+        <pre><code><span class="tok-keyword">from</span> Bio <span class="tok-keyword">import</span> SeqIO
+
+<span class="tok-comment"># Read a FASTA file</span>
+records = []
+<span class="tok-keyword">for</span> record <span class="tok-keyword">in</span> SeqIO.<span class="tok-function">parse</span>(<span class="tok-string">"sequences.fasta"</span>, <span class="tok-string">"fasta"</span>):
+    <span class="tok-builtin">print</span>(<span class="tok-string">f"ID: </span>{record.id}<span class="tok-string">, Length: </span>{<span class="tok-builtin">len</span>(record.seq)}<span class="tok-string">"</span>)
+    records.<span class="tok-function">append</span>(record)
+
+<span class="tok-builtin">print</span>(<span class="tok-string">f"Total sequences: </span>{<span class="tok-builtin">len</span>(records)}<span class="tok-string">"</span>)</code></pre>
+      </div>
+
+      <div class="en-block">
+        <h3>Understanding the Output</h3>
+        <p>Each <code>SeqRecord</code> object contains the sequence ID, the actual sequence string, and optional annotations. This is the fundamental data structure you'll work with throughout your bioinformatics pipeline.</p>
+
+        <h2>Using AI to Accelerate Your Analysis</h2>
+        <p>Large language models can help you write and debug bioinformatics code. Here's an example prompt you can try:</p>
+      </div>
+      <div class="ja-block">
+        <h3>出力の理解</h3>
+        <p>各<code>SeqRecord</code>オブジェクトには、配列ID、実際の配列文字列、オプションのアノテーションが含まれます。これはバイオインフォマティクスパイプラインで使用する基本的なデータ構造です。</p>
+
+        <h2>AIを使って分析を加速する</h2>
+        <p>大規模言語モデルは、バイオインフォマティクスのコードの作成とデバッグに役立ちます。以下は試すことができるプロンプトの例です：</p>
+      </div>
+
+      <!-- LLM Prompt Box -->
+      <div class="prompt-box">
+        <div class="prompt-box__header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="en">Try this prompt</span>
+          <span class="ja">このプロンプトを試してみましょう</span>
+          <button class="prompt-box__copy" onclick="copyPrompt(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="en">Copy</span><span class="ja">コピー</span>
+          </button>
+        </div>
+        <div class="prompt-box__content">I have a FASTA file with protein sequences. Write a Python script using Biopython that:
+1. Reads all sequences from the file
+2. Calculates the molecular weight of each protein
+3. Identifies sequences longer than 500 amino acids
+4. Exports results to a CSV file with columns: ID, length, molecular_weight</div>
+      </div>
+
+      <div class="en-block">
+        <h2>Visualizing Your Results</h2>
+        <p>Let's create a quick visualization of sequence length distribution using <code>matplotlib</code> and <code>seaborn</code>:</p>
+      </div>
+      <div class="ja-block">
+        <h2>結果の可視化</h2>
+        <p><code>matplotlib</code>と<code>seaborn</code>を使って、配列長の分布を簡単に可視化してみましょう：</p>
+      </div>
+
+      <!-- Code Block -->
+      <div class="code-block">
+        <div class="code-block__header">
+          <span class="code-block__lang">python</span>
+          <button class="code-block__copy" onclick="copyCode(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="en">Copy</span><span class="ja">コピー</span>
+          </button>
+        </div>
+        <pre><code><span class="tok-keyword">import</span> matplotlib.pyplot <span class="tok-keyword">as</span> plt
+<span class="tok-keyword">import</span> seaborn <span class="tok-keyword">as</span> sns
+
+<span class="tok-comment"># Calculate lengths</span>
+lengths = [<span class="tok-builtin">len</span>(rec.seq) <span class="tok-keyword">for</span> rec <span class="tok-keyword">in</span> records]
+
+<span class="tok-comment"># Plot distribution</span>
+fig, ax = plt.<span class="tok-function">subplots</span>(figsize=(<span class="tok-number">10</span>, <span class="tok-number">5</span>))
+sns.<span class="tok-function">histplot</span>(lengths, bins=<span class="tok-number">50</span>, color=<span class="tok-string">"#0077BE"</span>, ax=ax)
+ax.<span class="tok-function">set_xlabel</span>(<span class="tok-string">"Sequence Length (bp)"</span>)
+ax.<span class="tok-function">set_ylabel</span>(<span class="tok-string">"Count"</span>)
+ax.<span class="tok-function">set_title</span>(<span class="tok-string">"Distribution of Sequence Lengths"</span>)
+plt.<span class="tok-function">tight_layout</span>()
+plt.<span class="tok-function">savefig</span>(<span class="tok-string">"length_distribution.png"</span>, dpi=<span class="tok-number">150</span>)
+plt.<span class="tok-function">show</span>()</code></pre>
+      </div>
+
+      <div class="en-block">
+        <blockquote>
+          <p><strong>Tip:</strong> Always use <code>tight_layout()</code> before saving figures to avoid label clipping, especially with Japanese text labels which may need more space.</p>
+        </blockquote>
+
+        <hr>
+
+        <h2>Next Steps</h2>
+        <p>Now that you have a working bioinformatics environment, you can:</p>
+        <ul>
+          <li>Explore the <strong>Pandas for Data Analysis</strong> tutorial for tabular data workflows</li>
+          <li>Try <strong>Cell Segmentation with napari</strong> if your work involves microscopy images</li>
+          <li>Check the <a href="#">Biopython cookbook</a> for more advanced recipes</li>
+        </ul>
+      </div>
+      <div class="ja-block">
+        <blockquote>
+          <p><strong>ヒント：</strong> 図を保存する前に必ず<code>tight_layout()</code>を使用してください。特に日本語のテキストラベルはより多くのスペースが必要な場合があります。</p>
+        </blockquote>
+
+        <hr>
+
+        <h2>次のステップ</h2>
+        <p>バイオインフォマティクス環境が整ったので、次のことができます：</p>
+        <ul>
+          <li>表形式データのワークフローについては<strong>Pandasによるデータ分析</strong>チュートリアルを参照</li>
+          <li>顕微鏡画像を扱う場合は<strong>napariによる細胞セグメンテーション</strong>を試す</li>
+          <li>より高度なレシピについては<a href="#">Biopython cookbook</a>を参照</li>
+        </ul>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- ═══ Footer ═══ -->
+  <footer class="footer">
+    <p class="footer__text">
+      <span class="en">&copy; 2026 ASHBi, Kyoto University &middot; <a href="https://ashbi.kyoto-u.ac.jp">ashbi.kyoto-u.ac.jp</a></span>
+      <span class="ja">&copy; 2026 ASHBi 京都大学 &middot; <a href="https://ashbi.kyoto-u.ac.jp">ashbi.kyoto-u.ac.jp</a></span>
+    </p>
+  </footer>
+
+  <!-- ═══ Scripts ═══ -->
+  <script>
+    // ─── Theme Toggle ───
+    const themeToggle = document.querySelector('.theme-toggle');
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem('ashbi-theme');
+    if (savedTheme) {
+      html.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      html.setAttribute('data-theme', 'dark');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('ashbi-theme', next);
+    });
+
+    // ─── Language Switcher ───
+    const langBtns = document.querySelectorAll('[data-lang-btn]');
+
+    const savedLang = localStorage.getItem('ashbi-lang');
+    if (savedLang) {
+      html.setAttribute('data-lang', savedLang);
+      langBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang-btn') === savedLang);
+      });
+    }
+
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang-btn');
+        html.setAttribute('data-lang', lang);
+        localStorage.setItem('ashbi-lang', lang);
+        langBtns.forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    // ─── Copy Code ───
+    function copyCode(button) {
+      const codeBlock = button.closest('.code-block');
+      const code = codeBlock.querySelector('pre code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        button.classList.add('copied');
+        const label = button.querySelector('.en, .ja');
+        const origEN = 'Copy';
+        const origJA = 'コピー';
+        button.querySelector('.en').textContent = 'Copied!';
+        button.querySelector('.ja').textContent = 'コピー済み';
+        setTimeout(() => {
+          button.classList.remove('copied');
+          button.querySelector('.en').textContent = origEN;
+          button.querySelector('.ja').textContent = origJA;
+        }, 2000);
+      });
+    }
+
+    // ─── Copy Prompt ───
+    function copyPrompt(button) {
+      const promptBox = button.closest('.prompt-box');
+      const text = promptBox.querySelector('.prompt-box__content').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        button.classList.add('copied');
+        button.querySelector('.en').textContent = 'Copied!';
+        button.querySelector('.ja').textContent = 'コピー済み';
+        setTimeout(() => {
+          button.classList.remove('copied');
+          button.querySelector('.en').textContent = 'Copy';
+          button.querySelector('.ja').textContent = 'コピー';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
