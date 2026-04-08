@@ -3,7 +3,9 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import TutorialCard from '$lib/components/TutorialCard.svelte';
 	import { t } from '$lib/stores/lang.svelte';
-	import { tutorials } from '$lib/data/tutorials';
+	import { getAllTutorials } from '$lib/data/markdown';
+
+	const tutorials = getAllTutorials();
 </script>
 
 <svelte:head>

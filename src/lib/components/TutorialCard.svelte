@@ -1,31 +1,32 @@
 <script lang="ts">
 	import Tag from './Tag.svelte';
-	import { t } from '$lib/stores/lang.svelte';
-	import type { Tutorial } from '$lib/data/types';
+	import { langStore, t } from '$lib/stores/lang.svelte';
+	import type { Tutorial } from '$lib/data/markdown';
 
 	interface Props {
 		tutorial: Tutorial;
 	}
 
 	let { tutorial }: Props = $props();
+	let meta = $derived(tutorial.getMeta(langStore.current));
 </script>
 
 <a href="/tutorials/{tutorial.slug}" class="card">
 	<div class="card__image">
 		<svg viewBox="0 0 120 120" fill="none">
-			{#if tutorial.tags.includes('bioinformatics') && tutorial.tags.includes('python')}
+			{#if meta.tags.includes('bioinformatics') && meta.tags.includes('python')}
 				<rect x="15" y="30" width="90" height="60" rx="4" stroke="currentColor" stroke-width="2" />
 				<polygon points="50,45 50,75 78,60" fill="currentColor" opacity="0.6" />
-			{:else if tutorial.tags.includes('data-analysis')}
+			{:else if meta.tags.includes('data-analysis')}
 				<rect x="20" y="25" width="35" height="70" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
 				<rect x="65" y="40" width="35" height="55" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
 				<rect x="42" y="50" width="35" height="45" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.7" />
 				<line x1="15" y1="95" x2="105" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
-			{:else if tutorial.tags.includes('image-analysis')}
+			{:else if meta.tags.includes('image-analysis')}
 				<rect x="25" y="25" width="70" height="70" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
 				<circle cx="50" cy="55" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.6" />
 				<circle cx="72" cy="65" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
-			{:else if tutorial.tags.includes('RNA-seq')}
+			{:else if meta.tags.includes('RNA-seq')}
 				<path d="M30 90 L40 50 L55 70 L70 35 L85 55 L95 30" stroke="currentColor" stroke-width="2" opacity="0.6" stroke-linecap="round" stroke-linejoin="round" />
 				<line x1="25" y1="95" x2="100" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
 				<line x1="25" y1="25" x2="25" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
@@ -38,14 +39,14 @@
 		</svg>
 	</div>
 	<div class="card__content">
-		<h3 class="card__title">{t(tutorial.title)}</h3>
+		<h3 class="card__title">{meta.title}</h3>
 		<div class="card__tags">
-			{#each tutorial.tags as tag}
+			{#each meta.tags as tag}
 				<Tag label={tag} />
 			{/each}
 		</div>
 		<div class="card__meta">
-			{#if tutorial.hasVideo}
+			{#if meta.hasVideo}
 				<span class="badge-video">
 					<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21" /></svg>
 					{t({ en: 'video', ja: '動画' })}
@@ -56,16 +57,16 @@
 					{t({ en: 'code only', ja: 'コードのみ' })}
 				</span>
 			{/if}
-			{#if tutorial.durationMinutes}
+			{#if meta.duration}
 				<span>
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-					{tutorial.hasVideo
-						? t({ en: `${tutorial.durationMinutes} min`, ja: `${tutorial.durationMinutes}分` })
-						: t({ en: `${tutorial.durationMinutes} min read`, ja: `${tutorial.durationMinutes}分で読める` })}
+					{meta.hasVideo
+						? t({ en: `${meta.duration} min`, ja: `${meta.duration}分` })
+						: t({ en: `${meta.duration} min read`, ja: `${meta.duration}分で読める` })}
 				</span>
 			{/if}
 			<span>
-				{t({ en: `Updated: ${tutorial.updatedDate}`, ja: `更新: ${tutorial.updatedDate}` })}
+				{t({ en: `Updated: ${meta.updated}`, ja: `更新: ${meta.updated}` })}
 			</span>
 		</div>
 	</div>
