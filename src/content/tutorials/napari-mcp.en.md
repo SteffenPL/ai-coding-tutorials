@@ -5,6 +5,7 @@ updated: "2026-04"
 duration: 15
 hasVideo: true
 videoUrl: videos/napari-mcp.mp4
+thumbnail: images/napari-mcp-thumb.png
 githubUrl: https://github.com/ashbi-kyoto/napari-mcp
 links:
   - label: napari Documentation

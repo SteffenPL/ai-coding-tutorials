@@ -76,6 +76,7 @@ export interface TutorialMeta {
 	duration?: number;
 	hasVideo: boolean;
 	videoUrl?: string;
+	thumbnail?: string;
 	githubUrl?: string;
 	links?: { label: string; url: string }[];
 }
@@ -87,6 +88,7 @@ interface RawFrontmatter {
 	duration?: number;
 	hasVideo?: boolean;
 	videoUrl?: string;
+	thumbnail?: string;
 	githubUrl?: string;
 	links?: { label: string; url: string }[];
 }
@@ -162,6 +164,7 @@ export function getAllTutorials(): Tutorial[] {
 			duration: enMeta.duration,
 			hasVideo: enMeta.hasVideo ?? false,
 			videoUrl: enMeta.videoUrl,
+			thumbnail: enMeta.thumbnail,
 			githubUrl: enMeta.githubUrl,
 			links: enMeta.links
 		};

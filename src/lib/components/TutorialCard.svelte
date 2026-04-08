@@ -14,30 +14,15 @@
 
 <a href="{base}/tutorials/{tutorial.slug}" class="card">
 	<div class="card__image">
-		<svg viewBox="0 0 120 120" fill="none">
-			{#if meta.tags.includes('bioinformatics') && meta.tags.includes('python')}
-				<rect x="15" y="30" width="90" height="60" rx="4" stroke="currentColor" stroke-width="2" />
-				<polygon points="50,45 50,75 78,60" fill="currentColor" opacity="0.6" />
-			{:else if meta.tags.includes('data-analysis')}
-				<rect x="20" y="25" width="35" height="70" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
-				<rect x="65" y="40" width="35" height="55" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
-				<rect x="42" y="50" width="35" height="45" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.7" />
-				<line x1="15" y1="95" x2="105" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
-			{:else if meta.tags.includes('image-analysis')}
-				<rect x="25" y="25" width="70" height="70" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
-				<circle cx="50" cy="55" r="15" stroke="currentColor" stroke-width="1.5" opacity="0.6" />
-				<circle cx="72" cy="65" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
-			{:else if meta.tags.includes('RNA-seq')}
-				<path d="M30 90 L40 50 L55 70 L70 35 L85 55 L95 30" stroke="currentColor" stroke-width="2" opacity="0.6" stroke-linecap="round" stroke-linejoin="round" />
-				<line x1="25" y1="95" x2="100" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
-				<line x1="25" y1="25" x2="25" y2="95" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
-				<circle cx="70" cy="35" r="3" fill="currentColor" opacity="0.4" />
-			{:else}
+		{#if meta.thumbnail}
+			<img src="{base}/{meta.thumbnail}" alt={meta.title} />
+		{:else}
+			<svg viewBox="0 0 120 120" fill="none">
 				<rect x="20" y="30" width="80" height="50" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
 				<path d="M35 62 L45 55 L35 48" stroke="currentColor" stroke-width="1.5" opacity="0.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
 				<line x1="50" y1="62" x2="75" y2="62" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
-			{/if}
-		</svg>
+			</svg>
+		{/if}
 	</div>
 	<div class="card__content">
 		<h3 class="card__title">{meta.title}</h3>
@@ -100,7 +85,7 @@
 
 	.card__image {
 		width: 130px;
-		min-height: 100px;
+		height: 130px;
 		border-radius: 8px;
 		overflow: hidden;
 		flex-shrink: 0;
@@ -109,6 +94,12 @@
 		align-items: center;
 		justify-content: center;
 		transition: background var(--transition-theme);
+	}
+
+	.card__image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.card__image svg {
@@ -197,15 +188,14 @@
 
 		.card__image {
 			width: 100%;
-			min-height: 140px;
-			max-height: 180px;
+			height: 200px;
 		}
 	}
 
 	@media (min-width: 641px) and (max-width: 900px) {
 		.card__image {
 			width: 110px;
-			min-height: 90px;
+			height: 110px;
 		}
 	}
 </style>
