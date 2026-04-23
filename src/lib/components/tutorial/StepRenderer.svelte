@@ -135,15 +135,15 @@
 
 {:else if step.type === 'assistant'}
 	<div class="assistant-block" class:final={step.final}>
-		{#if showClaudeLabel}
-			<div class="assistant-label">Claude</div>
-		{/if}
-		<div class="assistant-text">
-			{@html formatAssistantHtml(step.html)}
+		<span class="assistant-dot" class:final-dot={step.final}>●</span>
+		<div class="assistant-content">
+			<div class="assistant-text">
+				{@html formatAssistantHtml(step.html)}
+			</div>
+			{#if isLast}
+				<span class="cursor"></span>
+			{/if}
 		</div>
-		{#if isLast}
-			<span class="cursor"></span>
-		{/if}
 	</div>
 
 {:else if step.type === 'thinking'}
@@ -236,7 +236,7 @@
 
 {:else if step.type === 'status'}
 	<div class="status-badge" class:success={step.variant === 'success'} class:info={step.variant === 'info'} class:warning={step.variant === 'warning'} class:error={step.variant === 'error'}>
-		{step.text}
+		<span class="status-marker">✱</span> {step.text}
 	</div>
 
 {:else if step.type === 'window'}
@@ -319,26 +319,43 @@
 
 	/* ── Assistant messages (default: plain) ── */
 	.assistant-block {
-		margin: 12px 0;
-		padding: 10px 14px;
-		border-left: 3px solid transparent;
-		border-radius: 0 6px 6px 0;
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		margin: 16px 0;
+		padding: 0;
+	}
+
+	.assistant-dot {
+		flex-shrink: 0;
+		color: var(--text-tertiary);
+		font-size: 10px;
+		line-height: 1.95;
+		user-select: none;
+		width: 14px;
+		text-align: center;
+	}
+
+	.assistant-dot.final-dot {
+		color: var(--teal);
+	}
+
+	.assistant-content {
+		flex: 1;
+		min-width: 0;
 	}
 
 	/* ── Final answer: highlighted with teal ── */
 	.assistant-block.final {
-		background: rgba(112, 200, 184, 0.14);
-		border-left-color: var(--teal);
-		border-left-width: 4px;
+		padding: 10px 14px 10px 0;
+		border-left: 3px solid var(--teal);
+		padding-left: 10px;
+		background: rgba(112, 200, 184, 0.06);
+		border-radius: 0 4px 4px 0;
 	}
 
-	.assistant-label {
-		color: var(--text-secondary);
-		font-weight: 700;
-		font-size: 11px;
-		letter-spacing: 1px;
-		text-transform: uppercase;
-		margin-bottom: 8px;
+	.assistant-block.final .assistant-dot {
+		margin-left: -2px;
 	}
 
 	.assistant-text {
@@ -471,10 +488,11 @@
 
 	/* ── Tool calls + results ── */
 	.tool-call {
-		border-left: 3px solid var(--peach);
+		border-left: 2px solid var(--peach);
 		border-radius: 0;
-		padding: 8px 14px;
-		margin: 8px 0;
+		padding: 6px 14px;
+		margin: 6px 0;
+		margin-left: 4px;
 		font-size: 12px;
 		overflow: hidden;
 		transition: background 0.15s;
@@ -577,10 +595,9 @@
 		border-left: 2px solid var(--border-subtle);
 		border-radius: 0;
 		padding: 6px 14px;
-		margin: 4px 0 8px 0;
+		margin: 2px 0 6px 4px;
 		font-size: 11px;
 		color: var(--text-secondary);
-		background: rgba(255, 255, 255, 0.015);
 		overflow: hidden;
 	}
 
@@ -595,10 +612,11 @@
 
 	/* ── Thinking ── */
 	.thinking-block {
-		margin: 8px 0;
-		border-left: 3px solid var(--mauve);
-		border-radius: 0 6px 6px 0;
-		background: rgba(122, 69, 104, 0.1);
+		margin: 6px 0;
+		margin-left: 4px;
+		border-left: 2px solid var(--mauve);
+		border-radius: 0;
+		background: rgba(122, 69, 104, 0.06);
 	}
 
 	.thinking-summary {
@@ -691,11 +709,12 @@
 
 	/* ── Permission request ── */
 	.permission-block {
-		margin: 8px 0;
-		border: 1px solid rgba(233, 84, 32, 0.25);
-		border-radius: 6px;
-		padding: 8px 12px;
-		background: rgba(233, 84, 32, 0.05);
+		margin: 6px 0;
+		margin-left: 4px;
+		border-left: 2px solid var(--orange-300);
+		border-radius: 0;
+		padding: 6px 12px;
+		background: rgba(233, 84, 32, 0.04);
 	}
 
 	.permission-header {
@@ -740,6 +759,7 @@
 	.output-block {
 		margin: 4px 0;
 		padding: 6px 14px;
+		margin-left: 4px;
 		font-size: 12px;
 	}
 
@@ -761,20 +781,23 @@
 	.status-badge {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		margin: 8px 0;
-		padding: 4px 12px;
-		font-size: 11px;
-		font-weight: 500;
-		border-radius: 12px;
-		background: rgba(255, 255, 255, 0.04);
+		gap: 4px;
+		margin: 10px 0;
+		padding: 0;
+		font-size: 12px;
+		font-weight: 400;
+		font-family: var(--font-mono);
 		color: var(--text-tertiary);
 	}
 
-	.status-badge.success { color: var(--green); background: rgba(112, 200, 184, 0.08); }
-	.status-badge.info    { color: var(--mauve); background: rgba(180, 140, 200, 0.08); }
-	.status-badge.warning { color: var(--orange-300); background: rgba(233, 84, 32, 0.08); }
-	.status-badge.error   { color: var(--red); background: rgba(200, 60, 60, 0.10); }
+	.status-marker {
+		font-size: 11px;
+	}
+
+	.status-badge.success { color: var(--green); }
+	.status-badge.info    { color: var(--mauve); }
+	.status-badge.warning { color: var(--orange-300); }
+	.status-badge.error   { color: var(--red); }
 
 	/* ── Table ── */
 	.results-table {
@@ -830,7 +853,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		margin: 8px 0;
+		margin: 6px 0 6px 4px;
 		padding: 8px 14px;
 		background: none;
 		border: none;

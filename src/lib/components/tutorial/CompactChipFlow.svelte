@@ -94,7 +94,7 @@
 		gap: 8px;
 		width: 100%;
 		padding: 5px 14px;
-		margin: 4px 0;
+		margin: 6px 0 6px 4px;
 		background: none;
 		border: none;
 		border-left: 2px solid var(--border-subtle);
@@ -140,6 +140,7 @@
 		flex-wrap: wrap;
 		gap: 5px;
 		padding: 4px 0;
+		margin-left: 6px;
 	}
 
 	.chip {

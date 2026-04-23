@@ -326,13 +326,19 @@
 		display: flex;
 		align-items: flex-start;
 		gap: 10px;
-		padding: 12px 20px;
-		background: rgba(233, 84, 32, 0.14);
+		padding: 14px 20px;
+		margin-top: 20px;
+		background: rgba(233, 84, 32, 0.11);
 		border-right: 3px solid var(--accent);
 		border-radius: 6px 0 0 6px;
 		font-family: var(--font-mono);
 		font-size: 13px;
 		line-height: 1.65;
+	}
+
+	/* First prompt in transcript: no top margin */
+	.round-block:first-child .prompt-block {
+		margin-top: 0;
 	}
 
 	.prompt-chevron {
@@ -345,7 +351,8 @@
 	}
 
 	.prompt-text {
-		color: var(--text-secondary);
+		color: var(--text-primary);
+		font-weight: 500;
 	}
 
 	/* ── Terminal-round prompt variant ── */
