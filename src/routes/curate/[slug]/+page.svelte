@@ -5,7 +5,7 @@
 	import { sessionViewToTraceState, resetStepFromSource } from '$lib/trace/convert';
 	import Nav from '$lib/components/Nav.svelte';
 	import UnifiedTracePanel from '$lib/curate/components/UnifiedTracePanel.svelte';
-	import EditDrawer from '$lib/curate/components/EditDrawer.svelte';
+	import StepEditorModal from '$lib/curate/components/StepEditorModal.svelte';
 	import { onMount } from 'svelte';
 
 	let { data }: PageProps = $props();
@@ -404,7 +404,7 @@
 	</main>
 
 	{#if editingStep && editStep}
-		<EditDrawer
+		<StepEditorModal
 			{editStep}
 			{editingStep}
 			slug={data.slug}
