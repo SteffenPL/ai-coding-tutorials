@@ -89,7 +89,8 @@
 		result = result.replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>');
 		result = result.replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
 
-		// Block-level: heading lines (# ... at start of line)
+		// Block-level: heading lines (# … #### at start of line)
+		result = result.replace(/(^|\n)#{4}\s+(.+)/g, '$1<strong>$2</strong>');
 		result = result.replace(/(^|\n)#{1,3}\s+(.+)/g, '$1<span class="md-heading">$2</span>');
 
 		// Decorative rules: lines that are all ─ or ═ or — (≥3 chars)
