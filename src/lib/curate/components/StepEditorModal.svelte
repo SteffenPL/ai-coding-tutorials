@@ -1,10 +1,13 @@
 <script lang="ts">
 	import type { TraceStep } from '$lib/trace/types';
 	import type { Step, WindowStep } from '$lib/data/tutorials';
+	import { getWindowIcon } from '$lib/data/tutorials';
 	import { traceStepToTutorialStep } from '$lib/trace/convert';
 	import { rewriteContent } from '$lib/compose/resolve';
 	import { stepLabel } from './step-helpers';
 	import StepRenderer from '$lib/components/tutorial/StepRenderer.svelte';
+	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
+	import WindowContent from '$lib/components/windows/WindowContent.svelte';
 	import AssetPickerDialog from '$lib/components/AssetPickerDialog.svelte';
 
 	let {
@@ -109,7 +112,35 @@
 							: editStep.comment?.en ?? ''}
 						oninput={(e) => {
 							const val = (e.target as HTMLTextAreaElement).value;
-							editStep.comment = val || undefined;
+							if (!val) {
+								editStep.comment = undefined;
+							} else {
+								const ja = typeof editStep.comment === 'object' ? editStep.comment?.ja : undefined;
+								editStep.comment = ja ? { en: val, ja } : val;
+							}
+							bumpPreview();
+						}}
+					></textarea>
+				</label>
+				<label class="field">
+					<span class="field-label">Comment (JA) <span class="optional-tag">optional</span></span>
+					<textarea
+						rows="3"
+						value={typeof editStep.comment === 'object'
+							? editStep.comment?.ja ?? ''
+							: ''}
+						oninput={(e) => {
+							const ja = (e.target as HTMLTextAreaElement).value;
+							const en = typeof editStep.comment === 'string'
+								? editStep.comment
+								: (typeof editStep.comment === 'object' ? editStep.comment?.en : '') ?? '';
+							if (!en && !ja) {
+								editStep.comment = undefined;
+							} else if (ja) {
+								editStep.comment = { en, ja };
+							} else {
+								editStep.comment = en || undefined;
+							}
 							bumpPreview();
 						}}
 					></textarea>
@@ -128,6 +159,16 @@
 								isLast={false}
 								onFocusWindow={noopFocus}
 							/>
+							{#if previewStep.type === 'window' && !previewStep.compact}
+								<div class="preview-window">
+									<WindowChrome
+										title={previewStep.windowTitle}
+										subtitle={previewStep.subtitle}
+										icon={previewStep.icon ?? getWindowIcon(previewStep.content)}
+									/>
+									<WindowContent content={previewStep.content} />
+								</div>
+							{/if}
 						{/key}
 					{:else}
 						<div class="preview-empty">No preview available</div>
@@ -487,6 +528,30 @@
 		padding: 2rem;
 	}
 
+	.preview-window {
+		margin-top: 12px;
+		border: 1px solid var(--border-subtle);
+		border-radius: 10px;
+		overflow: hidden;
+		background: var(--bg-secondary);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+	}
+
+	.preview-window :global(img),
+	.preview-window :global(video) {
+		display: block;
+		max-width: 100%;
+		max-height: 40vh;
+		image-rendering: pixelated;
+		background: #000;
+	}
+
+	.preview-window :global(.source-body),
+	.preview-window :global(.markdown-body),
+	.preview-window :global(.folder-body) {
+		max-height: 40vh;
+	}
+
 	/* ─── Form elements ── */
 	.field {
 		display: flex;
@@ -500,6 +565,15 @@
 		color: var(--text-tertiary);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
+	}
+
+	.optional-tag {
+		font-size: 0.55rem;
+		color: var(--text-tertiary);
+		opacity: 0.6;
+		text-transform: lowercase;
+		letter-spacing: 0;
+		margin-left: 0.3rem;
 	}
 
 	.field input,
