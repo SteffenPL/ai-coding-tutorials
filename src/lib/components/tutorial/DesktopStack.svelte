@@ -232,13 +232,15 @@
 
 	.fiji-window {
 		position: absolute;
-		width: min(340px, 80%);
-		max-height: 100%;
+		bottom: 8px;
+		left: 8px;
+		width: min(440px, 85%);
+		max-height: calc(100% - 16px);
 		transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
 		            opacity 0.35s ease-out,
 		            filter 0.4s ease-out,
 		            box-shadow 0.3s ease-out;
-		transform-origin: center center;
+		transform-origin: bottom left;
 		opacity: 0;
 		transform: translateY(30px) scale(0.9);
 		pointer-events: none;
@@ -252,7 +254,7 @@
 		box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 	}
 
-	/* Stack depth — 0 is frontmost (flat), 3 is deepest (tilted back) */
+	/* Stack depth — 0 is frontmost (bottom-left), 3 is deepest (toward top-right) */
 	.fiji-window.stack-0 {
 		opacity: 1;
 		transform: translate(0, 0) scale(1);
@@ -262,7 +264,7 @@
 
 	.fiji-window.stack-1 {
 		opacity: 0.75;
-		transform: translate(50px, -35px) scale(0.93);
+		transform: translate(30px, -25px) scale(0.95);
 		z-index: 20;
 		filter: brightness(0.8);
 		box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
@@ -270,7 +272,7 @@
 
 	.fiji-window.stack-2 {
 		opacity: 0.5;
-		transform: translate(90px, -65px) scale(0.86);
+		transform: translate(55px, -45px) scale(0.90);
 		z-index: 10;
 		filter: brightness(0.65);
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
@@ -278,7 +280,7 @@
 
 	.fiji-window.stack-3 {
 		opacity: 0.3;
-		transform: translate(125px, -90px) scale(0.80);
+		transform: translate(75px, -60px) scale(0.85);
 		z-index: 5;
 		filter: brightness(0.5);
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
