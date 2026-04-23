@@ -4,6 +4,7 @@
 	import type { TutorialComposition, CompositionBlock, TraceBlock, HandAuthoredBlock } from '$lib/compose/types';
 	import type { Step, WindowContentData } from '$lib/data/tutorials';
 	import BlockSearchBar from '$lib/compose/BlockSearchBar.svelte';
+	import AssetUploadDialog from '$lib/components/AssetUploadDialog.svelte';
 
 	let { data } = $props();
 
@@ -22,6 +23,37 @@
 	let showExportConfirm = $state<string[] | null>(null);
 	let showBlockSearch = $state(false);
 	let expandedBlocks = $state<Set<number>>(new Set());
+	let showThumbnailPicker = $state(false);
+	let showUploadDialog = $state(false);
+	let availableAssets = $state<{ shared: string[]; tutorials: Record<string, string[]> }>({ shared: [], tutorials: {} });
+
+	async function loadAssets() {
+		try {
+			const res = await fetch('/api/assets');
+			availableAssets = await res.json();
+		} catch { /* ignore */ }
+	}
+
+	function openThumbnailPicker() {
+		loadAssets();
+		showThumbnailPicker = true;
+	}
+
+	function selectThumbnail(ref: string) {
+		composition.meta.thumbnail = ref;
+		showThumbnailPicker = false;
+	}
+
+	function thumbnailPreviewUrl(ref: string | undefined): string | undefined {
+		if (!ref) return undefined;
+		if (ref.startsWith('shared/')) return `/assets/${ref.slice(7)}`;
+		if (ref.includes('/') || ref.includes('://')) return ref;
+		return `/tutorials/${data.slug}/assets/${ref}`;
+	}
+
+	function isImageFile(name: string): boolean {
+		return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
+	}
 
 	function addTraceBlock(block: TraceBlock) {
 		composition.blocks = [...composition.blocks, block];
@@ -203,100 +235,170 @@
 {/if}
 
 <main class="compose">
-	<!-- ═══ METADATA ═���═ -->
+	<!-- METADATA -->
 	<section class="metadata-section">
 		<details class="card" open>
 			<summary>Tutorial Metadata</summary>
 			<div class="form-grid">
-				<label>
-					<span>Title (EN)</span>
-					<input type="text" bind:value={composition.meta.title.en} />
-				</label>
-				<label>
-					<span>Title (JA)</span>
-					<input type="text" bind:value={composition.meta.title.ja} />
-				</label>
-				<label>
-					<span>Tags (comma-separated)</span>
-					<input
-						type="text"
-						value={composition.meta.tags.join(', ')}
-						oninput={(e) => {
-							composition.meta.tags = (e.target as HTMLInputElement).value
-								.split(',')
-								.map((t) => t.trim())
-								.filter(Boolean);
-						}}
-					/>
-				</label>
-				<label>
-					<span>Author</span>
-					<input type="text" value={composition.meta.author ?? 'Steffen Plunder'} oninput={(e) => { composition.meta.author = (e.target as HTMLInputElement).value; }} />
-				</label>
+				<div class="form-row-2col">
+					<label>
+						<span>Title (EN)</span>
+						<input type="text" bind:value={composition.meta.title.en} />
+					</label>
+					<label>
+						<span>Title (JA)</span>
+						<input type="text" bind:value={composition.meta.title.ja} />
+					</label>
+				</div>
+				<div class="form-row-2col">
+					<label>
+						<span>Author</span>
+						<input type="text" value={composition.meta.author ?? 'Steffen Plunder'} oninput={(e) => { composition.meta.author = (e.target as HTMLInputElement).value; }} />
+					</label>
+					<label>
+						<span>Tags (comma-separated)</span>
+						<input
+							type="text"
+							value={composition.meta.tags.join(', ')}
+							oninput={(e) => {
+								composition.meta.tags = (e.target as HTMLInputElement).value
+									.split(',')
+									.map((t) => t.trim())
+									.filter(Boolean);
+							}}
+						/>
+					</label>
+				</div>
+
+				<!-- Thumbnail picker -->
 				<label>
 					<span>Thumbnail</span>
-					<input type="text" bind:value={composition.meta.thumbnail} placeholder="filename.png" />
+					<div class="thumbnail-field">
+						{#if composition.meta.thumbnail}
+							<img
+								src={thumbnailPreviewUrl(composition.meta.thumbnail)}
+								alt="Thumbnail preview"
+								class="thumbnail-preview"
+							/>
+						{/if}
+						<div class="thumbnail-controls">
+							<input
+								type="text"
+								bind:value={composition.meta.thumbnail}
+								placeholder="filename.png"
+								class="thumbnail-input"
+							/>
+							<button class="btn-sm" onclick={openThumbnailPicker}>Browse</button>
+							<button class="btn-sm" onclick={() => (showUploadDialog = true)}>Upload</button>
+						</div>
+					</div>
+				</label>
+
+				<label>
+					<span>Description (Markdown)</span>
+					<textarea
+						bind:value={composition.description}
+						rows="4"
+						placeholder="What this tutorial covers..."
+					></textarea>
+				</label>
+				<label>
+					<span>Requirements / Prerequisites (Markdown)</span>
+					<textarea
+						bind:value={composition.requirements}
+						rows="3"
+						placeholder="What the reader needs before starting..."
+					></textarea>
+				</label>
+				<label>
+					<span>Briefing (shown in desktop area when no windows visible)</span>
+					<textarea
+						value={composition.briefing?.en ?? ''}
+						oninput={(e) => {
+							const val = (e.target as HTMLTextAreaElement).value;
+							composition.briefing = val ? { en: val } : undefined;
+						}}
+						rows="3"
+						placeholder="Markdown briefing text..."
+					></textarea>
 				</label>
 			</div>
-
-			<h4>Welcome</h4>
-			<div class="form-grid">
-				{#if !composition.welcome}
-					<button class="btn-sm" onclick={() => {
-						composition.welcome = {
-							heading: { en: '' },
-							description: { en: '' },
-							learnings: []
-						};
-					}}>Add Welcome</button>
-				{:else}
-					<label>
-						<span>Heading (EN)</span>
-						<input type="text" bind:value={composition.welcome.heading.en} />
-					</label>
-					<label>
-						<span>Description (EN)</span>
-						<textarea bind:value={composition.welcome.description.en} rows="2"></textarea>
-					</label>
-					<div class="learnings">
-						<span>Learnings</span>
-						{#each composition.welcome.learnings as learning, i}
-							<div class="learning-row">
-								<input type="text" bind:value={learning.en} />
-								<button
-									class="btn-icon"
-									onclick={() => {
-										composition.welcome!.learnings = composition.welcome!.learnings.filter((_, j) => j !== i);
-									}}
-								>&#x2715;</button>
-							</div>
-						{/each}
-						<button
-							class="btn-sm"
-							onclick={() => {
-								composition.welcome!.learnings = [...composition.welcome!.learnings, { en: '' }];
-							}}
-						>+ Learning</button>
-					</div>
-					<button class="btn-sm danger" onclick={() => (composition.welcome = undefined)}>
-						Remove Welcome
-					</button>
-				{/if}
-			</div>
-
-			<h4>Briefing</h4>
-			<textarea
-				class="briefing-input"
-				value={composition.briefing?.en ?? ''}
-				oninput={(e) => {
-					const val = (e.target as HTMLTextAreaElement).value;
-					composition.briefing = val ? { en: val } : undefined;
-				}}
-				rows="4"
-				placeholder="Markdown briefing text..."
-			></textarea>
 		</details>
 	</section>
+
+	<!-- Thumbnail picker overlay -->
+	{#if showThumbnailPicker}
+		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+		<div class="overlay" onclick={() => (showThumbnailPicker = false)}>
+			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+			<div class="dialog thumbnail-dialog" onclick={(e) => e.stopPropagation()}>
+				<h3>Select Thumbnail</h3>
+
+				{#if availableAssets.tutorials[data.slug]?.filter(isImageFile).length}
+					<h4>Tutorial: {data.slug}</h4>
+					<div class="asset-grid">
+						{#each availableAssets.tutorials[data.slug].filter(isImageFile) as file}
+							<button
+								class="asset-thumb"
+								class:selected={composition.meta.thumbnail === file}
+								onclick={() => selectThumbnail(file)}
+							>
+								<img src="/tutorials/{data.slug}/assets/{file}" alt={file} />
+								<span class="asset-name">{file}</span>
+							</button>
+						{/each}
+					</div>
+				{/if}
+
+				{#if availableAssets.shared.filter(isImageFile).length}
+					<h4>Shared Assets</h4>
+					<div class="asset-grid">
+						{#each availableAssets.shared.filter(isImageFile) as file}
+							<button
+								class="asset-thumb"
+								class:selected={composition.meta.thumbnail === `shared/${file}`}
+								onclick={() => selectThumbnail(`shared/${file}`)}
+							>
+								<img src="/assets/{file}" alt={file} />
+								<span class="asset-name">{file}</span>
+							</button>
+						{/each}
+					</div>
+				{/if}
+
+				{#each Object.entries(availableAssets.tutorials).filter(([s]) => s !== data.slug) as [tSlug, files]}
+					{@const images = files.filter(isImageFile)}
+					{#if images.length}
+						<h4>Tutorial: {tSlug}</h4>
+						<div class="asset-grid">
+							{#each images as file}
+								<button
+									class="asset-thumb"
+									onclick={() => selectThumbnail(`tutorials/${tSlug}/assets/${file}`)}
+								>
+									<img src="/tutorials/{tSlug}/assets/{file}" alt={file} />
+									<span class="asset-name">{file}</span>
+								</button>
+							{/each}
+						</div>
+					{/if}
+				{/each}
+
+				<div class="dialog-actions">
+					<button class="btn" onclick={() => (showThumbnailPicker = false)}>Cancel</button>
+					<button class="btn btn-primary" onclick={() => { showThumbnailPicker = false; showUploadDialog = true; }}>Upload New</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Asset upload dialog -->
+	<AssetUploadDialog
+		open={showUploadDialog}
+		tutorialSlug={data.slug}
+		onclose={() => (showUploadDialog = false)}
+		onuploaded={(ref) => { composition.meta.thumbnail = ref; }}
+	/>
 
 	<!-- ═══ BLOCKS ═══ -->
 	<section class="blocks-section">
@@ -532,40 +634,93 @@
 		border-color: var(--orange-400);
 	}
 
-	.learnings {
+	/* ─── 2-column form layout ─── */
+	.form-row-2col {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+	}
+
+	/* ─── Thumbnail picker ─── */
+	.thumbnail-field {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+	.thumbnail-preview {
+		width: 80px;
+		height: 80px;
+		object-fit: cover;
+		border-radius: 6px;
+		border: 1px solid var(--border-subtle);
+		background: rgba(0, 0, 0, 0.3);
+		flex-shrink: 0;
+	}
+	.thumbnail-controls {
+		flex: 1;
+		display: flex;
+		gap: 0.4rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.thumbnail-input {
+		flex: 1;
+		min-width: 120px;
+	}
+
+	/* ─── Thumbnail picker dialog ─── */
+	.thumbnail-dialog {
+		max-width: 640px;
+		max-height: 80vh;
+		overflow-y: auto;
+	}
+	.thumbnail-dialog h4 {
+		margin: 0.75rem 0 0.3rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--text-tertiary);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+	.asset-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.asset-thumb {
+		width: 90px;
+		background: rgba(0, 0, 0, 0.3);
+		border: 2px solid transparent;
+		border-radius: 6px;
+		padding: 0;
+		cursor: pointer;
+		overflow: hidden;
+		transition: border-color 0.15s;
 		display: flex;
 		flex-direction: column;
-		gap: 0.3rem;
 	}
-	.learning-row {
-		display: flex;
-		gap: 0.3rem;
-	}
-	.learning-row input {
-		flex: 1;
-		padding: 0.3rem 0.5rem;
-		background: rgba(0, 0, 0, 0.3);
-		border: 1px solid var(--border-subtle);
-		border-radius: 4px;
-		color: var(--text-primary);
-		font-family: var(--font-mono);
-		font-size: 0.73rem;
-	}
-	.briefing-input {
-		width: calc(100% - 1.5rem);
-		margin: 0.3rem 0.75rem 0.75rem;
-		padding: 0.4rem 0.5rem;
-		background: rgba(0, 0, 0, 0.3);
-		border: 1px solid var(--border-subtle);
-		border-radius: 4px;
-		color: var(--text-primary);
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		resize: vertical;
-	}
-	.briefing-input:focus {
-		outline: none;
+	.asset-thumb:hover {
 		border-color: var(--orange-400);
+	}
+	.asset-thumb.selected {
+		border-color: var(--orange-300);
+		box-shadow: 0 0 0 1px var(--orange-500);
+	}
+	.asset-thumb img {
+		width: 100%;
+		height: 60px;
+		object-fit: cover;
+		display: block;
+	}
+	.asset-name {
+		font-family: var(--font-mono);
+		font-size: 0.55rem;
+		color: var(--text-tertiary);
+		padding: 0.2rem 0.3rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: center;
 	}
 
 	/* ─── Blocks section ─── */

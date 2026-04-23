@@ -3,6 +3,11 @@ import type { TutorialMeta, TutorialWelcome, TutorialRound } from '$lib/data/tut
 export interface TutorialComposition {
 	slug: string;
 	meta: TutorialMeta;
+	/** Markdown description (replaces structured welcome heading + description + learnings) */
+	description?: string;
+	/** Markdown prerequisites / requirements */
+	requirements?: string;
+	/** @deprecated Use `description` instead. Kept for backward compat during migration. */
 	welcome?: TutorialWelcome;
 	briefing?: { en: string; ja?: string };
 	blocks: CompositionBlock[];

@@ -1,4 +1,4 @@
-import type { Tutorial, TutorialRound, WindowStep, WindowContentData } from '$lib/data/tutorials';
+import type { Tutorial, TutorialRound, TutorialWelcome, WindowStep, WindowContentData } from '$lib/data/tutorials';
 import type { TraceState } from '$lib/trace/types';
 import type { TutorialComposition } from './types';
 import { traceStateToTutorialRounds } from '$lib/trace/convert';
@@ -66,6 +66,17 @@ export function resolveComposition(
 
 	const slug = composition.slug;
 
+	let welcome: TutorialWelcome | undefined;
+	if (composition.description) {
+		welcome = {
+			heading: composition.meta.title,
+			description: { en: composition.description },
+			learnings: []
+		};
+	} else if (composition.welcome) {
+		welcome = composition.welcome;
+	}
+
 	return {
 		meta: {
 			...composition.meta,
@@ -73,7 +84,7 @@ export function resolveComposition(
 				? { thumbnail: rewriteAssetPath(slug, composition.meta.thumbnail) }
 				: {})
 		},
-		...(composition.welcome ? { welcome: composition.welcome } : {}),
+		...(welcome ? { welcome } : {}),
 		...(composition.briefing ? { briefing: composition.briefing } : {}),
 		rounds: rewriteRoundAssets(slug, allRounds)
 	};
