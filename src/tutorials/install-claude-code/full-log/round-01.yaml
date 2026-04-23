@@ -1,0 +1,44 @@
+kind: terminal
+cwd: ~
+prompt: curl -fsSL https://claude.ai/install.sh | bash
+
+steps:
+  - type: output
+    text: |-
+      Downloading Claude Code installer…
+      Detected: darwin arm64
+      Fetching latest release metadata from claude.ai…
+      ✓ claude v2.0 (darwin-arm64, 18.2 MB)
+      Verifying checksum (sha256)…
+      ✓ checksum OK
+      Installing to /Users/steffen/.local/bin/claude
+      ✓ installed
+      Ensuring ~/.local/bin is on PATH…
+      ✓ added export to ~/.zshrc
+
+      claude v2.0 installed. Restart your shell or run:
+        source ~/.zshrc
+
+  - type: status
+    text: ✓ installation complete
+    variant: success
+
+  - type: output
+    text: |-
+      $ source ~/.zshrc
+      $ which claude
+      /Users/steffen/.local/bin/claude
+      $ claude --version
+      claude 2.0.0
+
+  - type: divider
+    label: create a working folder
+
+  - type: output
+    text: |-
+      $ mkdir ping-pong
+      $ cd ping-pong
+      $ pwd
+      /Users/steffen/ping-pong
+      $ ls
+      (empty)

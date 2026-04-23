@@ -11,14 +11,13 @@
 <style>
 	.tag {
 		font-family: var(--font-mono);
-		font-size: 0.68rem;
+		font-size: 0.65rem;
 		font-weight: 500;
-		padding: 3px 10px;
-		border-radius: 6px;
-		background: var(--shark-tag-bg);
-		border: 1px solid var(--shark-tag-border);
-		color: var(--shark-tag-text);
-		transition: all var(--transition-theme);
+		color: var(--tag-text);
+		background: var(--tag-bg);
+		border: 1px solid var(--tag-border);
+		padding: 2px 8px;
+		border-radius: 4px;
 		white-space: nowrap;
 	}
 </style>

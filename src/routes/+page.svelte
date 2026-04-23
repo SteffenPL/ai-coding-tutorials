@@ -4,7 +4,7 @@
 	import TutorialCard from '$lib/components/TutorialCard.svelte';
 	import MatrixRain from '$lib/components/MatrixRain.svelte';
 	import { t } from '$lib/stores/lang.svelte';
-	import { getAllTutorials } from '$lib/data/markdown';
+	import { getAllTutorials } from '$lib/data/tutorial-loader';
 
 	const tutorials = getAllTutorials();
 </script>
@@ -14,8 +14,8 @@
 	<meta
 		name="description"
 		content={t({
-			en: 'Learn bioinformatics, data analysis, and image processing with practical tutorials from ASHBi, Kyoto University.',
-			ja: 'ASHBi（京都大学）の実践的なチュートリアルで、バイオインフォマティクス、データ分析、画像処理を学びましょう。'
+			en: 'Learn how to use AI agents for research tasks: coding, image analysis, modelling, and more.',
+			ja: 'AI エージェントを使った研究タスクの実践的チュートリアル'
 		})}
 	/>
 </svelte:head>
@@ -24,10 +24,11 @@
 
 <!-- Hero Section -->
 <section class="hero">
+	<div class="hero__bg" aria-hidden="true"></div>
 	<MatrixRain />
 	<div class="hero__inner">
 		<div class="hero__label">
-			<span>{t({ en: 'Kyoto University · ASHBi', ja: '京都大学 · ASHBi' })}</span>
+			<span>{t({ en: 'Kyoto University \u00b7 ASHBi', ja: '京都大学 \u00b7 ASHBi' })}</span>
 		</div>
 		<h1 class="hero__title">
 			{t({ en: 'AI Coding', ja: 'AI コーディング' })}<br />
@@ -35,12 +36,12 @@
 		</h1>
 		<p class="hero__subtitle">
 			{t({
-				en: 'Learn bioinformatics, data analysis, and image processing with practical, hands-on tutorials.',
-				ja: 'バイオインフォマティクス、データ分析、画像処理を実践的なチュートリアルで学びましょう。'
+				en: 'Learn how to use AI agents for research tasks \u2014 coding, image analysis, mathematical modelling, literature research, data analysis and more.',
+				ja: 'AI エージェントを活用した研究タスクの実践的チュートリアル'
 			})}
 		</p>
 		<a href="#tutorials" class="hero__cta">
-			{t({ en: 'Start Your First Tutorial', ja: '最初のチュートリアルを始める' })}
+			{t({ en: 'Browse Tutorials', ja: 'チュートリアルを見る' })}
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M5 12h14m-7-7 7 7-7 7" />
 			</svg>
@@ -62,7 +63,7 @@
 			<h2 class="tutorials__heading">
 				{t({ en: 'All Tutorials', ja: 'すべてのチュートリアル' })}
 			</h2>
-			<span class="tutorials__count">{tutorials.length} posts</span>
+			<span class="tutorials__count">{tutorials.length} {tutorials.length === 1 ? 'post' : 'posts'}</span>
 		</div>
 
 		{#each tutorials as tutorial, i}
@@ -79,9 +80,25 @@
 	.hero {
 		position: relative;
 		padding: 120px 24px 64px;
-		background: var(--hero-gradient);
-		transition: background var(--transition-theme);
 		overflow: hidden;
+	}
+
+	/* Mesh gradient wallpaper — ported from mock_desktop.html */
+	.hero__bg {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		background:
+			radial-gradient(ellipse 75% 60% at 10% 90%, rgba(233, 84, 32, 0.42) 0%, transparent 70%),
+			radial-gradient(ellipse 50% 45% at 35% 80%, rgba(240, 120, 40, 0.22) 0%, transparent 55%),
+			radial-gradient(ellipse 50% 60% at 30% 55%, rgba(180, 40, 100, 0.18) 0%, transparent 65%),
+			radial-gradient(ellipse 60% 50% at 88% 12%, rgba(140, 60, 160, 0.22) 0%, transparent 60%),
+			radial-gradient(ellipse 80% 30% at 65% 70%, rgba(240, 140, 40, 0.16) 0%, transparent 60%),
+			radial-gradient(ellipse 45% 55% at 80% 85%, rgba(100, 40, 120, 0.15) 0%, transparent 55%),
+			radial-gradient(ellipse 55% 50% at 85% 10%, rgba(233, 84, 32, 0.32) 0%, transparent 60%),
+			radial-gradient(ellipse 90% 70% at 50% 50%, rgba(60, 15, 42, 0.6) 0%, transparent 70%),
+			linear-gradient(150deg, #2C001E 0%, #380a28 20%, #42122e 40%, #3a0e26 60%, #30051f 80%, #2C001E 100%);
+		filter: blur(40px) saturate(1.35);
 	}
 
 	.hero__inner {
@@ -100,7 +117,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.12em;
-		color: var(--shark);
+		color: var(--accent);
 		margin-bottom: 20px;
 		opacity: 0;
 		animation: fadeUp 0.6s ease forwards;
@@ -111,7 +128,7 @@
 		display: inline-block;
 		width: 20px;
 		height: 2px;
-		background: var(--shark);
+		background: var(--accent);
 		border-radius: 1px;
 	}
 
@@ -123,14 +140,12 @@
 		line-height: 1.1;
 		color: var(--text-primary);
 		margin-bottom: 16px;
-		transition: color var(--transition-theme);
 		opacity: 0;
 		animation: fadeUp 0.6s ease 0.1s forwards;
 	}
 
 	.hero__title span {
-		color: var(--shark);
-		transition: color var(--transition-theme);
+		color: var(--accent);
 	}
 
 	.hero__subtitle {
@@ -140,7 +155,6 @@
 		max-width: 520px;
 		line-height: 1.65;
 		margin-bottom: 32px;
-		transition: color var(--transition-theme);
 		opacity: 0;
 		animation: fadeUp 0.6s ease 0.2s forwards;
 	}
@@ -153,21 +167,22 @@
 		font-size: 0.9rem;
 		font-weight: 600;
 		color: #ffffff;
-		background: var(--shark);
+		background: var(--accent);
 		border: none;
 		padding: 13px 28px;
 		border-radius: 10px;
 		cursor: pointer;
 		text-decoration: none;
 		transition: all 0.25s ease;
-		box-shadow: 0 2px 8px var(--shark-glow);
+		box-shadow: 0 2px 8px var(--accent-glow);
 		opacity: 0;
 		animation: fadeUp 0.6s ease 0.3s forwards;
 	}
 
 	.hero__cta:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 6px 20px var(--shark-glow);
+		box-shadow: 0 6px 20px var(--accent-glow);
+		text-decoration: none;
 	}
 
 	.hero__cta svg {
@@ -180,13 +195,14 @@
 		transform: translateX(3px);
 	}
 
-.hero__wave {
+	.hero__wave {
 		position: absolute;
 		bottom: -1px;
 		left: 0;
 		right: 0;
 		height: 48px;
 		overflow: hidden;
+		z-index: 2;
 	}
 
 	.hero__wave svg {
@@ -220,14 +236,12 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		color: var(--text-tertiary);
-		transition: color var(--transition-theme);
 	}
 
 	.tutorials__count {
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		color: var(--text-tertiary);
-		transition: color var(--transition-theme);
 	}
 
 	@media (max-width: 640px) {

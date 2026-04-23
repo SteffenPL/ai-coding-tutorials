@@ -1,11 +1,9 @@
-<script lang="ts">
-	import { t } from '$lib/stores/lang.svelte';
-</script>
+<script lang="ts"></script>
 
 <footer class="footer">
 	<p class="footer__text">
-		&copy; 2026 {t({ en: 'ASHBi, Kyoto University', ja: 'ASHBi 京都大学' })} &middot;
-		<a href="https://ashbi.kyoto-u.ac.jp">ashbi.kyoto-u.ac.jp</a>
+		&copy; 2026 Steffen Plunder &middot;
+		<a href="https://steffenpl.github.io">steffenpl.github.io</a>
 	</p>
 </footer>
 
@@ -13,20 +11,18 @@
 	.footer {
 		position: relative;
 		z-index: 1;
-		border-top: 1px solid var(--border-subtle);
+		border-top: 1px solid var(--border-color);
 		padding: 32px 24px;
 		text-align: center;
-		transition: border-color var(--transition-theme);
 	}
 
 	.footer__text {
 		font-size: 0.78rem;
 		color: var(--text-tertiary);
-		transition: color var(--transition-theme);
 	}
 
 	.footer__text a {
-		color: var(--shark);
+		color: var(--accent);
 		text-decoration: none;
 	}
 

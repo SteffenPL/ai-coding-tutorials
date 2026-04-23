@@ -1,0 +1,51 @@
+kind: terminal
+cwd: ~/ping-pong
+prompt: claude
+
+steps:
+  - type: output
+    text: |-
+      ┌  Claude Code v2.0
+      │  First launch — let's get you signed in.
+      └
+    comment:
+      en: >-
+        On the very first run, Claude Code detects it has no credentials and
+        walks you through authentication before dropping you into a prompt.
+      ja: >-
+        初回起動時、Claude Code は認証情報がないことを検出し、プロンプトに入る前に
+        認証フローを案内します。
+
+  - type: question
+    html: >-
+      <p>How would you like to authenticate?</p>
+      <ol>
+        <li>Claude subscription (Pro / Max)</li>
+        <li>API billing via Anthropic Console</li>
+      </ol>
+    answer: "1"
+    comment:
+      en: >-
+        Pick option 1 if you already pay for Claude (Pro or Max) — it reuses
+        your subscription quota. Option 2 is per-token billing via the
+        Anthropic Console, useful for teams and heavier workloads.
+      ja: >-
+        すでに Claude（Pro または Max）を契約している場合は 1 を選びます —
+        サブスクリプションのクォータをそのまま利用できます。2 は Anthropic Console 経由の
+        トークン単位の課金で、チーム利用や負荷の高いワークロードに向いています。
+
+  - type: output
+    text: |-
+      Opening browser for sign-in…
+      ✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp
+    comment:
+      en: >-
+        A browser window pops open for OAuth. Sign in, approve the device,
+        and the terminal picks the token back up automatically.
+      ja: >-
+        OAuth 用にブラウザウィンドウが開きます。サインインしてデバイスを承認すると、
+        ターミナル側が自動的にトークンを受け取ります。
+
+  - type: status
+    text: ✓ signed in — ready for prompts
+    variant: success

@@ -1,34 +1,62 @@
 <script lang="ts">
-	import { themeStore } from '$lib/stores/theme.svelte';
 	import { browser } from '$app/environment';
 
-	// Short prompts that fall as vertical character streams
 	const prompts = [
-		'segment the cells',
-		'open cells.tif',
-		'apply blur sigma=2',
-		'run thresholding',
-		'import napari',
-		'pip install napari',
-		'adjust contrast',
-		'plot histogram',
-		'read sequences',
-		'conda activate',
-		'from Bio import SeqIO',
-		'viewer.add_labels()',
-		'screenshot("out.png")',
-		'np.median(image)',
-		'fit gaussian',
-		'find outliers',
-		'export to CSV',
-		'細胞を分割する',
-		'画像を開く',
-		'ぼかしを適用',
-		'解析を実行',
-		'データを読む',
-		'結果を保存',
-		'コントラスト調整',
-		'ヒストグラム表示',
+		'segment',
+		'cells.tif',
+		'blur',
+		'threshold',
+		'napari',
+		'contrast',
+		'histogram',
+		'conda',
+		'SeqIO',
+		'labels',
+		'median',
+		'gaussian',
+		'outliers',
+		'CSV',
+		'Watershed',
+		'Particles',
+		'macro',
+		'ROI',
+		'gradient',
+		'entropy',
+		'kernel',
+		'eigenvalue',
+		'convex',
+		'laplacian',
+		'fourier',
+		'hessian',
+		'tensor',
+		'sigmoid',
+		'softmax',
+		'jacobian',
+		'divergence',
+		'lattice',
+		'iterate',
+		'converge',
+		'topology',
+		'manifold',
+		'細胞',
+		'画像',
+		'解析',
+		'保存',
+		'行列',
+		'微分',
+		'積分',
+		'勾配',
+		'収束',
+		'確率',
+		'関数',
+		'変換',
+		'次元',
+		'空間',
+		'最適化',
+		'分布',
+		'推定',
+		'近似',
+		'固有値',
 	];
 
 	interface Column {
@@ -36,38 +64,46 @@
 		y: number;
 		speed: number;
 		opacity: number;
-		chars: string[];
-		trailLength: number;
+		originalChars: string[];
+		resolveThreshold: number[];
+		noiseState: string[];
 	}
 
-	const digits = '0123456789';
+	function initColumn(x: number, startY: number): Column {
+		const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+		const originalChars = prompt.split('');
+		return {
+			x,
+			y: startY,
+			speed: 0.7 + Math.random() * 1.0,
+			opacity: 0.22 + Math.random() * 0.35,
+			originalChars,
+			resolveThreshold: makeResolveThresholds(originalChars.length),
+			noiseState: originalChars.map(() => String(Math.round(Math.random()))),
+		};
+	}
 
-	function randomDigit(): string {
-		return digits[Math.floor(Math.random() * digits.length)];
+	function makeResolveThresholds(length: number): number[] {
+		const order = Array.from({ length }, (_, i) => i);
+		for (let i = order.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[order[i], order[j]] = [order[j], order[i]];
+		}
+		const thresholds = new Array<number>(length);
+		for (let rank = 0; rank < length; rank++) {
+			thresholds[order[rank]] = rank / length;
+		}
+		return thresholds;
 	}
 
 	let canvas = $state<HTMLCanvasElement>(null!);
 
 	function setup(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext('2d')!;
-		let animId: number;
+		let animId: number = 0;
 		let columns: Column[] = [];
-
 		const FONT_SIZE = 14;
 		const CHAR_HEIGHT = FONT_SIZE + 2;
-
-		function makeColumn(x: number, startY: number): Column {
-			const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-			const chars = prompt.split('');
-			return {
-				x,
-				y: startY,
-				speed: 0.3 + Math.random() * 1.0,
-				opacity: 0.12 + Math.random() * 0.40,
-				chars,
-				trailLength: chars.length,
-			};
-		}
 
 		function initColumns() {
 			const dpr = window.devicePixelRatio || 1;
@@ -78,7 +114,7 @@
 				if (Math.random() > 0.30) continue;
 				const x = i * FONT_SIZE;
 				const startY = -Math.random() * canvas.height;
-				columns.push(makeColumn(x, startY));
+				columns.push(initColumn(x, startY));
 			}
 		}
 
@@ -91,12 +127,6 @@
 			initColumns();
 		}
 
-		function getColor(): [number, number, number] {
-			return themeStore.current === 'dark'
-				? [0, 168, 232]
-				: [0, 119, 190];
-		}
-
 		function draw() {
 			const rect = canvas.getBoundingClientRect();
 			const w = rect.width;
@@ -104,35 +134,50 @@
 
 			ctx.clearRect(0, 0, w, h);
 
-			const [r, g, b] = getColor();
-			ctx.font = `${FONT_SIZE}px 'JetBrains Mono', 'Noto Sans JP', monospace`;
+			const r = 233, g = 84, b = 32;
+			ctx.font = `${FONT_SIZE}px 'JetBrains Mono', monospace`;
 			ctx.textBaseline = 'top';
 
 			for (const col of columns) {
 				col.y += col.speed;
 
-				// chars[0] at top (col.y), chars[1] below, etc.
-				for (let i = 0; i < col.trailLength; i++) {
+				const len = col.originalChars.length;
+
+				// Clarity trajectory: noise → readable (45%) → readable (75%) → noise again
+				const centerY = col.y + (len * CHAR_HEIGHT) / 2;
+				const progress = centerY / h;
+				let clarity: number;
+				if (progress < 0.45) {
+					// Unscramble: 0→1 over 0%–45%
+					clarity = Math.max(progress / 0.45, 0);
+				} else if (progress < 0.75) {
+					// Fully readable plateau
+					clarity = 1;
+				} else {
+					// Re-scramble: 1→0 over 75%–100%
+					clarity = Math.max(1 - (progress - 0.75) / 0.25, 0);
+				}
+
+				for (let i = 0; i < len; i++) {
 					const charY = col.y + i * CHAR_HEIGHT;
 
 					if (charY < -CHAR_HEIGHT || charY > h) continue;
 
-					// From mid-screen down, randomly replace characters with digits
-					const yNorm = charY / h; // 0=top, 1=bottom
-					if (yNorm > 0.5) {
-						const replaceChance = (yNorm - 0.5) * 2; // 0 at middle, 1 at bottom
-						if (Math.random() < replaceChance * replaceChance * 0.15) {
-							col.chars[i] = randomDigit();
-						}
+					// ~2% chance per frame to flip → exponential wait, mean ~50 frames (~0.8s)
+					if (Math.random() < 0.06) {
+						col.noiseState[i] = col.noiseState[i] === '0' ? '1' : '0';
 					}
 
-					// Bottom char (last) is brightest, fades toward top
-					const distFromBottom = col.trailLength - 1 - i;
+					const ch = clarity >= col.resolveThreshold[i]
+						? col.originalChars[i]
+						: col.noiseState[i];
+
+					const distFromBottom = len - 1 - i;
 					let fade: number;
 					if (distFromBottom === 0) {
 						fade = 1.0;
 					} else {
-						fade = 1.0 - distFromBottom / col.trailLength;
+						fade = 1.0 - distFromBottom / len;
 						fade = fade * fade;
 					}
 
@@ -140,16 +185,11 @@
 					if (alpha < 0.01) continue;
 
 					ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-					ctx.fillText(col.chars[i], col.x, charY);
+					ctx.fillText(ch, col.x, charY);
 				}
 
-				// Reset when the first (topmost) character has scrolled off the bottom
 				if (col.y > h) {
-					const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-					col.chars = prompt.split('');
-					col.trailLength = col.chars.length;
-					col.y = -(col.trailLength * CHAR_HEIGHT) - Math.random() * h * 0.5;
-					col.speed = 0.3 + Math.random() * 1.0;
+					Object.assign(col, initColumn(col.x, -(len * CHAR_HEIGHT) - Math.random() * h * 0.5));
 				}
 			}
 

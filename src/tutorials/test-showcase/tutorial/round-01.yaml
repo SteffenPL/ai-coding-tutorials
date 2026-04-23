@@ -1,0 +1,27 @@
+kind: terminal
+cwd: ~/testbed
+prompt: claude
+
+steps:
+  - type: output
+    text: |-
+      ┌  Claude Code v1.0.25
+      │  ✧ Model: claude-opus-4-6
+      │  ⚡ MCP: fiji-mcp (connected)
+      └  Type your prompt or /help
+    stream: stdout
+    comment: >-
+      A <strong>terminal round</strong> uses the <code>$</code> prompt style
+      (green chevron). Inside it, <strong>output</strong> steps render as
+      preformatted terminal text. This one shows <code>stdout</code>.
+
+  - type: output
+    text: "warning: deprecated flag --legacy-cache will be removed in v2"
+    stream: stderr
+    comment: >-
+      Same <strong>output</strong> step with <code>stream: "stderr"</code>
+      — rendered in red to visually distinguish error output.
+
+  - type: status
+    text: ✓ fiji-mcp bridge ready
+    variant: success

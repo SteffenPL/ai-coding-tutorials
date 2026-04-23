@@ -4,7 +4,7 @@ export type Lang = 'en' | 'ja';
 
 function getInitialLang(): Lang {
 	if (browser) {
-		const saved = localStorage.getItem('ashbi-lang') as Lang | null;
+		const saved = localStorage.getItem('ai-tutorials-lang') as Lang | null;
 		if (saved) return saved;
 	}
 	return 'en';
@@ -26,7 +26,7 @@ function createLangStore() {
 			lang = newLang;
 			if (browser) {
 				document.documentElement.setAttribute('data-lang', lang);
-				localStorage.setItem('ashbi-lang', lang);
+				localStorage.setItem('ai-tutorials-lang', lang);
 			}
 		}
 	};
@@ -36,7 +36,6 @@ export const langStore = createLangStore();
 
 /**
  * Get a localized string with English fallback.
- * Pass an object with `en` (required) and optional `ja`.
  */
 export function t(strings: { en: string; ja?: string }): string {
 	if (langStore.current === 'ja' && strings.ja) {

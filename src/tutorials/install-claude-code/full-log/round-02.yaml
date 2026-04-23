@@ -1,0 +1,47 @@
+kind: terminal
+cwd: ~/ping-pong
+prompt: claude
+
+steps:
+  - type: output
+    text: |-
+      ┌  Claude Code v2.0
+      │  ✧ No credentials found — first-run setup
+      │
+      │  Welcome! Before we begin, let's get you signed in.
+      │  You can use an existing Claude subscription (Pro or Max)
+      │  or bill usage through an Anthropic Console API key.
+      └
+
+  - type: question
+    html: >-
+      <p>How would you like to authenticate?</p>
+      <ol>
+        <li>Claude subscription (Pro / Max) — recommended</li>
+        <li>API billing via Anthropic Console</li>
+        <li>Skip for now (read-only mode)</li>
+      </ol>
+    answer: "1"
+
+  - type: output
+    text: |-
+      Starting device-code flow…
+      Opening https://claude.ai/device in your default browser.
+      Enter code:  QX7K-9RT2
+
+      Waiting for approval…
+      ✓ approved
+      ✓ token stored in ~/.claude/config.json
+      ✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp (Claude Max)
+
+  - type: status
+    text: ✓ signed in — ready
+    variant: success
+
+  - type: output
+    text: |-
+      ┌  Claude Code v2.0
+      │  ✧ Model: claude-opus-4-7 (1M context)
+      │  📁 cwd: /Users/steffen/ping-pong
+      │  Type your prompt, or /help for commands.
+      └

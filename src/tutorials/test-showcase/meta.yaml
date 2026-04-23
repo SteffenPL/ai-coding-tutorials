@@ -1,0 +1,28 @@
+slug: test-showcase
+devOnly: true
+title:
+  en: Test Showcase (dev only)
+  ja: テストショーケース (開発用)
+tags: [dev, testbed, components]
+thumbnail: step_001_nuclei.png
+
+welcome:
+  heading:
+    en: Component Testbed
+    ja: コンポーネントテストベッド
+  description:
+    en: >-
+      A dev-only tutorial that exercises every step type, window content
+      kind, and round kind. Use this to visually verify new components or
+      regression-test existing ones.
+    ja: >-
+      すべてのステップタイプ、ウィンドウコンテンツ種別、ラウンド種別を一通り表示する開発用チュートリアル。
+  learnings:
+    - en: Every terminal-side step type rendered back-to-back
+      ja: すべてのターミナル側ステップタイプ
+    - en: All WindowContentData kinds (fiji-image, image, markdown, source, folder, video)
+      ja: すべてのウィンドウコンテンツ種別
+    - en: Claude round and terminal round styling side by side
+      ja: Claudeラウンドとターミナルラウンドのスタイル比較
+    - en: Simplified vs Full Log toggle in the settings panel
+      ja: 簡易ログとフルログの切り替え

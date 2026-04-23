@@ -1,11 +1,12 @@
+import { getTutorialBySlug, getAllTutorials } from '$lib/data/tutorial-loader';
 import { error } from '@sveltejs/kit';
-import { getTutorialBySlug } from '$lib/data/markdown';
-import type { PageLoad } from './$types';
 
-export const load: PageLoad = ({ params }) => {
+export function entries() {
+	return getAllTutorials().map((t) => ({ slug: t.meta.slug }));
+}
+
+export function load({ params }: { params: { slug: string } }) {
 	const tutorial = getTutorialBySlug(params.slug);
-	if (!tutorial) {
-		error(404, 'Tutorial not found');
-	}
+	if (!tutorial) error(404, 'Tutorial not found');
 	return { tutorial };
-};
+}

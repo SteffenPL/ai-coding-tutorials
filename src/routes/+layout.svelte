@@ -2,11 +2,7 @@
 	import '$lib/styles/global.css';
 	import type { Snippet } from 'svelte';
 
-	interface Props {
-		children: Snippet;
-	}
-
-	let { children }: Props = $props();
+	let { children }: { children: Snippet } = $props();
 </script>
 
 {@render children()}

@@ -1,0 +1,38 @@
+kind: claude
+prompt: Open the webpage
+
+steps:
+  - type: tool_call
+    toolName: Bash
+    code: open /Users/steffen/ping-pong/game-of-life.html
+
+  - type: tool_result
+    text: "(Bash completed with no output)"
+
+  - type: window
+    windowTitle: Conway's Game of Life
+    subtitle: file:// — game-of-life.html
+    content:
+      kind: video
+      src: movie.mov
+
+  - type: assistant
+    final: true
+    html: >-
+      <p>Opened in your default browser. The glider should be visible in
+      the top-left — click <strong>Start</strong> to animate it, or
+      <strong>Random</strong> to seed the whole board.</p>
+      <p><strong>★ Insight</strong></p>
+      <ul>
+        <li>macOS's <code>open</code> command uses Launch Services to
+        pick the default handler for the file type (<code>.html</code> →
+        your default browser). It's the CLI equivalent of double-clicking
+        in Finder.</li>
+        <li>Because the file is loaded via <code>file://</code> rather
+        than <code>http://</code>, there's no server involved —
+        everything runs locally in the browser's JS engine. This also
+        means some browser APIs (like <code>fetch</code> to relative
+        paths, service workers, or <code>SharedArrayBuffer</code>) would
+        be restricted under stricter CORS rules, but our self-contained
+        page doesn't need them.</li>
+      </ul>
