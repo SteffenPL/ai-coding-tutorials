@@ -89,15 +89,20 @@
 		result = result.replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>');
 		result = result.replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
 
-		// Block-level: heading lines (# … #### at start of line)
-		result = result.replace(/(^|\n)#{4}\s+(.+)/g, '$1<strong>$2</strong>');
-		result = result.replace(/(^|\n)#{1,3}\s+(.+)/g, '$1<span class="md-heading">$2</span>');
+		// Block-level: heading lines (# … #### at start of line or after <br>/<p>)
+		const headingPrefix = /(?:^|(?<=\n)|(?<=<br>)|(?<=<br\/>)|(?<=<br \/>)|(?<=<p>))/;
+		const h4Re = new RegExp(headingPrefix.source + '#{4}\\s+(.+?)(?=<|$)', 'g');
+		const h123Re = new RegExp(headingPrefix.source + '#{1,3}\\s+(.+?)(?=<|$)', 'g');
+		result = result.replace(h4Re, '<strong>$1</strong>');
+		result = result.replace(h123Re, '<span class="md-heading">$1</span>');
 
 		// Decorative rules: lines that are all ─ or ═ or — (≥3 chars)
-		result = result.replace(/(^|\n)([─═—]{3,})(\n|$)/g, '$1<span class="decorative-rule">$2</span>$3');
+		const ruleRe = new RegExp(headingPrefix.source + '([─═—]{3,})(?=<|\\n|$)', 'g');
+		result = result.replace(ruleRe, '<span class="decorative-rule">$1</span>');
 
 		// ★ Insight headers
-		result = result.replace(/(^|\n)(★\s+\w[^\n]*[─—]+)/g, '$1<span class="decorative-rule">$2</span>');
+		const insightRe = new RegExp(headingPrefix.source + '(★\\s+\\w[^<\\n]*[─—]+)', 'g');
+		result = result.replace(insightRe, '<span class="decorative-rule">$1</span>');
 
 		if (hasHtmlBreaks) return result;
 		if (!result.includes('\n')) return result;
