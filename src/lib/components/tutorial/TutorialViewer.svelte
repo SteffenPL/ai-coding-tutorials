@@ -7,6 +7,7 @@
 	import ControlsPanel from '$lib/components/tutorial/ControlsPanel.svelte';
 	import TerminalTranscript from '$lib/components/tutorial/TerminalTranscript.svelte';
 	import DesktopStack from '$lib/components/tutorial/DesktopStack.svelte';
+	import { base } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { onMount, tick } from 'svelte';
 
@@ -379,7 +380,7 @@
 
 <div class="desktop">
 	<!-- Top Panel -->
-	<Nav showBack pageTitle={title} />
+	<Nav showBack pageTitle={title} editHref="{base}/compose/{tutorial.meta.slug}" />
 
 	<!-- Welcome Overlay -->
 	{#if showWelcome && tutorial.welcome}

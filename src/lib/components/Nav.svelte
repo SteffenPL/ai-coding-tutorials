@@ -5,9 +5,10 @@
 	interface Props {
 		showBack?: boolean;
 		pageTitle?: string;
+		editHref?: string;
 	}
 
-	let { showBack = false, pageTitle }: Props = $props();
+	let { showBack = false, pageTitle, editHref }: Props = $props();
 </script>
 
 <nav class="nav" aria-label="Main navigation">
@@ -35,7 +36,10 @@
 		</div>
 		<div class="nav__controls">
 			{#if import.meta.env.DEV}
-				<a href="{base}/edit" class="nav__link nav__link--dev">Edit</a>
+				{#if editHref}
+					<a href={editHref} class="nav__link nav__link--dev">Edit</a>
+				{/if}
+				<a href="{base}/edit" class="nav__link nav__link--dev">Admin</a>
 			{/if}
 			<a href="{base}/about" class="nav__link">
 				{t({ en: 'About', ja: 'About' })}
