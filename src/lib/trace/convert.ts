@@ -58,7 +58,15 @@ function escapeHtml(text: string): string {
 }
 
 function renderInlineCode(html: string): string {
-	return html.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+	let result = html.replace(/`([^`\n]+)`/g, (_, code) => {
+		const isDecorative = /^[★─]+|[─]+$/.test(code.trim());
+		const cls = isDecorative ? 'decorative-rule' : 'inline-code';
+		return `<code class="${cls}">${code}</code>`;
+	});
+	result = result
+		.replace(/\n\n+/g, '</p><p>')
+		.replace(/\n/g, '<br>');
+	return result;
 }
 
 function nodeToSteps(node: DisplayNode, roundIdx: number, nodeIdx: number): TraceStep[] {

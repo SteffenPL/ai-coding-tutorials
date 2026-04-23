@@ -230,6 +230,10 @@ Tutorial YAML (`round-NN.yaml` + `meta.yaml`) is written by the compose step, no
 
 Bilingual EN/JA with English fallback. Use `t({ en: '...', ja?: '...' })` from `$lib/stores/lang.svelte`.
 
+## Documented solutions
+
+`docs/solutions/` — documented solutions to past problems and design decisions (bugs, patterns, conventions, workflow learnings), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
+
 ## Development & deployment
 
 ```bash

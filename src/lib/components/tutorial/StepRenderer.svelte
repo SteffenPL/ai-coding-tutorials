@@ -77,6 +77,14 @@
 		return { preview: lines.slice(0, FOLD_LINES).join('\n'), hiddenCount: lines.length - FOLD_LINES };
 	}
 
+	function formatAssistantHtml(html: string): string {
+		if (html.includes('<br>') || html.includes('<br/>') || html.includes('<br />')) return html;
+		if (!html.includes('\n')) return html;
+		return html
+			.replace(/\n\n+/g, '</p><p>')
+			.replace(/\n/g, '<br>');
+	}
+
 	function tryParseJsonResult(raw: string): ParsedJson {
 		const trimmed = raw.trim();
 		if (!trimmed.startsWith('{')) return null;
@@ -131,7 +139,7 @@
 			<div class="assistant-label">Claude</div>
 		{/if}
 		<div class="assistant-text">
-			{@html step.html}
+			{@html formatAssistantHtml(step.html)}
 		</div>
 		{#if isLast}
 			<span class="cursor"></span>
@@ -336,19 +344,129 @@
 	.assistant-text {
 		color: var(--text-secondary);
 		line-height: 1.7;
+		font-size: 13px;
 	}
 
 	.assistant-text :global(p) {
-		margin-bottom: 10px;
+		margin: 0 0 10px 0;
 	}
 
-	.assistant-text :global(.inline-code) {
-		background: rgba(255, 255, 255, 0.1);
+	.assistant-text :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.assistant-text :global(strong) {
 		color: var(--text-primary);
-		padding: 1px 5px;
-		border-radius: 3px;
+		font-weight: 600;
+	}
+
+	.assistant-text :global(em) {
+		font-style: italic;
+		color: var(--text-primary);
+	}
+
+	.assistant-text :global(code),
+	.assistant-text :global(.inline-code) {
+		background: rgba(255, 255, 255, 0.08);
+		color: var(--text-primary);
+		padding: 2px 6px;
+		border-radius: 4px;
 		font-family: var(--font-mono);
-		font-size: 0.9em;
+		font-size: 0.85em;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+	}
+
+	.assistant-text :global(.decorative-rule) {
+		display: block;
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 12px 0 4px 0;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--mauve);
+		letter-spacing: 0.5px;
+		opacity: 0.7;
+	}
+
+	.assistant-text :global(ul),
+	.assistant-text :global(ol) {
+		margin: 6px 0 10px 0;
+		padding-left: 20px;
+	}
+
+	.assistant-text :global(li) {
+		margin-bottom: 4px;
+	}
+
+	.assistant-text :global(li::marker) {
+		color: var(--text-tertiary);
+	}
+
+	.assistant-text :global(hr) {
+		border: none;
+		border-top: 1px solid var(--border-subtle);
+		margin: 16px 0;
+	}
+
+	.assistant-text :global(a) {
+		color: var(--orange-300);
+		text-decoration: none;
+	}
+
+	.assistant-text :global(a:hover) {
+		text-decoration: underline;
+	}
+
+	.assistant-text :global(pre) {
+		background: rgba(0, 0, 0, 0.25);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 6px;
+		padding: 10px 14px;
+		margin: 8px 0;
+		overflow-x: auto;
+		font-family: var(--font-mono);
+		font-size: 12px;
+		line-height: 1.5;
+		color: var(--text-primary);
+	}
+
+	.assistant-text :global(pre code),
+	.assistant-text :global(pre .inline-code) {
+		background: none;
+		border: none;
+		padding: 0;
+		font-size: inherit;
+		border-radius: 0;
+	}
+
+	.assistant-text :global(blockquote) {
+		border-left: 3px solid var(--border-subtle);
+		margin: 8px 0;
+		padding: 4px 14px;
+		color: var(--text-tertiary);
+	}
+
+	.assistant-text :global(table) {
+		border-collapse: collapse;
+		margin: 8px 0;
+		font-size: 12px;
+		width: 100%;
+	}
+
+	.assistant-text :global(th) {
+		text-align: left;
+		padding: 4px 10px;
+		border-bottom: 1px solid var(--border-subtle);
+		color: var(--text-primary);
+		font-weight: 600;
+		font-size: 11px;
+	}
+
+	.assistant-text :global(td) {
+		padding: 3px 10px;
+		color: var(--text-secondary);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 	}
 
 	/* ── Tool calls + results ── */
