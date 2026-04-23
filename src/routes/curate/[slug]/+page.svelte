@@ -17,10 +17,17 @@
 	let editingStep = $state<{ roundId: string; stepId: string } | null>(null);
 	let showInsertMenu = $state<{ roundId: string; afterStepId: string | null } | null>(null);
 
-	let noSession = $state(false);
 	let hasSavedTrace = $state(false);
 	let showResetConfirm = $state(false);
 	let showDeleteConfirm = $state(false);
+
+	function createBlankTrace(): TraceState {
+		return {
+			sessionSlug: data.slug,
+			title: data.slug,
+			rounds: []
+		};
+	}
 
 	onMount(async () => {
 		const res = await fetch(`/api/traces/${data.slug}`);
@@ -31,7 +38,7 @@
 		} else if (view) {
 			curation = sessionViewToTraceState(view);
 		} else {
-			noSession = true;
+			curation = createBlankTrace();
 		}
 	});
 
@@ -56,9 +63,9 @@
 					editingStep = null;
 					statusMessage = 'Trace deleted — showing fresh state from session';
 				} else {
-					statusMessage = 'Trace deleted';
-					curation = null;
-					noSession = true;
+					curation = createBlankTrace();
+					editingStep = null;
+					statusMessage = 'Trace deleted — starting blank';
 				}
 				setTimeout(() => (statusMessage = ''), 4000);
 			}
@@ -308,9 +315,7 @@
 
 <Nav showBack pageTitle="Curate · {data.slug}" />
 
-{#if noSession}
-	<main class="loading">No session found for "{data.slug}". Import one from the <a href="/edit">dashboard</a>.</main>
-{:else if !curation}
+{#if !curation}
 	<main class="loading">Loading curation state...</main>
 {:else}
 	<!-- Toolbar -->

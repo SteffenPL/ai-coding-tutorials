@@ -35,6 +35,7 @@ through the server POST endpoint.
 Key properties of `TraceStep`:
 - `included: boolean` — whether the step is in the trace
 - `displayMode: 'compact' | 'full'` — per-step rendering mode
+- `hidden?: boolean` — collapsed in simplified view, shown in full log
 - `sourceRef?` — links back to the SessionView round/node (for session-sourced steps)
 - `inserted?` — a manually added Step (for non-session content)
 - `shortenedText?` — overrides original text content
@@ -42,6 +43,7 @@ Key properties of `TraceStep`:
 - `overrides?` — mutable snapshot of the session node's data
 
 Exactly one of `sourceRef` or `inserted` is present on a step.
+Blank traces (no session) have only `inserted` steps.
 
 ## Per-step display mode
 
@@ -50,8 +52,7 @@ Each step has `displayMode: 'compact' | 'full'`:
 - **compact** — exports with `compact: true` in YAML; renderer shows a
   one-line summary
 
-Toggled via the `▪`/`▣` button on each step row, or via the Full/Compact
-toggle in the edit drawer.
+Toggled via the `▪`/`▣` button on the step toolbar or in the step editor modal.
 
 ## Server routes
 
@@ -64,27 +65,28 @@ trace or composition tool initiated the upload.
 ## UI layout
 
 Layout at `/curate/<slug>`:
-- **Metadata section** (top, full-width) — title (EN/JA), tags,
-  thumbnail, welcome section, briefing
-- **Source panel** (left) — session rounds with per-step checkboxes,
-  display mode toggles, bulk actions (All / None / Tools only)
-- **Curated panel** (right) — trace output with reordering, insertion
-  points. Steps render inline as compact (one-line) or full (preview text)
-- **Edit drawer** (bottom, slides up) — context-sensitive editor for the
-  selected step: text editing, comment, display mode, window content
-  configuration, file upload
+- **Metadata section** (top, full-width) — trace title
+- **Unified trace panel** (full-width) — terminal-dark background,
+  rounds with real prompt styling (orange bar for claude, green for
+  terminal). Steps rendered via `StepRenderer` (same as tutorial viewer)
+  with a floating toolbar on hover (edit, compact/full, hide, move,
+  exclude/remove). Excluded steps shown as collapsed rows.
+- **Step editor modal** (full-screen) — opens on edit click. Left pane:
+  all step fields. Right pane: live preview using StepRenderer.
 - **Toolbar** — Save, Preview buttons. There is no "Export YAML" here;
   export to tutorial YAML happens in the compose step.
+- **Blank traces** — creating a trace without a session starts empty
+  with only the insert-step menu. Navigate to `/curate/<slug>` for any
+  slug, or use the "New Trace" button on the edit dashboard.
 
 ## Files
 
 ```
 src/lib/curate/
 ├── components/           UI building blocks for the /curate page
-│   ├── SourcePanel.svelte
-│   ├── CuratedPanel.svelte
-│   ├── EditDrawer.svelte
-│   └── step-helpers.ts   label/preview/icon/count helpers
+│   ├── UnifiedTracePanel.svelte  WYSIWYG trace editor with real step rendering
+│   ├── StepEditorModal.svelte    full-screen step editor with live preview
+│   └── step-helpers.ts           label/preview/icon/count helpers
 └── CLAUDE.md             this file
 
 src/lib/trace/            state types, conversion, preview store

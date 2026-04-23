@@ -1,8 +1,10 @@
 <script lang="ts">
-	import type { Step, WindowContentData } from '$lib/data/tutorials';
+	import type { Step, WindowContentData, WindowStep } from '$lib/data/tutorials';
 	import type { SessionView } from '$lib/session/viewmodel';
 	import type { TraceState, TraceStep, TraceRound } from '$lib/trace/types';
+	import { traceStepToTutorialStep } from '$lib/trace/convert';
 	import { stepLabel, stepIcon, stepPreview, displayModeIcon, includedCount, totalCount } from './step-helpers';
+	import StepRenderer from '$lib/components/tutorial/StepRenderer.svelte';
 
 	let {
 		curation,
@@ -58,6 +60,12 @@
 				? null
 				: { roundId, afterStepId };
 	}
+
+	function toPreviewStep(traceStep: TraceStep): Step | null {
+		return traceStepToTutorialStep(traceStep);
+	}
+
+	function noopFocus(_step: WindowStep) {}
 </script>
 
 {#snippet insertMenu(roundId: string, afterStepId: string | null)}
@@ -77,6 +85,27 @@
 	</div>
 {/snippet}
 
+{#snippet stepToolbar(round: TraceRound, step: TraceStep)}
+	<div class="step-toolbar">
+		<span class="toolbar-type">{stepLabel(step)}</span>
+		<button class="tb" title={step.displayMode === 'full' ? 'Switch to compact' : 'Switch to full'} onclick={() => onCycleDisplayMode(step)}>{displayModeIcon(step.displayMode)}</button>
+		<button class="tb" class:tb-active={step.hidden} title={step.hidden ? 'Unhide' : 'Hide in tutorial'} onclick={() => onToggleHidden(step)}>{step.hidden ? '◌' : '●'}</button>
+		{#if step.comment}<span class="tb-badge">💬</span>{/if}
+		<span class="tb-spacer"></span>
+		<button class="tb" title="Move up" onclick={() => onMoveStep(round.id, step.id, -1)}>↑</button>
+		<button class="tb" title="Move down" onclick={() => onMoveStep(round.id, step.id, 1)}>↓</button>
+		<button class="tb" title="Edit" onclick={() => onEditStep(round.id, step.id)}>✎</button>
+		{#if step.sourceRef}
+			<button class="tb" title="Reset to source" onclick={() => onResetStep(round.id, step.id)}>↻</button>
+		{/if}
+		{#if step.inserted}
+			<button class="tb tb-danger" title="Remove" onclick={() => onRemoveStep(round.id, step.id)}>✕</button>
+		{:else}
+			<button class="tb" title="Exclude" onclick={() => onToggleStep(round.id, step.id)}>⊘</button>
+		{/if}
+	</div>
+{/snippet}
+
 <section class="panel">
 	<div class="panel-header">
 		<h2>Trace</h2>
@@ -89,125 +118,104 @@
 		</div>
 	</div>
 
-	{#each curation.rounds as round (round.id)}
-		{#if round.included === false}
-			{#if showExcluded}
-				<div class="trace-round round-excluded">
-					<div class="round-header">
+	<div class="terminal-bg">
+		{#each curation.rounds as round (round.id)}
+			{#if round.included === false}
+				{#if showExcluded}
+					<div class="round-excluded">
 						<span class="kind-badge" class:terminal={round.kind === 'terminal'}>{round.kind}</span>
 						<span class="round-prompt-preview">{round.prompt.slice(0, 60)}{round.prompt.length > 60 ? '...' : ''}</span>
-						{#if round.sourceRoundIndex !== undefined}
-							<span class="source-indicator">R{round.sourceRoundIndex + 1}</span>
-						{/if}
 						<span class="round-count">{totalCount(round)} steps</span>
 						<button class="btn-icon btn-include" title="Include round" onclick={() => onToggleRound(round.id)}>+</button>
 					</div>
-				</div>
-			{/if}
-		{:else}
-		<div class="trace-round">
-			<div class="round-header">
-				<span class="kind-badge" class:terminal={round.kind === 'terminal'}>
-					{round.kind}
-				</span>
-				<input
-					class="prompt-input"
-					type="text"
-					bind:value={round.prompt}
-					placeholder="Round prompt..."
-				/>
-				{#if round.sourceRoundIndex !== undefined}
-					<span class="source-indicator">R{round.sourceRoundIndex + 1}</span>
 				{/if}
-				<span class="round-count">{includedCount(round)}/{totalCount(round)}</span>
-				<div class="round-actions">
-					{#if view && round.sourceRoundIndex !== undefined}
-						<button class="btn-icon" title="Reset round to source" onclick={() => onResetRound(round.id)}>&#x21BA;</button>
-					{/if}
-					<button class="btn-icon" title="Hide round" onclick={() => onToggleRound(round.id)}>&#x2298;</button>
-					<button class="btn-icon danger" title="Remove round" onclick={() => onRemoveRound(round.id)}>&#x2715;</button>
-				</div>
-			</div>
+			{:else}
+				<div class="trace-round">
+					<!-- Round header with real prompt styling -->
+					<div class="round-header-bar">
+						<span class="kind-badge" class:terminal={round.kind === 'terminal'}>{round.kind}</span>
+						{#if round.sourceRoundIndex !== undefined}
+							<span class="source-indicator">R{round.sourceRoundIndex + 1}</span>
+						{/if}
+						<span class="round-count">{includedCount(round)}/{totalCount(round)}</span>
+						<div class="round-actions">
+							{#if view && round.sourceRoundIndex !== undefined}
+								<button class="btn-icon" title="Reset round" onclick={() => onResetRound(round.id)}>↻</button>
+							{/if}
+							<button class="btn-icon" title="Hide round" onclick={() => onToggleRound(round.id)}>⊘</button>
+							<button class="btn-icon danger" title="Remove round" onclick={() => onRemoveRound(round.id)}>✕</button>
+						</div>
+					</div>
 
-			<!-- Insert at top of round -->
-			<button class="insert-btn" onclick={() => toggleInsertMenu(round.id, null)}>+ Insert</button>
-			{#if showInsertMenu?.roundId === round.id && showInsertMenu?.afterStepId === null}
-				{@render insertMenu(round.id, null)}
-			{/if}
-
-			{#each round.steps as step (step.id)}
-				{#if step.included || step.inserted}
-					<!-- ═══ INCLUDED STEP ═══ -->
-					{#if step.displayMode === 'compact'}
-						<div class="step step-compact" class:editing={editingStep?.stepId === step.id} class:step-hidden={step.hidden}>
-							<span class="step-icon">{stepIcon(step)}</span>
-							<span class="step-type">{stepLabel(step)}</span>
-							<button class="btn-mode" title="Compact — click for full" onclick={() => onCycleDisplayMode(step)}>{displayModeIcon(step.displayMode)}</button>
-							<button class="btn-hidden" class:active={step.hidden} title={step.hidden ? 'Hidden — click to show' : 'Visible — click to hide'} onclick={() => onToggleHidden(step)}>{step.hidden ? '◌' : '●'}</button>
-							{#if step.comment}<span class="has-comment">&#128172;</span>{/if}
-							<div class="step-actions">
-								<button class="btn-icon" title="Move up" onclick={() => onMoveStep(round.id, step.id, -1)}>&#x25B2;</button>
-								<button class="btn-icon" title="Move down" onclick={() => onMoveStep(round.id, step.id, 1)}>&#x25BC;</button>
-								<button class="btn-icon" title="Edit" onclick={() => onEditStep(round.id, step.id)}>&#9998;</button>
-								{#if step.sourceRef}
-									<button class="btn-icon btn-reset" title="Reset to source" onclick={() => onResetStep(round.id, step.id)}>&#x21BA;</button>
-								{/if}
-								{#if step.inserted}
-									<button class="btn-icon danger" title="Remove" onclick={() => onRemoveStep(round.id, step.id)}>&#x2715;</button>
-								{:else}
-									<button class="btn-icon" title="Exclude" onclick={() => onToggleStep(round.id, step.id)}>&#x2298;</button>
-								{/if}
+					<!-- Prompt rendered like the real terminal -->
+					{#if round.kind === 'terminal'}
+						<div class="prompt-block terminal-prompt">
+							<div class="terminal-cmd">
+								<span class="terminal-percent">%</span>
+								<input class="prompt-input terminal-input" type="text" bind:value={round.prompt} placeholder="Command..." />
 							</div>
 						</div>
 					{:else}
-						<div class="step step-full" class:editing={editingStep?.stepId === step.id} class:step-hidden={step.hidden}>
-							<div class="step-header">
-								<span class="step-type-badge">{stepLabel(step)}</span>
-								<button class="btn-mode" title="Full — click for compact" onclick={() => onCycleDisplayMode(step)}>{displayModeIcon(step.displayMode)}</button>
-								<button class="btn-hidden" class:active={step.hidden} title={step.hidden ? 'Hidden — click to show' : 'Visible — click to hide'} onclick={() => onToggleHidden(step)}>{step.hidden ? '◌' : '●'}</button>
-								{#if step.comment}<span class="has-comment">&#128172;</span>{/if}
-								<div class="step-actions">
-									<button class="btn-icon" title="Move up" onclick={() => onMoveStep(round.id, step.id, -1)}>&#x25B2;</button>
-									<button class="btn-icon" title="Move down" onclick={() => onMoveStep(round.id, step.id, 1)}>&#x25BC;</button>
-									<button class="btn-icon" title="Edit" onclick={() => onEditStep(round.id, step.id)}>&#9998;</button>
-									{#if step.sourceRef}
-										<button class="btn-icon btn-reset" title="Reset to source" onclick={() => onResetStep(round.id, step.id)}>&#x21BA;</button>
-									{/if}
-									{#if step.inserted}
-										<button class="btn-icon danger" title="Remove" onclick={() => onRemoveStep(round.id, step.id)}>&#x2715;</button>
+						<div class="prompt-block">
+							<span class="prompt-chevron">›</span>
+							<input class="prompt-input" type="text" bind:value={round.prompt} placeholder="User prompt..." />
+						</div>
+					{/if}
+
+					<!-- Insert at top of round -->
+					<button class="insert-btn" onclick={() => toggleInsertMenu(round.id, null)}>+</button>
+					{#if showInsertMenu?.roundId === round.id && showInsertMenu?.afterStepId === null}
+						{@render insertMenu(round.id, null)}
+					{/if}
+
+					<!-- Steps rendered with real StepRenderer -->
+					{#each round.steps as step (step.id)}
+						{#if step.included || step.inserted}
+							{@const previewStep = toPreviewStep(step)}
+							<div
+								class="step-wrap"
+								class:editing={editingStep?.stepId === step.id}
+								class:step-hidden={step.hidden}
+								class:step-excluded-style={false}
+							>
+								{@render stepToolbar(round, step)}
+								<div class="step-render">
+									{#if previewStep}
+										<StepRenderer
+											step={previewStep}
+											showClaudeLabel={previewStep.type === 'assistant'}
+											isLast={false}
+											onFocusWindow={noopFocus}
+										/>
 									{:else}
-										<button class="btn-icon" title="Exclude" onclick={() => onToggleStep(round.id, step.id)}>&#x2298;</button>
+										<div class="step-empty">Empty step — click ✎ to edit</div>
 									{/if}
 								</div>
 							</div>
-							<div class="step-preview">{stepPreview(step)}</div>
-						</div>
-					{/if}
-				{:else if showExcluded}
-					<!-- ═══ EXCLUDED STEP (grayed, collapsed) ═══ -->
-					<div class="step step-excluded">
-						<span class="step-icon">{stepIcon(step)}</span>
-						<span class="step-type">{stepLabel(step)}</span>
-						<span class="step-preview-short">{stepPreview(step).slice(0, 40)}</span>
-						<button class="btn-icon btn-include" title="Include" onclick={() => onToggleStep(round.id, step.id)}>+</button>
-					</div>
-				{/if}
+						{:else if showExcluded}
+							<div class="step-wrap step-excluded-row">
+								<span class="excluded-icon">{stepIcon(step)}</span>
+								<span class="excluded-type">{stepLabel(step)}</span>
+								<span class="excluded-preview">{stepPreview(step).slice(0, 50)}</span>
+								<button class="btn-icon btn-include" title="Include" onclick={() => onToggleStep(round.id, step.id)}>+</button>
+							</div>
+						{/if}
 
-				<!-- Insert after this step -->
-				{#if step.included || step.inserted}
-					<button class="insert-btn" onclick={() => toggleInsertMenu(round.id, step.id)}>+ Insert</button>
-					{#if showInsertMenu?.roundId === round.id && showInsertMenu?.afterStepId === step.id}
-						{@render insertMenu(round.id, step.id)}
-					{/if}
-				{/if}
-			{/each}
+						{#if step.included || step.inserted}
+							<button class="insert-btn" onclick={() => toggleInsertMenu(round.id, step.id)}>+</button>
+							{#if showInsertMenu?.roundId === round.id && showInsertMenu?.afterStepId === step.id}
+								{@render insertMenu(round.id, step.id)}
+							{/if}
+						{/if}
+					{/each}
+				</div>
+			{/if}
+		{/each}
+
+		<div class="add-round-actions">
+			<button class="btn" onclick={() => onAddRound('claude')}>+ Claude Round</button>
+			<button class="btn" onclick={() => onAddRound('terminal')}>+ Terminal Round</button>
 		</div>
-		{/if}
-	{/each}
-
-	<div class="add-round-actions">
-		<button class="btn" onclick={() => onAddRound('claude')}>+ Claude Round</button>
-		<button class="btn" onclick={() => onAddRound('terminal')}>+ Terminal Round</button>
 	</div>
 </section>
 
@@ -215,18 +223,18 @@
 	.panel {
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 10px;
-		background: rgba(28, 16, 26, 0.9);
-		backdrop-filter: blur(12px);
+		overflow: hidden;
 	}
 	.panel-header {
 		position: sticky;
 		top: 0;
-		z-index: 2;
+		z-index: 5;
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
-		padding: 0.85rem 1.1rem;
+		padding: 0.75rem 1rem;
 		background: rgba(28, 16, 26, 0.95);
+		backdrop-filter: blur(12px);
 		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 	.panel-header h2 {
@@ -251,36 +259,40 @@
 		gap: 0.35rem;
 		cursor: pointer;
 	}
-	.toggle-excluded input {
-		accent-color: var(--accent);
-	}
+	.toggle-excluded input { accent-color: var(--accent); }
 	.toggle-excluded span {
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
 		color: var(--text-secondary);
 	}
 
-	/* ─── Round ──────────────────────────── */
-	.trace-round {
-		margin: 0.75rem 0.9rem;
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 8px;
-		background: rgba(255, 255, 255, 0.03);
-		padding: 0.6rem;
+	/* ─── Terminal-like background ─── */
+	.terminal-bg {
+		background: #241a20;
+		padding: 12px 16px;
+		font-family: var(--font-mono);
+		font-size: 13px;
+		line-height: 1.65;
 	}
-	.round-header {
+
+	/* ─── Round ─── */
+	.trace-round {
+		margin-bottom: 1rem;
+	}
+	.round-header-bar {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		margin-bottom: 0.4rem;
+		padding: 0.3rem 0;
+		margin-bottom: 0.25rem;
 	}
 	.kind-badge {
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
+		font-size: 0.65rem;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		padding: 0.2rem 0.5rem;
-		border-radius: 4px;
+		padding: 0.15rem 0.4rem;
+		border-radius: 3px;
 		background: var(--accent-soft);
 		color: var(--orange-300);
 		flex-shrink: 0;
@@ -290,55 +302,91 @@
 		background: rgba(112, 200, 184, 0.18);
 		color: var(--teal);
 	}
-	.prompt-input {
-		flex: 1;
-		padding: 0.4rem 0.6rem;
-		background: rgba(0, 0, 0, 0.35);
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 5px;
-		color: var(--text-primary);
-		font-family: var(--font-mono);
-		font-size: 0.82rem;
-	}
-	.prompt-input:focus {
-		outline: none;
-		border-color: var(--orange-400);
-	}
 	.source-indicator {
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text-secondary);
+		font-size: 0.65rem;
+		color: var(--text-tertiary);
 		background: rgba(255, 255, 255, 0.07);
-		padding: 0.15rem 0.4rem;
-		border-radius: 4px;
-		flex-shrink: 0;
+		padding: 0.1rem 0.35rem;
+		border-radius: 3px;
 	}
 	.round-count {
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text-secondary);
-		flex-shrink: 0;
+		font-size: 0.65rem;
+		color: var(--text-tertiary);
 	}
 	.round-actions {
+		margin-left: auto;
 		display: flex;
-		gap: 0.2rem;
-		flex-shrink: 0;
+		gap: 0.15rem;
 	}
 
-	/* ─── Excluded round ─────────────────── */
-	.round-excluded {
-		opacity: 0.4;
+	/* ─── Prompt (matches real terminal styling) ─── */
+	.prompt-block {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		padding: 10px 16px;
+		background: rgba(233, 84, 32, 0.14);
+		border-right: 3px solid var(--accent);
+		border-radius: 6px 0 0 6px;
+		margin-bottom: 4px;
+	}
+	.prompt-chevron {
+		color: var(--accent);
+		font-weight: 700;
+		font-size: 18px;
+		line-height: 1.4;
+		flex-shrink: 0;
+		user-select: none;
+	}
+	.prompt-input {
+		flex: 1;
 		background: transparent;
-		border-style: dashed;
-		padding: 0.35rem 0.6rem;
+		border: none;
+		border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+		color: var(--text-secondary);
+		font-family: var(--font-mono);
+		font-size: 13px;
+		line-height: 1.65;
+		padding: 0;
+	}
+	.prompt-input:focus {
+		outline: none;
+		border-bottom-color: var(--orange-400);
+	}
+	.prompt-block.terminal-prompt {
+		background: rgba(255, 255, 255, 0.04);
+		border-right-color: var(--text-tertiary);
+	}
+	.terminal-cmd {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		flex: 1;
+	}
+	.terminal-percent {
+		color: var(--green);
+		font-weight: 700;
+		user-select: none;
+	}
+	.terminal-input {
+		color: var(--text-primary);
+	}
+
+	/* ─── Excluded round ─── */
+	.round-excluded {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.5rem;
+		opacity: 0.4;
+		border: 1px dashed rgba(255, 255, 255, 0.1);
+		border-radius: 6px;
+		margin-bottom: 0.5rem;
 		transition: opacity 0.15s;
 	}
-	.round-excluded:hover {
-		opacity: 0.65;
-	}
-	.round-excluded .round-header {
-		margin-bottom: 0;
-	}
+	.round-excluded:hover { opacity: 0.65; }
 	.round-prompt-preview {
 		font-family: var(--font-mono);
 		font-size: 0.78rem;
@@ -349,98 +397,124 @@
 		white-space: nowrap;
 	}
 
-	/* ─── Steps (shared) ──────────────────── */
-	.step {
-		border-radius: 5px;
-		font-family: var(--font-mono);
-		font-size: 0.78rem;
-	}
-	.step-icon {
-		font-size: 0.85rem;
-		width: 1.4rem;
-		text-align: center;
-		flex-shrink: 0;
-	}
-	.step-type {
-		font-size: 0.7rem;
-		color: var(--text-secondary);
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		min-width: 5.5rem;
-		flex-shrink: 0;
-	}
-	.step-type-badge {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--text-secondary);
-		background: rgba(255, 255, 255, 0.07);
-		padding: 0.15rem 0.45rem;
+	/* ─── Step wrapper with hover toolbar ─── */
+	.step-wrap {
+		position: relative;
 		border-radius: 4px;
+		transition: background 0.15s;
 	}
-	.step-actions {
-		margin-left: auto;
+	.step-wrap:hover {
+		background: rgba(255, 255, 255, 0.02);
+	}
+	.step-wrap.editing {
+		outline: 1px solid rgba(233, 84, 32, 0.4);
+		outline-offset: -1px;
+	}
+	.step-wrap.step-hidden {
+		opacity: 0.45;
+		border-left: 2px dashed var(--mauve);
+	}
+
+	/* Floating toolbar — hidden by default, visible on hover */
+	.step-toolbar {
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 3;
 		display: flex;
-		gap: 0.2rem;
-		flex-shrink: 0;
+		align-items: center;
+		gap: 2px;
+		padding: 2px 4px;
+		background: rgba(18, 8, 16, 0.92);
+		backdrop-filter: blur(8px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 0 4px 0 6px;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.12s;
 	}
-	.has-comment {
-		font-size: 0.8rem;
+	.step-wrap:hover > .step-toolbar {
+		opacity: 1;
+		pointer-events: auto;
 	}
-	.step-preview {
+
+	.toolbar-type {
+		font-family: var(--font-mono);
+		font-size: 0.6rem;
+		color: var(--text-tertiary);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		padding: 0 0.3rem;
+	}
+	.tb {
+		background: none;
+		border: none;
 		color: var(--text-secondary);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		margin-top: 0.25rem;
-		padding-left: 0.4rem;
-		font-size: 0.78rem;
-	}
-	.step-preview-short {
-		color: var(--text-secondary);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		flex: 1;
+		cursor: pointer;
 		font-size: 0.72rem;
-		opacity: 0.7;
+		padding: 0.15rem 0.3rem;
+		border-radius: 3px;
+		line-height: 1;
+	}
+	.tb:hover {
+		color: var(--text-primary);
+		background: rgba(255, 255, 255, 0.08);
+	}
+	.tb-active {
+		color: var(--mauve);
+	}
+	.tb-danger:hover {
+		color: var(--red);
+	}
+	.tb-badge {
+		font-size: 0.65rem;
+		line-height: 1;
+	}
+	.tb-spacer {
+		width: 1px;
+		height: 12px;
+		background: rgba(255, 255, 255, 0.1);
+		margin: 0 2px;
 	}
 
-	/* ─── Included compact step ─────────── */
-	.step-compact {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.3rem 0.6rem;
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.07);
+	.step-render {
+		position: relative;
+		z-index: 1;
+	}
+	.step-empty {
+		padding: 8px 14px;
+		color: var(--text-tertiary);
+		font-style: italic;
+		font-size: 12px;
 	}
 
-	/* ─── Included full step ────────────── */
-	.step-full {
-		padding: 0.4rem 0.6rem;
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.07);
-	}
-	.step-header {
-		display: flex;
-		align-items: center;
-		gap: 0.45rem;
-	}
-
-	/* ─── Excluded step ─────────────────── */
-	.step-excluded {
+	/* ─── Excluded step row ─── */
+	.step-excluded-row {
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.2rem 0.6rem;
-		opacity: 0.4;
-		border: 1px solid transparent;
+		opacity: 0.35;
 		transition: opacity 0.15s;
 	}
-	.step-excluded:hover {
-		opacity: 0.65;
-		background: rgba(255, 255, 255, 0.02);
+	.step-excluded-row:hover {
+		opacity: 0.6;
+	}
+	.excluded-icon { font-size: 0.8rem; width: 1.2rem; text-align: center; }
+	.excluded-type {
+		font-size: 0.65rem;
+		color: var(--text-tertiary);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		min-width: 5rem;
+	}
+	.excluded-preview {
+		color: var(--text-tertiary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		flex: 1;
+		font-size: 0.7rem;
 	}
 	.btn-include {
 		color: var(--teal) !important;
@@ -448,84 +522,27 @@
 		font-size: 0.85rem !important;
 	}
 
-	/* ─── Editing highlight ──────────────── */
-	.step.editing {
-		border-color: var(--orange-500);
-		box-shadow: 0 0 0 1px rgba(233, 84, 32, 0.3);
-	}
-
-	/* ─── Reset button ───────────────────── */
-	.btn-reset {
-		color: var(--text-secondary) !important;
-	}
-	.btn-reset:hover {
-		color: var(--orange-300) !important;
-	}
-
-	/* ─── Hidden state ───────────────────── */
-	.step-hidden {
-		opacity: 0.5;
-		border-style: dashed;
-	}
-	.btn-hidden {
-		background: none;
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		border-radius: 3px;
-		color: var(--text-tertiary);
-		font-size: 0.7rem;
-		cursor: pointer;
-		padding: 0.12rem 0.35rem;
-		line-height: 1;
-		flex-shrink: 0;
-		transition: all 0.12s;
-	}
-	.btn-hidden:hover {
-		color: var(--mauve);
-		border-color: var(--mauve);
-	}
-	.btn-hidden.active {
-		color: var(--mauve);
-		background: rgba(180, 140, 200, 0.15);
-		border-color: var(--mauve);
-	}
-
-	/* ─── Display mode toggle ────────────── */
-	.btn-mode {
-		background: none;
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		border-radius: 3px;
-		color: var(--text-secondary);
-		font-size: 0.75rem;
-		cursor: pointer;
-		padding: 0.12rem 0.35rem;
-		line-height: 1;
-		flex-shrink: 0;
-		transition: all 0.12s;
-	}
-	.btn-mode:hover {
-		color: var(--orange-300);
-		border-color: var(--orange-400);
-	}
-
-	/* ─── Insert button & menu ────────────── */
+	/* ─── Insert button & menu ─── */
 	.insert-btn {
 		display: block;
 		width: 100%;
-		padding: 0.2rem;
+		padding: 1px;
 		background: transparent;
 		border: 1px dashed transparent;
-		border-radius: 4px;
+		border-radius: 3px;
 		color: var(--text-tertiary);
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
+		font-size: 0.6rem;
 		cursor: pointer;
 		text-align: center;
+		opacity: 0.3;
 		transition: all 0.15s;
 	}
 	.insert-btn:hover {
 		border-color: var(--orange-400);
 		color: var(--orange-300);
 		background: rgba(233, 84, 32, 0.06);
+		opacity: 1;
 	}
 	.insert-menu {
 		display: flex;
@@ -563,11 +580,11 @@
 	.add-round-actions {
 		display: flex;
 		gap: 0.6rem;
-		padding: 1rem;
+		padding: 1rem 0;
 		justify-content: center;
 	}
 
-	/* ─── Buttons ─────────────────────────────── */
+	/* ─── Buttons ─── */
 	.btn {
 		padding: 0.4rem 0.85rem;
 		background: rgba(255, 255, 255, 0.08);
@@ -577,7 +594,6 @@
 		font-family: var(--font-mono);
 		font-size: 0.82rem;
 		cursor: pointer;
-		text-decoration: none;
 		transition: background 0.15s, border-color 0.15s;
 	}
 	.btn:hover {
@@ -589,9 +605,9 @@
 		border: none;
 		color: var(--text-secondary);
 		cursor: pointer;
-		font-size: 0.82rem;
-		padding: 0.2rem 0.35rem;
-		border-radius: 4px;
+		font-size: 0.72rem;
+		padding: 0.15rem 0.3rem;
+		border-radius: 3px;
 	}
 	.btn-icon:hover {
 		color: var(--text-primary);

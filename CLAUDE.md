@@ -49,7 +49,7 @@ export const myTutorial: Tutorial = {
 | `table` | `columns`, `rows`, `moreRows?` | Data table |
 | `divider` | `label` | Visual separator (optional — window steps already render their own separator-like marker) |
 
-All step types inherit `comment?` (tutorial stop annotation) and `compact?` (render as one-line summary instead of full content) from `StepBase`.
+All step types inherit `comment?` (tutorial stop annotation), `compact?` (render as one-line summary instead of full content), and `hidden?` (collapsed "N steps hidden" placeholder in simplified view, shown normally in full log) from `StepBase`.
 
 ### Window content types (`WindowContentData`)
 
@@ -221,7 +221,7 @@ Tutorial YAML (`round-NN.yaml` + `meta.yaml`) is written by the compose step, no
 - `src/lib/trace/types.ts` — TraceState, TraceStep, TraceRound (persisted as `trace.json`)
 - `src/lib/trace/convert.ts` — SessionView ↔ TraceState ↔ TutorialRound[]
 - `src/lib/trace/preview-store.ts` — in-memory preview Tutorial store (server-side Map)
-- `src/lib/curate/components/` — SourcePanel, CuratedPanel, EditDrawer, step-helpers (curate UI)
+- `src/lib/curate/components/` — UnifiedTracePanel, StepEditorModal, step-helpers (curate UI)
 - `src/routes/curate/[slug]/+page.svelte` — curation UI entry
 - `src/routes/preview/[slug]/` — preview route (reuses TutorialViewer)
 - `src/routes/api/traces/[slug]/` — trace persistence + preview endpoints

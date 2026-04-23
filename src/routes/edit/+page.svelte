@@ -16,6 +16,8 @@
 
 	let newTutorialSlug = $state('');
 	let showNewTutorial = $state(false);
+	let newTraceSlug = $state('');
+	let showNewTrace = $state(false);
 
 	let expandedTutorialAssets: Record<string, boolean> = $state({});
 	let copyToast = $state('');
@@ -242,10 +244,31 @@
 	<section class="section grid-traces">
 		<div class="section-header">
 			<h2>Traces</h2>
+			<button class="btn" onclick={() => (showNewTrace = !showNewTrace)}>
+				{showNewTrace ? 'Cancel' : 'New Trace'}
+			</button>
 		</div>
 
-		{#if data.traces.length === 0}
-			<p class="empty">No traces yet. Create one from a session above.</p>
+		{#if showNewTrace}
+			<div class="inline-form">
+				<input
+					type="text"
+					bind:value={newTraceSlug}
+					placeholder="trace-slug"
+					class="slug-input"
+				/>
+				<a
+					class="btn btn-primary"
+					href={newTraceSlug ? `${base}/curate/${newTraceSlug}` : '#'}
+					class:disabled={!newTraceSlug}
+				>
+					Create & Edit
+				</a>
+			</div>
+		{/if}
+
+		{#if data.traces.length === 0 && !showNewTrace}
+			<p class="empty">No traces yet. Create a blank trace or curate one from a session.</p>
 		{:else}
 			<ul class="item-list">
 				{#each data.traces as trace}
@@ -903,5 +926,30 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+	}
+
+	.inline-form {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+	}
+	.slug-input {
+		flex: 1;
+		padding: 0.35rem 0.5rem;
+		background: rgba(0, 0, 0, 0.3);
+		border: 1px solid var(--border-subtle);
+		border-radius: 4px;
+		color: var(--text-primary);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+	}
+	.slug-input:focus {
+		outline: none;
+		border-color: var(--orange-400);
+	}
+	.disabled {
+		opacity: 0.4;
+		pointer-events: none;
 	}
 </style>
