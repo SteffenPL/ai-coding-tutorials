@@ -55,7 +55,7 @@ function escapeHtml(text: string): string {
 		.replace(/>/g, '&gt;');
 }
 
-export function renderInlineCode(html: string): string {
+function renderInlineCode(html: string): string {
 	return html.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
 }
 

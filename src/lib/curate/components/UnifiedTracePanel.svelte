@@ -57,7 +57,7 @@
 	let editingCommentId: string | null = $state(null);
 	let commentEditValue = $state('');
 	let inlineEditingStep: string | null = $state(null);
-	let inlineEditValues: Record<string, string> = $state({});
+	let inlineEditValues: { content: string; toolName: string } = $state({ content: '', toolName: '' });
 
 	function getCommentText(step: TraceStep): string {
 		if (!step.comment) return '';
@@ -82,7 +82,10 @@
 		editingCommentId = null;
 	}
 
-	function cancelCommentEdit() {
+	function cancelCommentEdit(step?: TraceStep) {
+		if (step && step.comment === '') {
+			step.comment = undefined;
+		}
 		editingCommentId = null;
 	}
 
@@ -94,7 +97,7 @@
 	function handleCommentKeydown(e: KeyboardEvent, step: TraceStep) {
 		if (e.key === 'Escape') {
 			e.preventDefault();
-			cancelCommentEdit();
+			cancelCommentEdit(step);
 		} else if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
 			saveComment(step);
@@ -103,13 +106,8 @@
 
 	const inlineEditableTypes = new Set(['assistant', 'thinking', 'tool_call', 'tool_result', 'output']);
 
-	function getStepType(step: TraceStep): string {
-		if (step.inserted) return step.inserted.type;
-		return (step.overrides as Record<string, unknown>)?.type as string ?? '';
-	}
-
 	function canInlineEdit(step: TraceStep): boolean {
-		return inlineEditableTypes.has(getStepType(step));
+		return inlineEditableTypes.has(stepLabel(step));
 	}
 
 	function getInlineEditContent(step: TraceStep): string {
@@ -144,7 +142,7 @@
 	}
 
 	function saveInlineEdit(step: TraceStep) {
-		const type = getStepType(step);
+		const type = stepLabel(step);
 		if (step.inserted) {
 			if (step.inserted.type === 'assistant') step.inserted.html = inlineEditValues.content;
 			else if (step.inserted.type === 'tool_call') {
@@ -272,7 +270,7 @@
 {/snippet}
 
 {#snippet inlineEditor(step: TraceStep)}
-	{@const type = getStepType(step)}
+	{@const type = stepLabel(step)}
 	<div class="inline-edit-area">
 		<div class="inline-edit-header">
 			<span class="inline-edit-label">{type}</span>
