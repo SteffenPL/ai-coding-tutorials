@@ -17,7 +17,7 @@
 	that step (same behavior as the taskbar item).
 -->
 <script lang="ts">
-	import { getWindowIcon, type WindowStep } from '$lib/data/tutorials';
+	import { getWindowIcon, isChromeless, type WindowStep } from '$lib/data/tutorials';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
 	import { renderMarkdown } from '$lib/utils/markdown';
@@ -78,8 +78,10 @@
 	{/if}
 	{#each windowSteps as win, idx}
 		{@const isFocused = focusedWindow === win.step}
+		{@const chromeless = isChromeless(win.step.content)}
 		<div
 			class="fiji-window window"
+			class:chromeless
 			class:visible={win.index <= currentStep}
 			class:focused-hidden={isFocused}
 			class:stack-0={win.index <= currentStep && getStackClass(idx) === 'stack-0'}
@@ -87,30 +89,35 @@
 			class:stack-2={win.index <= currentStep && getStackClass(idx) === 'stack-2'}
 			class:stack-3={win.index <= currentStep && getStackClass(idx) === 'stack-3'}
 		>
-			<WindowChrome
-				title={win.step.windowTitle}
-				subtitle={win.step.subtitle}
-				icon={win.step.icon ?? getWindowIcon(win.step.content)}
-				onMaximize={() => onFocus(win.step)}
-				onHeaderClick={() => onJump(win.index)}
-			/>
+			{#if !chromeless}
+				<WindowChrome
+					title={win.step.windowTitle}
+					subtitle={win.step.subtitle}
+					icon={win.step.icon ?? getWindowIcon(win.step.content)}
+					onMaximize={() => onFocus(win.step)}
+					onHeaderClick={() => onJump(win.index)}
+				/>
+			{/if}
 			<WindowContent content={win.step.content} />
 		</div>
 	{/each}
 </div>
 
 {#if focusedWindow}
+	{@const chromeless = isChromeless(focusedWindow.content)}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="max-backdrop" onclick={onRestore} role="presentation"></div>
-	<div class="window max-window">
-		<WindowChrome
-			title={focusedWindow.windowTitle}
-			subtitle={focusedWindow.subtitle}
-			icon={focusedWindow.icon ?? getWindowIcon(focusedWindow.content)}
-			isMaximized
-			onRestore={onRestore}
-		/>
+	<div class="window max-window" class:chromeless>
+		{#if !chromeless}
+			<WindowChrome
+				title={focusedWindow.windowTitle}
+				subtitle={focusedWindow.subtitle}
+				icon={focusedWindow.icon ?? getWindowIcon(focusedWindow.content)}
+				isMaximized
+				onRestore={onRestore}
+			/>
+		{/if}
 		<div class="max-body">
 			<WindowContent content={focusedWindow.content} />
 		</div>
@@ -290,6 +297,20 @@
 	.fiji-window.focused-hidden {
 		opacity: 0 !important;
 		pointer-events: none;
+	}
+
+	/* Chromeless windows (collections) fill the entire area */
+	.fiji-window.chromeless {
+		width: calc(100% - 16px);
+		height: calc(100% - 16px);
+		border-radius: 0;
+		box-shadow: none;
+		background: transparent;
+	}
+
+	.max-window.chromeless {
+		border-radius: 0;
+		background: transparent;
 	}
 
 	/* ─── Maximize overlay ─── */

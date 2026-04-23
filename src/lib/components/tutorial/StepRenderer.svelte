@@ -266,20 +266,20 @@
 	</div>
 
 {:else if step.type === 'window'}
-	{#if step.content.kind === 'multi-window'}
+	{#if step.content.kind === 'window-collection'}
 		<!-- Desktop: collapsible marker with sub-window list -->
-		<details class="multi-window-marker">
+		<details class="collection-marker">
 			<summary class="window-marker" role="button">
 				<span class="marker-icon" aria-hidden="true">⊞</span>
 				<span class="marker-title">{step.windowTitle}</span>
 				{#if step.subtitle}<span class="marker-sub">{step.subtitle}</span>{/if}
 				<span class="marker-count">{step.content.windows.length}</span>
 			</summary>
-			<div class="multi-window-children">
+			<div class="collection-children">
 				{#each step.content.windows as entry}
 					<button type="button" class="window-marker window-marker--child" onclick={() => onFocusWindow(step)}>
 						<span class="marker-icon" aria-hidden="true">&#8599;</span>
-						<span class="marker-title">{entry.label}</span>
+						<span class="marker-title">{entry.title}</span>
 					</button>
 				{/each}
 			</div>
@@ -952,23 +952,23 @@
 	}
 
 	/* ── Multi-window marker ── */
-	.multi-window-marker {
+	.collection-marker {
 		margin: 6px 0 6px 4px;
 	}
 
-	.multi-window-marker > summary {
+	.collection-marker > summary {
 		list-style: none;
 	}
 
-	.multi-window-marker > summary::-webkit-details-marker {
+	.collection-marker > summary::-webkit-details-marker {
 		display: none;
 	}
 
-	.multi-window-marker > summary .marker-icon {
+	.collection-marker > summary .marker-icon {
 		transition: transform 0.2s ease;
 	}
 
-	.multi-window-marker[open] > summary .marker-icon {
+	.collection-marker[open] > summary .marker-icon {
 		transform: rotate(90deg);
 	}
 
@@ -982,7 +982,7 @@
 		flex-shrink: 0;
 	}
 
-	.multi-window-children {
+	.collection-children {
 		padding-left: 16px;
 		border-left: 1px solid var(--border-subtle);
 		margin-left: 12px;
@@ -1023,7 +1023,7 @@
 
 		/* On mobile, hide the desktop marker — full inline window shown instead */
 		.window-marker { display: none; }
-		.multi-window-marker { display: none; }
+		.collection-marker { display: none; }
 
 		.inline-fiji {
 			display: inline-flex;

@@ -233,18 +233,20 @@ export interface VideoContent {
 }
 
 /**
- * Grid of sub-windows rendered in a rows×cols layout.
- * Each child is a labelled WindowContentData item.
+ * A collection of sub-windows arranged in a rows×cols grid.
+ * Rendered directly in the desktop stack without an outer chrome —
+ * each sub-window gets its own WindowChrome.
  */
-export interface MultiWindowContent {
-	kind: 'multi-window';
+export interface WindowCollectionContent {
+	kind: 'window-collection';
 	rows: number;
 	cols: number;
-	windows: MultiWindowEntry[];
+	windows: WindowCollectionEntry[];
 }
 
-export interface MultiWindowEntry {
-	label: string;
+export interface WindowCollectionEntry {
+	title: string;
+	subtitle?: string;
 	content: WindowContentData;
 }
 
@@ -255,7 +257,7 @@ export type WindowContentData =
 	| SourceContent
 	| FolderContent
 	| VideoContent
-	| MultiWindowContent;
+	| WindowCollectionContent;
 
 /** Default icon text for each window content kind */
 export function getWindowIcon(content: WindowContentData): string {
@@ -266,8 +268,13 @@ export function getWindowIcon(content: WindowContentData): string {
 		case 'source': return '</>';
 		case 'folder': return '📁';
 		case 'video': return '▶';
-		case 'multi-window': return '⊞';
+		case 'window-collection': return '⊞';
 	}
+}
+
+/** Whether a window content kind renders its own chrome (no outer chrome needed). */
+export function isChromeless(content: WindowContentData): boolean {
+	return content.kind === 'window-collection';
 }
 
 /**

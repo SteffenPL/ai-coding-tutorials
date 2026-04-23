@@ -52,7 +52,7 @@
 		allSteps[currentStep]?.type === 'window' ? allSteps[currentStep] as WindowStep : null
 	);
 	$effect(() => {
-		if (currentWindowStep?.content.kind === 'multi-window') {
+		if (currentWindowStep?.content.kind === 'window-collection') {
 			focusedWindow = currentWindowStep;
 		}
 	});

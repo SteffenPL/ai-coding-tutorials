@@ -88,7 +88,7 @@ function rewriteContent(slug: string, content: WindowContentData): WindowContent
 				src: rewriteAssetPath(slug, content.src)!,
 				poster: rewriteAssetPath(slug, content.poster)
 			};
-		case 'multi-window':
+		case 'window-collection':
 			return {
 				...content,
 				windows: content.windows.map((w) => ({
