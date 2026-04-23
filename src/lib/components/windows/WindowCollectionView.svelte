@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type { WindowCollectionContent } from '$lib/data/tutorials';
+	import type { WindowCollectionContent, WindowCollectionEntry } from '$lib/data/tutorials';
 	import { getWindowIcon } from '$lib/data/tutorials';
 	import WindowChrome from './WindowChrome.svelte';
 	import WindowContent from './WindowContent.svelte';
 
 	let { content }: { content: WindowCollectionContent } = $props();
+	let maximized = $state<WindowCollectionEntry | null>(null);
 </script>
 
 <div
@@ -17,6 +18,7 @@
 				title={entry.title}
 				subtitle={entry.subtitle}
 				icon={getWindowIcon(entry.content)}
+				onMaximize={() => { maximized = entry; }}
 			/>
 			<div class="sub-body">
 				<WindowContent content={entry.content} />
@@ -25,6 +27,24 @@
 	{/each}
 </div>
 
+{#if maximized}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="max-backdrop" onclick={() => { maximized = null; }}></div>
+	<div class="max-sub-window">
+		<WindowChrome
+			title={maximized.title}
+			subtitle={maximized.subtitle}
+			icon={getWindowIcon(maximized.content)}
+			isMaximized
+			onRestore={() => { maximized = null; }}
+		/>
+		<div class="max-sub-body">
+			<WindowContent content={maximized.content} />
+		</div>
+	</div>
+{/if}
+
 <style>
 	.collection-grid {
 		display: grid;
@@ -32,6 +52,8 @@
 		gap: 6px;
 		justify-content: center;
 		align-content: center;
+		width: 100%;
+		height: 100%;
 	}
 
 	.sub-window {
@@ -66,5 +88,48 @@
 		width: 100%;
 		height: auto;
 		image-rendering: auto;
+	}
+
+	/* ── Sub-window maximize overlay ── */
+	.max-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.6);
+		z-index: 300;
+	}
+
+	.max-sub-window {
+		position: fixed;
+		inset: 40px 60px;
+		z-index: 310;
+		display: flex;
+		flex-direction: column;
+		border-radius: 10px;
+		overflow: hidden;
+		border: 1px solid var(--border-subtle);
+		background: var(--bg-secondary);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+		animation: maxPopIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	@keyframes maxPopIn {
+		from { opacity: 0; transform: scale(0.97); }
+		to { opacity: 1; transform: scale(1); }
+	}
+
+	.max-sub-body {
+		flex: 1;
+		min-height: 0;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #000;
+	}
+
+	.max-sub-body :global(img) {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
 	}
 </style>

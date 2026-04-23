@@ -159,8 +159,8 @@ steps:
     windowTitle: Approaches 1–5
     content:
       kind: window-collection
-      rows: 1
-      cols: 5
+      rows: 2
+      cols: 3
       windows:
         - title: "#1 Otsu (raw)"
           content:
@@ -195,8 +195,8 @@ steps:
     windowTitle: Approaches 6–10
     content:
       kind: window-collection
-      rows: 1
-      cols: 5
+      rows: 2
+      cols: 3
       windows:
         - title: "#6 Median + Otsu + WS"
           content:

@@ -219,8 +219,8 @@ steps:
       subtitle: "Basic thresholding methods"
       content:
         kind: window-collection
-        rows: 1
-        cols: 5
+        rows: 2
+        cols: 3
         windows:
           - title: "#1 Otsu (raw)"
             content: { kind: fiji-image, src: step_003.png }
@@ -251,8 +251,8 @@ steps:
       subtitle: "Advanced methods"
       content:
         kind: window-collection
-        rows: 1
-        cols: 5
+        rows: 2
+        cols: 3
         windows:
           - title: "#6 Median + Otsu + WS"
             content: { kind: fiji-image, src: step_008.png }

@@ -300,7 +300,15 @@
 		pointer-events: none;
 	}
 
-	/* Chromeless windows (collections) — fill the area, transparent */
+	/* Chromeless windows (collections) — invisible container, fills the area */
+	.fiji-window.chromeless,
+	.max-window.chromeless {
+		border: none;
+		border-radius: 0;
+		box-shadow: none !important;
+		background: transparent;
+	}
+
 	.fiji-window.chromeless {
 		left: 0;
 		bottom: 0;
@@ -309,31 +317,26 @@
 		max-width: 100%;
 		max-height: 100%;
 		transform-origin: center center;
-		border-radius: 0;
-		box-shadow: none;
-		background: transparent;
 	}
 
 	.fiji-window.chromeless.stack-0 {
 		transform: none;
+		box-shadow: none !important;
 	}
 
 	.fiji-window.chromeless.stack-1 {
 		transform: scale(0.95);
+		box-shadow: none !important;
 	}
 
 	.fiji-window.chromeless.stack-2 {
 		transform: scale(0.90);
+		box-shadow: none !important;
 	}
 
 	.fiji-window.chromeless.stack-3 {
 		transform: scale(0.85);
-	}
-
-	.max-window.chromeless {
-		border-radius: 0;
-		background: transparent;
-		box-shadow: none;
+		box-shadow: none !important;
 	}
 
 	/* ─── Maximize overlay ─── */
