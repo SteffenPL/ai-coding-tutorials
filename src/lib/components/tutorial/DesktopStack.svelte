@@ -300,13 +300,14 @@
 		pointer-events: none;
 	}
 
-	/* Chromeless windows (collections) — transparent, content-sized, centered */
+	/* Chromeless windows (collections) — fill the area, transparent */
 	.fiji-window.chromeless {
-		width: auto;
-		max-width: calc(100% - 16px);
-		max-height: calc(100% - 16px);
-		left: 50%;
-		bottom: 50%;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		max-width: 100%;
+		max-height: 100%;
 		transform-origin: center center;
 		border-radius: 0;
 		box-shadow: none;
@@ -314,19 +315,19 @@
 	}
 
 	.fiji-window.chromeless.stack-0 {
-		transform: translate(-50%, 50%) scale(1);
+		transform: none;
 	}
 
 	.fiji-window.chromeless.stack-1 {
-		transform: translate(-50%, 50%) scale(0.95);
+		transform: scale(0.95);
 	}
 
 	.fiji-window.chromeless.stack-2 {
-		transform: translate(-50%, 50%) scale(0.90);
+		transform: scale(0.90);
 	}
 
 	.fiji-window.chromeless.stack-3 {
-		transform: translate(-50%, 50%) scale(0.85);
+		transform: scale(0.85);
 	}
 
 	.max-window.chromeless {

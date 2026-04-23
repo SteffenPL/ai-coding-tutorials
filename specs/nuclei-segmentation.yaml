@@ -202,25 +202,24 @@ steps:
         これが MCP アプローチの主な利点です — AI が実際に生成物を見て
         的確な判断を下せます。
 
-  # All 10 approach results as a multi-window grid
+  # Approaches 1-5 results
   - round: 1
     step: 26
     comment:
       en: >-
-        All 10 segmentation results side by side. Approach 9 (Gaussian +
-        Otsu + Open + Watershed) wins — morphological opening removes thin
-        bridges between touching nuclei before Watershed splits them,
-        producing the cleanest shapes.
+        The first five approaches compared: raw thresholding methods (Otsu,
+        Triangle, Li) and Gaussian-smoothed variants. Without Watershed,
+        touching nuclei merge into blobs. Adding Watershed (#5) splits them.
       ja: >-
-        10 種類のセグメンテーション結果を並べて表示。アプローチ 9（Gaussian +
-        Otsu + Open + Watershed）が勝利 — 形態学的 opening が接触核間の
-        細い橋を除去し、Watershed が分離、最もクリーンな形状を生成。
+        最初の 5 手法の比較：素の閾値法（Otsu、Triangle、Li）と
+        ガウスぼかし併用版。Watershed なしでは接触核が結合。
+        Watershed 追加（#5）で分離されます。
     override:
-      windowTitle: "Segmentation Approaches — Comparison"
-      subtitle: "10 methods · 2×5 grid"
+      windowTitle: "Approaches 1–5"
+      subtitle: "Basic thresholding methods"
       content:
         kind: window-collection
-        rows: 2
+        rows: 1
         cols: 5
         windows:
           - title: "#1 Otsu (raw)"
@@ -231,15 +230,37 @@ steps:
             content: { kind: fiji-image, src: step_005.png }
           - title: "#4 Gaussian + Otsu"
             content: { kind: fiji-image, src: step_006.png }
-          - title: "#5 Gaussian + Otsu + WS"
+          - title: "#5 Gauss + Otsu + WS"
             content: { kind: fiji-image, src: step_007.png }
+
+  # Approaches 6-10 results
+  - round: 1
+    step: 47
+    comment:
+      en: >-
+        Approaches 6–10 add morphological operations and alternative
+        thresholds. #9 (Gaussian + Otsu + Open + Watershed) wins —
+        morphological opening removes debris and thin bridges before
+        Watershed, producing the cleanest nucleus shapes.
+      ja: >-
+        アプローチ 6–10 は形態学的操作と代替閾値を追加。#9（Gaussian +
+        Otsu + Open + Watershed）が勝利 — 形態学的 opening がデブリと
+        細い橋を Watershed 前に除去し、最もクリーンな核形状を生成。
+    override:
+      windowTitle: "Approaches 6–10"
+      subtitle: "Advanced methods"
+      content:
+        kind: window-collection
+        rows: 1
+        cols: 5
+        windows:
           - title: "#6 Median + Otsu + WS"
             content: { kind: fiji-image, src: step_008.png }
-          - title: "#7 Gaussian + Triangle + WS"
+          - title: "#7 Gauss + Triangle + WS"
             content: { kind: fiji-image, src: step_009.png }
           - title: "#8 Phansalkar (local)"
             content: { kind: fiji-image, src: step_010.png }
-          - title: "#9 Gaussian + Otsu + Open + WS ★"
+          - title: "#9 Gauss + Otsu + Open + WS ★"
             content: { kind: fiji-image, src: step_011.png }
           - title: "#10 Huang + WS"
             content: { kind: fiji-image, src: step_012.png }
