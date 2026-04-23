@@ -55,6 +55,10 @@ function escapeHtml(text: string): string {
 		.replace(/>/g, '&gt;');
 }
 
+function renderInlineCode(html: string): string {
+	return html.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+}
+
 function nodeToSteps(node: DisplayNode, roundIdx: number, nodeIdx: number): TraceStep[] {
 	const ref = { roundIndex: roundIdx, nodeIndex: nodeIdx };
 
@@ -66,7 +70,7 @@ function nodeToSteps(node: DisplayNode, roundIdx: number, nodeIdx: number): Trac
 		case 'assistant-text':
 			return [makeStep(
 				!!node.isFinal,
-				{ type: 'assistant', html: `<p>${escapeHtml(node.text)}</p>`, final: node.isFinal }
+				{ type: 'assistant', html: renderInlineCode(`<p>${escapeHtml(node.text)}</p>`), final: node.isFinal }
 			)];
 		case 'thinking':
 			return [makeStep(false, { type: 'thinking', text: node.text })];
@@ -96,7 +100,7 @@ function nodeToSteps(node: DisplayNode, roundIdx: number, nodeIdx: number): Trac
 			return steps;
 		}
 		case 'user-text':
-			return [makeStep(false, { type: 'assistant', html: `<p>${escapeHtml(node.text)}</p>` })];
+			return [makeStep(false, { type: 'assistant', html: renderInlineCode(`<p>${escapeHtml(node.text)}</p>`) })];
 		case 'compact':
 			return [];
 		default:

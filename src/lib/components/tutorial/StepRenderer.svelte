@@ -224,8 +224,9 @@
 
 	/* ── Final answer: highlighted with teal ── */
 	.assistant-block.final {
-		background: rgba(112, 200, 184, 0.12);
+		background: rgba(112, 200, 184, 0.14);
 		border-left-color: var(--teal);
+		border-left-width: 4px;
 	}
 
 	.assistant-label {
@@ -246,13 +247,27 @@
 		margin-bottom: 10px;
 	}
 
+	.assistant-text :global(.inline-code) {
+		background: rgba(255, 255, 255, 0.1);
+		color: var(--text-primary);
+		padding: 1px 5px;
+		border-radius: 3px;
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+	}
+
 	/* ── Tool calls + results ── */
 	.tool-call {
-		border-left: 2px solid var(--border-subtle);
+		border-left: 3px solid var(--peach);
 		border-radius: 0;
 		padding: 8px 14px;
 		margin: 8px 0;
 		font-size: 12px;
+		transition: background 0.15s;
+	}
+
+	.tool-call:hover {
+		background: rgba(232, 160, 112, 0.04);
 	}
 
 	.tool-name {
@@ -280,14 +295,15 @@
 		margin: 4px 0 8px 0;
 		font-size: 11px;
 		color: var(--text-secondary);
+		background: rgba(255, 255, 255, 0.015);
 	}
 
 	/* ── Thinking ── */
 	.thinking-block {
 		margin: 8px 0;
-		border-left: 2px solid var(--mauve);
+		border-left: 3px solid var(--mauve);
 		border-radius: 0 6px 6px 0;
-		background: rgba(180, 140, 200, 0.06);
+		background: rgba(122, 69, 104, 0.1);
 	}
 
 	.thinking-summary {
