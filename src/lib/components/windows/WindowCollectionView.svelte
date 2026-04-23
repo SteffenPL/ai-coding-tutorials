@@ -91,16 +91,17 @@
 	}
 
 	/* ── Sub-window maximize overlay ── */
+	/* Match DesktopStack's maximize: absolute to nearest positioned ancestor (.workspace) */
 	.max-backdrop {
-		position: fixed;
+		position: absolute;
 		inset: 0;
 		background: rgba(0, 0, 0, 0.6);
 		z-index: 300;
 	}
 
 	.max-sub-window {
-		position: fixed;
-		inset: 40px 60px;
+		position: absolute;
+		inset: 18px 22px;
 		z-index: 310;
 		display: flex;
 		flex-direction: column;
