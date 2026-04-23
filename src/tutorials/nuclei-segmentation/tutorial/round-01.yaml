@@ -1,0 +1,52 @@
+prompt: Open @tests/examples/Osteosarcoma_01.tif with Fiji
+steps:
+  - type: assistant
+    html: <p>I&#39;ll open the image in Fiji using an ImageJ macro.</p>
+    final: true
+    comment:
+      en: >-
+        Claude plans to open the fluorescence microscopy image using an ImageJ macro via the Fiji
+        MCP server — a bridge that lets Claude control Fiji programmatically.
+      ja: Claude は Fiji MCP サーバー（Claude が Fiji をプログラムで制御できる ブリッジ）経由で ImageJ マクロを使い、蛍光顕微鏡画像を開く方針を立てます。
+  - type: tool_call
+    toolName: fiji — run_ij_macro
+    code: open("Osteosarcoma_01.tif");
+    comment:
+      en: >-
+        A one-line ImageJ macro opens the TIFF file. The MCP server forwards it to the running Fiji
+        instance and returns the result.
+      ja: 1 行の ImageJ マクロで TIFF ファイルを開きます。MCP サーバーが 実行中の Fiji インスタンスに転送し、結果を返します。
+  - type: tool_result
+    text: >-
+      {"status":"completed","stdout":"","stderr":"","value":null,"error":null,"duration_ms":3416,"execution_id":null,"active_image":"Osteosarcoma_01.tif","dismissed_dialogs":[],"results_snapshot":null}
+    compact: true
+  - type: window
+    windowTitle: Osteosarcoma_01.tif
+    content:
+      kind: fiji-image
+      src: step_001.png
+      statusBar: 1376×1104 pixels; RGB
+    comment:
+      en: >-
+        Claude requests a thumbnail of the opened image. This is a fluorescence micrograph of
+        osteosarcoma cells — blue (DAPI) marks nuclei, green marks cytoskeleton/actin.
+      ja: Claude が開いた画像のサムネイルを要求します。これはオステオサルコーマ 細胞の蛍光顕微鏡写真で、青（DAPI）が核を、緑が細胞骨格/アクチンを示します。
+    subtitle: 1376×1104 · RGB · fluorescence
+  - type: assistant
+    html: >-
+      <p>The image is open in Fiji. Here&#39;s what we&#39;re looking at:</p><p>- **Title**:
+      Osteosarcoma_01.tif<br/>- **Dimensions**: 1376 × 1104 pixels, single slice<br/>- **Type**: RGB
+      color<br/>- **Content**: Fluorescence microscopy of osteosarcoma cells — looks like a
+      multi-channel composite with nuclei (blue/cyan) and cytoplasm/actin (green), on a dark
+      background.</p><p>`★ Insight ─────────────────────────────────────`<br/>This is a classic
+      fluorescence microscopy image. The distinct channels (likely DAPI for nuclei and a green
+      fluorophore for cytoskeleton/actin) make it well-suited for segmentation tasks — you can split
+      channels to isolate nuclei or cell bodies
+      independently.<br/>`─────────────────────────────────────────────────`</p><p>Let me know if
+      you&#39;d like to process it further!</p>
+    final: true
+    comment:
+      en: >-
+        The image metadata confirms it's a single-slice RGB image at 1376×1104 pixels — typical for
+        a widefield fluorescence capture.
+      ja: 画像メタデータにより、1376×1104 ピクセルの単一スライス RGB 画像 であることが確認されます — ワイドフィールド蛍光撮影の典型的な構成です。

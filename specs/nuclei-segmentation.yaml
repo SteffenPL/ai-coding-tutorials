@@ -1,0 +1,424 @@
+slug: nuclei-segmentation
+title:
+  en: "Nuclei Segmentation with Fiji"
+  ja: "Fiji による核セグメンテーション"
+tags: [fiji, segmentation, fluorescence, bioimage, mcp]
+thumbnail: step_001.png
+author: Steffen Plunder
+
+welcome:
+  heading:
+    en: "Nuclei Segmentation with Fiji"
+    ja: "Fiji による核セグメンテーション"
+  description:
+    en: >-
+      Watch Claude Code drive Fiji via MCP to segment nuclei in a
+      fluorescence microscopy image. It tries 10 different thresholding
+      and morphology pipelines, visually compares them all, picks the
+      best, and counts 103 nuclei — all from two natural-language prompts.
+    ja: >-
+      Claude Code が MCP 経由で Fiji を操作し、蛍光顕微鏡画像の核をセグメンテーション
+      する様子をご覧ください。10 種類の閾値処理・形態学パイプラインを試し、
+      すべてを視覚的に比較して最良のものを選び、103 個の核をカウントします —
+      すべて 2 つの自然言語プロンプトで。
+  learnings:
+    - en: Opening images and running ImageJ macros via Fiji MCP
+      ja: Fiji MCP 経由で画像を開き ImageJ マクロを実行する
+    - en: Systematic comparison of segmentation approaches
+      ja: セグメンテーション手法の体系的な比較
+    - en: Debugging spatial calibration issues in Analyze Particles
+      ja: Analyze Particles での空間キャリブレーション問題のデバッグ
+
+truncateLines: 60
+
+rounds:
+  # Round 1: Open the image
+  - round: 0
+    include: commented
+
+  # Round 2: Segment the nuclei (curated highlights from 102 steps)
+  - round: 1
+    include: commented
+
+steps:
+  # ── Round 0: Open the image ──────────────────
+  - round: 0
+    step: 0
+    comment:
+      en: >-
+        Claude plans to open the fluorescence microscopy image using an
+        ImageJ macro via the Fiji MCP server — a bridge that lets Claude
+        control Fiji programmatically.
+      ja: >-
+        Claude は Fiji MCP サーバー（Claude が Fiji をプログラムで制御できる
+        ブリッジ）経由で ImageJ マクロを使い、蛍光顕微鏡画像を開く方針を立てます。
+
+  - round: 0
+    step: 2
+    comment:
+      en: >-
+        A one-line ImageJ macro opens the TIFF file. The MCP server
+        forwards it to the running Fiji instance and returns the result.
+      ja: >-
+        1 行の ImageJ マクロで TIFF ファイルを開きます。MCP サーバーが
+        実行中の Fiji インスタンスに転送し、結果を返します。
+    override:
+      code: "open(\"Osteosarcoma_01.tif\");"
+
+  - round: 0
+    step: 3
+    compact: true
+
+  - round: 0
+    step: 11
+    comment:
+      en: >-
+        Claude requests a thumbnail of the opened image. This is a
+        fluorescence micrograph of osteosarcoma cells — blue (DAPI)
+        marks nuclei, green marks cytoskeleton/actin.
+      ja: >-
+        Claude が開いた画像のサムネイルを要求します。これはオステオサルコーマ
+        細胞の蛍光顕微鏡写真で、青（DAPI）が核を、緑が細胞骨格/アクチンを示します。
+    override:
+      windowTitle: "Osteosarcoma_01.tif"
+      subtitle: "1376×1104 · RGB · fluorescence"
+      content:
+        kind: fiji-image
+        src: step_001.png
+        statusBar: "1376×1104 pixels; RGB"
+
+  - round: 0
+    step: 12
+    comment:
+      en: >-
+        The image metadata confirms it's a single-slice RGB image at
+        1376×1104 pixels — typical for a widefield fluorescence capture.
+      ja: >-
+        画像メタデータにより、1376×1104 ピクセルの単一スライス RGB 画像
+        であることが確認されます — ワイドフィールド蛍光撮影の典型的な構成です。
+
+  # ── Round 1: Segment the nuclei ──────────────
+
+  # Plan
+  - round: 1
+    step: 0
+    comment:
+      en: >-
+        Claude outlines its strategy: extract the blue (nuclei) channel,
+        then systematically test 10 different segmentation pipelines
+        varying thresholds, preprocessing, and post-processing.
+      ja: >-
+        Claude が戦略を説明します：青（核）チャンネルを抽出し、閾値、
+        前処理、後処理を変えた 10 種類のセグメンテーションパイプラインを
+        体系的にテストします。
+
+  # Extract blue channel
+  - round: 1
+    step: 1
+    comment:
+      en: >-
+        Channel splitting isolates the DAPI (blue) signal. Red and green
+        channels are discarded — only the nuclear stain matters for
+        segmentation.
+      ja: >-
+        チャンネル分割で DAPI（青）信号を分離します。赤と緑のチャンネルは
+        破棄されます — セグメンテーションに必要なのは核染色のみです。
+    override:
+      code: |-
+        selectWindow("Osteosarcoma_01.tif");
+        run("Duplicate...", "title=nuclei_source");
+        run("Split Channels");
+        // Keep blue channel (DAPI/nuclei), close the rest
+        selectWindow("nuclei_source (red)"); close();
+        selectWindow("nuclei_source (green)"); close();
+        rename("nuclei_blue");
+
+  - round: 1
+    step: 2
+    compact: true
+
+  # Blue channel thumbnail
+  - round: 1
+    step: 7
+    comment:
+      en: >-
+        The isolated blue channel shows clear nuclei with varying
+        intensities and some clustering — typical challenges for
+        automated segmentation.
+      ja: >-
+        分離された青チャンネルには、輝度の異なる核と一部のクラスタリングが
+        見られます — 自動セグメンテーションの典型的な課題です。
+    override:
+      windowTitle: "nuclei_blue"
+      subtitle: "Blue channel (DAPI)"
+      content:
+        kind: fiji-image
+        src: step_002.png
+
+  # Approaches 1-5 macro
+  - round: 1
+    step: 9
+    comment:
+      en: >-
+        Five approaches in one macro: (1) raw Otsu, (2) Triangle threshold,
+        (3) Li threshold, (4) Gaussian blur + Otsu, (5) Gaussian + Otsu +
+        Watershed. Each produces a binary mask saved as a separate window.
+      ja: >-
+        1 つのマクロで 5 つのアプローチ：(1) 素の Otsu、(2) Triangle 閾値、
+        (3) Li 閾値、(4) ガウスぼかし + Otsu、(5) ガウス + Otsu + Watershed。
+        それぞれがバイナリマスクを別ウィンドウとして生成します。
+
+  - round: 1
+    step: 10
+    compact: true
+
+  # Approaches 6-10 macro
+  - round: 1
+    step: 12
+    comment:
+      en: >-
+        Five more approaches: (6) Median + Otsu + Watershed, (7) Gaussian +
+        Triangle + Watershed, (8) Phansalkar local threshold, (9) Gaussian +
+        Otsu + morphological Open + Watershed, (10) Huang + Watershed.
+      ja: >-
+        さらに 5 つのアプローチ：(6) Median + Otsu + Watershed、(7) Gaussian +
+        Triangle + Watershed、(8) Phansalkar 局所閾値、(9) Gaussian + Otsu +
+        形態学的 Open + Watershed、(10) Huang + Watershed。
+
+  - round: 1
+    step: 13
+    compact: true
+
+  # Visual inspection — show a few representative thumbnails
+  - round: 1
+    step: 14
+    comment:
+      en: >-
+        Claude grabs thumbnails of all 10 results for visual comparison.
+        This is the key advantage of the MCP approach — the AI can
+        actually see what it produced and make informed judgments.
+      ja: >-
+        Claude が 10 個の結果すべてのサムネイルを取得して視覚的に比較します。
+        これが MCP アプローチの主な利点です — AI が実際に生成物を見て
+        的確な判断を下せます。
+
+  # Approach 1 - Otsu (merges touching)
+  - round: 1
+    step: 26
+    override:
+      windowTitle: "Approach 1 — Otsu"
+      subtitle: "Good detection, but touching nuclei merge"
+      content:
+        kind: fiji-image
+        src: step_003.png
+
+  # Approach 5 - Gauss+Otsu+Watershed (good split)
+  - round: 1
+    step: 34
+    override:
+      windowTitle: "Approach 5 — Gaussian + Otsu + Watershed"
+      subtitle: "Good split of touching nuclei"
+      content:
+        kind: fiji-image
+        src: step_007.png
+
+  # Approach 9 - winner
+  - round: 1
+    step: 53
+    comment:
+      en: >-
+        Approach 9 (Gaussian + Otsu + Open + Watershed) produces the cleanest
+        result: debris removed by morphological opening, touching nuclei split
+        by watershed, smooth edges from Gaussian pre-filtering.
+      ja: >-
+        アプローチ 9（Gaussian + Otsu + Open + Watershed）が最もクリーンな結果を
+        生成：形態学的 opening でデブリを除去、watershed で接触核を分離、
+        Gaussian 前処理で滑らかなエッジ。
+    override:
+      windowTitle: "Approach 9 — Gaussian + Otsu + Open + Watershed"
+      subtitle: "Winner — cleanest shapes and splits"
+      content:
+        kind: fiji-image
+        src: step_011.png
+
+  # Assessment table
+  - round: 1
+    step: 56
+    comment:
+      en: >-
+        The comparative assessment ranks all 10 approaches. Key takeaways:
+        Triangle over-segments due to cytoplasm autofluorescence,
+        morphological Open before Watershed removes thin bridges between
+        nuclei, and Phansalkar local thresholding picks up too much noise.
+      ja: >-
+        10 手法すべての比較評価。主なポイント：Triangle は細胞質の自家蛍光
+        により過剰セグメンテーション、Watershed 前の形態学的 Open が核間の
+        細い橋を除去、Phansalkar 局所閾値はノイズを拾いすぎ。
+
+  # Debugging section — show it collapsed as it's educational but long
+  - round: 1
+    step: 66
+    compact: true
+    comment:
+      en: >-
+        The first attempt at ROI extraction finds zero nuclei. This begins a
+        debugging detour — Analyze Particles expects specific mask properties
+        and the image has spatial calibration that changes size units.
+      ja: >-
+        ROI 抽出の最初の試みで核がゼロ検出されます。ここからデバッグが始まります —
+        Analyze Particles にはマスクの特定のプロパティが必要で、
+        画像の空間キャリブレーションがサイズ単位を変えています。
+
+  - round: 1
+    step: 67
+    hidden: true
+  - round: 1
+    step: 68
+    hidden: true
+  - round: 1
+    step: 69
+    compact: true
+  - round: 1
+    step: 70
+    hidden: true
+  - round: 1
+    step: 71
+    hidden: true
+  - round: 1
+    step: 72
+    hidden: true
+  - round: 1
+    step: 73
+    hidden: true
+  - round: 1
+    step: 74
+    hidden: true
+  - round: 1
+    step: 75
+    hidden: true
+  - round: 1
+    step: 76
+    hidden: true
+  - round: 1
+    step: 77
+    hidden: true
+  - round: 1
+    step: 78
+    hidden: true
+  - round: 1
+    step: 79
+    hidden: true
+  - round: 1
+    step: 80
+    hidden: true
+  - round: 1
+    step: 81
+    hidden: true
+  - round: 1
+    step: 82
+    hidden: true
+  - round: 1
+    step: 83
+    hidden: true
+  - round: 1
+    step: 84
+    hidden: true
+  - round: 1
+    step: 85
+    hidden: true
+  - round: 1
+    step: 86
+    hidden: true
+  - round: 1
+    step: 87
+    hidden: true
+  - round: 1
+    step: 88
+    hidden: true
+  - round: 1
+    step: 89
+    hidden: true
+
+  # Resolution — calibration fix
+  - round: 1
+    step: 90
+    comment:
+      en: >-
+        The root cause: the microscope embedded spatial calibration in the image,
+        so Analyze Particles' size filter (in calibrated units) silently excluded
+        everything. Removing calibration and filtering in pixels fixes it.
+      ja: >-
+        根本原因：顕微鏡が画像に空間キャリブレーションを埋め込んでいたため、
+        Analyze Particles のサイズフィルター（キャリブレーション単位）が
+        すべてを黙って除外していました。キャリブレーションを解除し
+        ピクセル単位でフィルタリングすると解決します。
+
+  - round: 1
+    step: 91
+    comment:
+      en: >-
+        The final pipeline: remove calibration, set threshold, run Analyze
+        Particles with pixel-based size filters (100–5000 px), circularity
+        filter (0.3–1.0), and exclude edge-touching objects.
+      ja: >-
+        最終パイプライン：キャリブレーション解除、閾値設定、ピクセルベースの
+        サイズフィルター（100–5000 px）、真円度フィルター（0.3–1.0）、
+        エッジ接触オブジェクト除外で Analyze Particles を実行。
+    override:
+      code: |-
+        // Remove spatial calibration — sizes in pixels
+        selectWindow("best_mask");
+        run("Properties...", "unit=pixel pixel_width=1 pixel_height=1");
+        setThreshold(128, 255);
+
+        roiManager("Reset");
+        run("Set Measurements...",
+            "area mean centroid shape display redirect=None decimal=2");
+        run("Analyze Particles...",
+            "size=100-5000 circularity=0.30-1.00 show=Nothing "
+          + "display exclude clear add");
+        n = roiManager("count");
+        print("Nuclei detected: " + n);
+
+        // Overlay ROIs on the original
+        selectWindow("Osteosarcoma_01.tif");
+        roiManager("Show All without labels");
+        run("Flatten");
+        rename("nuclei_segmentation_result");
+
+  - round: 1
+    step: 92
+    compact: true
+
+  # Final result
+  - round: 1
+    step: 97
+    comment:
+      en: >-
+        The final result: 103 nuclei outlined in cyan on the original RGB
+        image. Each nucleus is an individual ROI in Fiji's ROI Manager,
+        with area, centroid, and shape measurements in the Results table.
+      ja: >-
+        最終結果：元の RGB 画像上に 103 個の核がシアンで縁取りされています。
+        各核は Fiji の ROI Manager の個別 ROI として、面積、重心、
+        形状測定値が Results テーブルに記録されています。
+    override:
+      windowTitle: "Nuclei Segmentation Result"
+      subtitle: "103 nuclei — Osteosarcoma_01.tif"
+      content:
+        kind: fiji-image
+        src: step_014.png
+        statusBar: "103 nuclei detected · Approach #9"
+
+  # Summary
+  - round: 1
+    step: 101
+    comment:
+      en: >-
+        The full pipeline from raw image to quantified results — two prompts,
+        10 approaches tested and compared, debugging included. This is the
+        kind of systematic exploration that MCP-driven analysis enables.
+      ja: >-
+        生画像から定量結果までの完全なパイプライン — 2 つのプロンプト、
+        10 手法のテストと比較、デバッグを含む。これが MCP 駆動型分析が
+        可能にする体系的な探索です。

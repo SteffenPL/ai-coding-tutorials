@@ -1,0 +1,69 @@
+prompt: Open @tests/examples/Osteosarcoma_01.tif with Fiji
+steps:
+  - type: assistant
+    html: <p>I&#39;ll open the image in Fiji using an ImageJ macro.</p>
+    final: true
+  - type: tool_call
+    toolName: ToolSearch
+    code: |-
+      {
+        "query": "select:mcp__fiji-mcp__run_ij_macro,mcp__fiji-mcp__status",
+        "max_results": 2
+      }
+  - type: tool_call
+    toolName: fiji — run_ij_macro
+    code: open("/Users/SteffenPlunder/Documents/Workspace/fiji-mcp/tests/examples/Osteosarcoma_01.tif");
+  - type: tool_result
+    text: >-
+      {"status":"completed","stdout":"","stderr":"","value":null,"error":null,"duration_ms":3416,"execution_id":null,"active_image":"Osteosarcoma_01.tif","dismissed_dialogs":[],"results_snapshot":null}
+  - type: assistant
+    html: >-
+      <p>The image **Osteosarcoma_01.tif** is now open in Fiji. Let me grab a thumbnail so we can
+      see what we&#39;re working with.</p>
+    final: true
+  - type: tool_call
+    toolName: ToolSearch
+    code: |-
+      {
+        "query": "select:mcp__fiji-mcp__get_thumbnail,mcp__fiji-mcp__get_image_info",
+        "max_results": 2
+      }
+  - type: tool_call
+    toolName: fiji — get_thumbnail
+    code: |-
+      {
+        "title": "Osteosarcoma_01.tif"
+      }
+  - type: tool_call
+    toolName: fiji — get_image_info
+    code: |-
+      {
+        "title": "Osteosarcoma_01.tif"
+      }
+  - type: tool_result
+    text: >-
+      {"path":"/var/folders/_l/0tlzhrl51y1chrtgtsxrpf4w0000gp/T//fiji_mcp_thumb_1776932284128.png","width":800,"height":641,"is_inverted":false}
+  - type: tool_result
+    text: >-
+      {"title":"Osteosarcoma_01.tif","width":1376,"height":1104,"depth":1,"channels":1,"frames":1,"type":"RGB","path":"/Users/SteffenPlunder/Documents/Workspace/fiji-mcp/tests/examples/Osteosarcoma_01.tif"}
+  - type: tool_call
+    toolName: Read
+    code: /var/folders/_l/0tlzhrl51y1chrtgtsxrpf4w0000gp/T//fiji_mcp_thumb_1776932284128.png
+  - type: window
+    windowTitle: Image 1
+    content:
+      kind: fiji-image
+      src: step_001.png
+  - type: assistant
+    html: >-
+      <p>The image is open in Fiji. Here&#39;s what we&#39;re looking at:</p><p>- **Title**:
+      Osteosarcoma_01.tif<br/>- **Dimensions**: 1376 × 1104 pixels, single slice<br/>- **Type**: RGB
+      color<br/>- **Content**: Fluorescence microscopy of osteosarcoma cells — looks like a
+      multi-channel composite with nuclei (blue/cyan) and cytoplasm/actin (green), on a dark
+      background.</p><p>`★ Insight ─────────────────────────────────────`<br/>This is a classic
+      fluorescence microscopy image. The distinct channels (likely DAPI for nuclei and a green
+      fluorophore for cytoskeleton/actin) make it well-suited for segmentation tasks — you can split
+      channels to isolate nuclei or cell bodies
+      independently.<br/>`─────────────────────────────────────────────────`</p><p>Let me know if
+      you&#39;d like to process it further!</p>
+    final: true

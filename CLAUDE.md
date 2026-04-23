@@ -234,6 +234,20 @@ Bilingual EN/JA with English fallback. Use `t({ en: '...', ja?: '...' })` from `
 
 `docs/solutions/` — documented solutions to past problems and design decisions (bugs, patterns, conventions, workflow learnings), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
 
+## Tutorial creation (CLI workflow for agents)
+
+```
+Session JSONL → inspect → spec YAML → generate → tutorial folder
+```
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/import-session.ts` | Filter raw Claude Code JSONL → `src/sessions/<slug>/` |
+| `scripts/session-to-tutorial.ts inspect` | Print session structure as JSON (rounds, steps, types) |
+| `scripts/session-to-tutorial.ts generate` | Spec YAML → `meta.yaml` + `tutorial/` + `full-log/` + assets |
+
+Spec files live in `specs/<slug>.yaml`. Full format and workflow documented in `scripts/TUTORIAL-WORKFLOW.md`.
+
 ## Development & deployment
 
 ```bash

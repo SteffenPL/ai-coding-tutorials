@@ -1,0 +1,31 @@
+slug: nuclei-segmentation
+title:
+  en: Nuclei Segmentation with Fiji
+  ja: Fiji による核セグメンテーション
+tags:
+  - fiji
+  - segmentation
+  - fluorescence
+  - bioimage
+  - mcp
+thumbnail: step_001.png
+author: Steffen Plunder
+welcome:
+  heading:
+    en: Nuclei Segmentation with Fiji
+    ja: Fiji による核セグメンテーション
+  description:
+    en: >-
+      Watch Claude Code drive Fiji via MCP to segment nuclei in a fluorescence microscopy image. It
+      tries 10 different thresholding and morphology pipelines, visually compares them all, picks
+      the best, and counts 103 nuclei — all from two natural-language prompts.
+    ja: >-
+      Claude Code が MCP 経由で Fiji を操作し、蛍光顕微鏡画像の核をセグメンテーション する様子をご覧ください。10 種類の閾値処理・形態学パイプラインを試し、
+      すべてを視覚的に比較して最良のものを選び、103 個の核をカウントします — すべて 2 つの自然言語プロンプトで。
+  learnings:
+    - en: Opening images and running ImageJ macros via Fiji MCP
+      ja: Fiji MCP 経由で画像を開き ImageJ マクロを実行する
+    - en: Systematic comparison of segmentation approaches
+      ja: セグメンテーション手法の体系的な比較
+    - en: Debugging spatial calibration issues in Analyze Particles
+      ja: Analyze Particles での空間キャリブレーション問題のデバッグ

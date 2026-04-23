@@ -54,8 +54,7 @@ src/tutorials/<slug>/composition.json
 src/tutorials/<slug>/tutorial/round-NN.yaml  +  meta.yaml
 ```
 
-**Legacy (round-YAML only)** — some tutorials (`test-showcase`,
-`blob-segmentation`, `install-claude-code`) have hand-edited
+**Legacy (round-YAML only)** — `install-claude-code` has hand-edited
 `round-NN.yaml` files without a composition. The static build still
 reads these. Prefer the new pipeline for new tutorials.
 
@@ -188,18 +187,30 @@ flow is:
 4. **Export YAML** — from `/compose/<slug>`, writes
    `tutorial/round-NN.yaml` + `meta.yaml` ready for the static build.
 
+## CLI workflow (for agents)
+
+`scripts/session-to-tutorial.ts` provides a two-step CLI pipeline:
+
+1. `inspect` — print session structure as JSON (round/step map)
+2. `generate` — read a spec YAML and produce `meta.yaml`,
+   `tutorial/round-NN.yaml`, `full-log/round-NN.yaml`, and extracted
+   image assets.
+
+Spec files live in `specs/<slug>.yaml`. See `scripts/TUTORIAL-WORKFLOW.md`
+for the full spec format, agent tips, and end-to-end workflow.
+
 ## Legacy script (deprecated)
 
 `scripts/merge-session.ts` predates the curate/compose tools. It
 merges a raw JSONL directly into `full-log/round-*.yaml` with base64
 image extraction. Still checked in for the existing tutorials that used
-it; prefer the dashboard for new work.
+it; prefer the new CLI or dashboard for new work.
 
 ## devOnly
 
 Setting `devOnly: true` in `meta.yaml` excludes a tutorial from the
-production prerender. Useful for the `test-showcase` testbed. The YAML
-is still bundled (eager glob), so keep devOnly tutorials small.
+production prerender. The YAML is still bundled (eager glob), so keep
+devOnly tutorials small.
 
 ## Adding a new step type or window kind
 
@@ -209,4 +220,3 @@ is still bundled (eager glob), so keep devOnly tutorials small.
    `src/lib/components/windows/WindowContent.svelte` (window kind).
 3. If the new kind references assets, extend `rewriteContent` in
    `tutorial-loader.ts` so bare filenames get rewritten.
-4. Add a sample to `src/tutorials/test-showcase/tutorial/round-03.yaml`.
