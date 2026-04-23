@@ -33,6 +33,32 @@ steps:
       the Q&A flow that was recorded.
 
   - type: divider
+    label: Compact chips
+    comment: >-
+      Consecutive steps with <code>compact: true</code> are grouped into a
+      <strong>CompactChipFlow</strong> — type-colored pills in a flex-wrap
+      layout. Click a chip to expand it inline.
+
+  - type: tool_call
+    toolName: ToolSearch
+    code: '{ "query": "select:mcp__fiji-mcp__run_ij_macro", "max_results": 2 }'
+    compact: true
+
+  - type: tool_result
+    text: "Found 2 tools matching query"
+    compact: true
+
+  - type: tool_call
+    toolName: fiji · run_ij_macro
+    code: '{ "code": "open(\"/path/to/image.tif\");" }'
+    compact: true
+
+  - type: thinking
+    text: "Let me check the result of opening the image..."
+    duration: 2s
+    compact: true
+
+  - type: divider
     label: Tool flow
 
   - type: permission
@@ -49,6 +75,27 @@ steps:
     comment: >-
       A <strong>tool_call</strong> step shows the tool name in the header
       and the code/arguments in a monospace block.
+
+  - type: tool_call
+    toolName: fiji · run_ij_macro
+    code: |-
+      selectWindow("Osteosarcoma_01.tif");
+      run("Duplicate...", "title=nuclei_source");
+      run("Split Channels");
+      selectWindow("nuclei_source (red)");
+      close();
+      selectWindow("nuclei_source (green)");
+      close();
+      selectWindow("nuclei_source (blue)");
+      rename("nuclei_blue");
+      run("Gaussian Blur...", "sigma=2");
+      setAutoThreshold("Otsu dark");
+      run("Convert to Mask");
+      run("Open");
+      run("Watershed");
+    comment: >-
+      A <strong>long tool_call</strong> with 14 lines of code — auto-folds
+      to show the first 2 lines with a "show N more lines" toggle.
 
   - type: tool_result
     text: |-

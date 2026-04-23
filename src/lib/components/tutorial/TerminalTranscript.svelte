@@ -21,6 +21,7 @@
 	import type { TutorialRound, Step, WindowStep } from '$lib/data/tutorials';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import StepRenderer from './StepRenderer.svelte';
+	import CompactChipFlow from './CompactChipFlow.svelte';
 
 	let {
 		activeRounds,
@@ -44,6 +45,7 @@
 
 	type StepGroup =
 		| { kind: 'step'; step: Step; si: number; globalIndex: number }
+		| { kind: 'compact'; steps: Step[]; startSi: number; globalIndex: number }
 		| { kind: 'hidden'; steps: Step[]; startSi: number; count: number; globalIndex: number };
 
 	function groupSteps(steps: Step[], roundStart: number): StepGroup[] {
@@ -53,22 +55,41 @@
 		const groups: StepGroup[] = [];
 		let hiddenRun: Step[] = [];
 		let hiddenStartSi = 0;
+		let compactRun: Step[] = [];
+		let compactStartSi = 0;
 
-		for (let si = 0; si < steps.length; si++) {
-			if (steps[si].hidden) {
-				if (hiddenRun.length === 0) hiddenStartSi = si;
-				hiddenRun.push(steps[si]);
-			} else {
-				if (hiddenRun.length > 0) {
-					groups.push({ kind: 'hidden', steps: hiddenRun, startSi: hiddenStartSi, count: hiddenRun.length, globalIndex: roundStart + hiddenStartSi });
-					hiddenRun = [];
-				}
-				groups.push({ kind: 'step', step: steps[si], si, globalIndex: roundStart + si });
+		function flushCompact() {
+			if (compactRun.length > 0) {
+				groups.push({ kind: 'compact', steps: compactRun, startSi: compactStartSi, globalIndex: roundStart + compactStartSi });
+				compactRun = [];
 			}
 		}
-		if (hiddenRun.length > 0) {
-			groups.push({ kind: 'hidden', steps: hiddenRun, startSi: hiddenStartSi, count: hiddenRun.length, globalIndex: roundStart + hiddenStartSi });
+
+		function flushHidden() {
+			if (hiddenRun.length > 0) {
+				groups.push({ kind: 'hidden', steps: hiddenRun, startSi: hiddenStartSi, count: hiddenRun.length, globalIndex: roundStart + hiddenStartSi });
+				hiddenRun = [];
+			}
 		}
+
+		for (let si = 0; si < steps.length; si++) {
+			const step = steps[si];
+			if (step.hidden) {
+				flushCompact();
+				if (hiddenRun.length === 0) hiddenStartSi = si;
+				hiddenRun.push(step);
+			} else if (step.compact) {
+				flushHidden();
+				if (compactRun.length === 0) compactStartSi = si;
+				compactRun.push(step);
+			} else {
+				flushHidden();
+				flushCompact();
+				groups.push({ kind: 'step', step, si, globalIndex: roundStart + si });
+			}
+		}
+		flushHidden();
+		flushCompact();
 		return groups;
 	}
 
@@ -147,6 +168,13 @@
 										isLast={group.globalIndex === allSteps.length - 1}
 										{onFocusWindow}
 									/>
+								</div>
+							{:else if group.kind === 'compact'}
+								<div
+									data-step={group.globalIndex}
+									class="step-block"
+								>
+									<CompactChipFlow steps={group.steps} {onFocusWindow} />
 								</div>
 							{:else}
 								{@const groupKey = `${ri}-${group.startSi}`}

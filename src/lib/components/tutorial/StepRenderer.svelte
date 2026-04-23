@@ -13,8 +13,11 @@
 <script lang="ts">
 	import type { Step, WindowStep } from '$lib/data/tutorials';
 	import { getWindowIcon } from '$lib/data/tutorials';
+	import { getStepStyle, compactSummary } from './step-colors';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
+
+	const CODE_FOLD_THRESHOLD = 5;
 
 	let {
 		step,
@@ -23,54 +26,30 @@
 		onFocusWindow
 	}: {
 		step: Step;
-		/** True for the first assistant message in a round (adds the "Claude" label) */
 		showClaudeLabel?: boolean;
-		/** True for the very last step in the full timeline (adds the blinking cursor) */
 		isLast?: boolean;
 		onFocusWindow: (step: WindowStep) => void;
 	} = $props();
 
-	function compactIcon(type: string): string {
-		switch (type) {
-			case 'assistant': return '○';
-			case 'thinking': return '✧';
-			case 'tool_call': return '⚡';
-			case 'tool_result': return '←';
-			case 'permission': return '⚿';
-			case 'question': return '?';
-			case 'output': return '$';
-			case 'window': return '↗';
-			case 'table': return '☷';
-			case 'status': return '•';
-			default: return '•';
-		}
+	let codeExpanded = $state(false);
+
+	function shouldFoldCode(code: string): boolean {
+		return code.split('\n').length > CODE_FOLD_THRESHOLD;
 	}
 
-	function compactSummary(s: Step): string {
-		switch (s.type) {
-			case 'assistant': return stripHtml(s.html).slice(0, 80) + (stripHtml(s.html).length > 80 ? '…' : '');
-			case 'thinking': return 'Thinking' + (s.duration ? ` (${s.duration})` : '');
-			case 'tool_call': return s.toolName;
-			case 'tool_result': return s.text.slice(0, 60) + (s.text.length > 60 ? '…' : '');
-			case 'permission': return `${s.tool} — ${s.granted ? 'allowed' : 'denied'}`;
-			case 'question': return stripHtml(s.html).slice(0, 60) + '…';
-			case 'output': return s.text.split('\n')[0].slice(0, 60) + '…';
-			case 'window': return s.windowTitle;
-			case 'table': return `Table: ${s.columns.join(', ')}`;
-			case 'status': return s.text;
-			case 'divider': return s.label;
-			default: return '';
-		}
-	}
-
-	function stripHtml(html: string): string {
-		return html.replace(/<[^>]*>/g, '').trim();
+	function foldedCode(code: string): { preview: string; hiddenCount: number } {
+		const lines = code.split('\n');
+		return {
+			preview: lines.slice(0, 2).join('\n'),
+			hiddenCount: lines.length - 2
+		};
 	}
 </script>
 
 {#if step.compact}
-	<div class="compact-step">
-		<span class="compact-type">{compactIcon(step.type)}</span>
+	{@const style = getStepStyle(step.type)}
+	<div class="compact-step" style="--chip-accent: {style.accent}">
+		<span class="compact-type">{style.icon}</span>
 		<span class="compact-text">{compactSummary(step)}</span>
 	</div>
 
@@ -110,7 +89,20 @@
 {:else if step.type === 'tool_call'}
 	<div class="tool-call">
 		<div class="tool-name">&#9889; {step.toolName}</div>
-		<code>{step.code}</code>
+		{#if shouldFoldCode(step.code) && !codeExpanded}
+			{@const folded = foldedCode(step.code)}
+			<code>{folded.preview}</code>
+			<button type="button" class="fold-toggle" onclick={() => codeExpanded = true}>
+				▾ show {folded.hiddenCount} more lines
+			</button>
+		{:else}
+			<code>{step.code}</code>
+			{#if shouldFoldCode(step.code)}
+				<button type="button" class="fold-toggle" onclick={() => codeExpanded = false}>
+					▴ collapse
+				</button>
+			{/if}
+		{/if}
 	</div>
 
 {:else if step.type === 'tool_result'}
@@ -188,30 +180,33 @@
 {/if}
 
 <style>
-	/* ── Compact one-line summary ── */
+	/* ── Compact one-line summary (fallback for non-grouped compact steps) ── */
 	.compact-step {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 3px 14px;
-		font-size: 11px;
-		color: var(--text-tertiary);
-		border-left: 2px solid var(--border-subtle);
-		margin: 2px 0;
-		opacity: 0.7;
+		gap: 6px;
+		padding: 4px 10px;
+		font-size: 0.72rem;
+		font-family: var(--font-mono);
+		color: var(--chip-accent);
+		background: color-mix(in srgb, var(--chip-accent) 8%, transparent);
+		border: 1px solid color-mix(in srgb, var(--chip-accent) 20%, transparent);
+		border-radius: 14px;
+		margin: 2px 2px;
 	}
 
 	.compact-type {
 		flex-shrink: 0;
 		width: 14px;
 		text-align: center;
-		font-size: 11px;
+		font-size: 0.75rem;
 	}
 
 	.compact-text {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		max-width: 220px;
 	}
 
 	/* ── Assistant messages (default: plain) ── */
@@ -286,6 +281,23 @@
 		word-break: break-all;
 		font-size: 12px;
 		line-height: 1.5;
+	}
+
+	.fold-toggle {
+		display: block;
+		margin-top: 4px;
+		padding: 2px 0;
+		background: none;
+		border: none;
+		color: var(--text-tertiary);
+		font-family: var(--font-mono);
+		font-size: 11px;
+		cursor: pointer;
+		transition: color 0.15s;
+	}
+
+	.fold-toggle:hover {
+		color: var(--orange-300);
 	}
 
 	.tool-result {

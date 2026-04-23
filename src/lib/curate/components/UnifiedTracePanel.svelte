@@ -4,6 +4,7 @@
 	import type { TraceState, TraceStep, TraceRound } from '$lib/trace/types';
 	import { traceStepToTutorialStep } from '$lib/trace/convert';
 	import { stepLabel, stepIcon, stepPreview, displayModeIcon, includedCount, totalCount } from './step-helpers';
+	import { getStepStyle, compactSummary as sharedCompactSummary } from '$lib/components/tutorial/step-colors';
 	import StepRenderer from '$lib/components/tutorial/StepRenderer.svelte';
 
 	let {
@@ -204,16 +205,7 @@
 
 	function compactChipIcon(step: TraceStep): string {
 		const type = stepLabel(step);
-		switch (type) {
-			case 'assistant': return '○';
-			case 'thinking': return '✧';
-			case 'tool_call': return '⚡';
-			case 'tool_result': return '←';
-			case 'output': return '$';
-			case 'status': return '•';
-			case 'window': return '↗';
-			default: return '•';
-		}
+		return getStepStyle(type as import('$lib/data/tutorials').StepType).icon;
 	}
 
 	function compactChipText(step: TraceStep): string {
@@ -426,13 +418,15 @@
 						{#if group.kind === 'compact'}
 							<div class="compact-flow">
 								{#each group.steps as step (step.id)}
+									{@const chipStyle = getStepStyle(stepLabel(step) as import('$lib/data/tutorials').StepType)}
 									<button
 										class="compact-chip"
 										class:compact-chip-expanded={expandedCompactId === step.id}
+										style="--chip-accent: {chipStyle.accent}"
 										onclick={() => toggleCompactExpand(step.id)}
 										title={stepPreview(step)}
 									>
-										<span class="chip-icon">{compactChipIcon(step)}</span>
+										<span class="chip-icon">{chipStyle.icon}</span>
 										<span class="chip-text">{compactChipText(step)}</span>
 										<span class="chip-type">{stepLabel(step)}</span>
 									</button>
@@ -1017,10 +1011,10 @@
 		padding: 5px 12px;
 		min-width: 120px;
 		max-width: 280px;
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 6px;
-		color: var(--text-tertiary);
+		background: color-mix(in srgb, var(--chip-accent) 8%, transparent);
+		border: 1px solid color-mix(in srgb, var(--chip-accent) 20%, transparent);
+		border-radius: 14px;
+		color: var(--chip-accent);
 		font-family: var(--font-mono);
 		font-size: 0.72rem;
 		cursor: pointer;
@@ -1030,15 +1024,13 @@
 	}
 
 	.compact-chip:hover {
-		background: rgba(255, 255, 255, 0.07);
-		border-color: rgba(255, 255, 255, 0.15);
-		color: var(--text-secondary);
+		background: color-mix(in srgb, var(--chip-accent) 14%, transparent);
+		border-color: color-mix(in srgb, var(--chip-accent) 35%, transparent);
 	}
 
 	.compact-chip.compact-chip-expanded {
-		background: var(--accent-soft);
-		border-color: var(--orange-400);
-		color: var(--orange-300);
+		background: color-mix(in srgb, var(--chip-accent) 18%, transparent);
+		border-color: var(--chip-accent);
 	}
 
 	.chip-icon {
