@@ -261,8 +261,9 @@
 	</div>
 
 {:else if step.type === 'status'}
+	{@const hasMarker = /^[✓✗✱✔✕⚠ℹ●◌•→←↻▸▾]/.test(step.text.trim())}
 	<div class="status-badge" class:success={step.variant === 'success'} class:info={step.variant === 'info'} class:warning={step.variant === 'warning'} class:error={step.variant === 'error'}>
-		<span class="status-marker">✱</span> {step.text}
+		{#if !hasMarker}<span class="status-marker">✱</span>{/if} {step.text}
 	</div>
 
 {:else if step.type === 'window'}
@@ -836,9 +837,10 @@
 	/* ── Table ── */
 	.results-table {
 		margin: 12px 0;
+		margin-left: 4px;
 		border-collapse: collapse;
 		font-size: 11px;
-		width: 100%;
+		width: calc(100% - 4px);
 	}
 
 	.results-table th {

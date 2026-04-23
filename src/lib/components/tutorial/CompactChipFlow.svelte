@@ -73,18 +73,18 @@
 				<span class="chip-icon">{style.icon}</span>
 				<span class="chip-text">{compactSummary(step)}</span>
 			</button>
+			{#if expandedIndex === i}
+				<div class="chip-expanded-content" style="--chip-accent: {style.accent}">
+					<StepRenderer
+						step={{ ...step, compact: false }}
+						showClaudeLabel={step.type === 'assistant'}
+						isLast={false}
+						{onFocusWindow}
+					/>
+				</div>
+			{/if}
 		{/each}
 	</div>
-	{#if expandedIndex !== null && steps[expandedIndex]}
-		<div class="chip-expanded-content" style="--chip-accent: {getStepStyle(steps[expandedIndex].type).accent}">
-			<StepRenderer
-				step={{ ...steps[expandedIndex], compact: false }}
-				showClaudeLabel={steps[expandedIndex].type === 'assistant'}
-				isLast={false}
-				{onFocusWindow}
-			/>
-		</div>
-	{/if}
 {/if}
 
 <style>
@@ -187,9 +187,9 @@
 	}
 
 	.chip-expanded-content {
-		border-left: 2px solid var(--chip-accent);
+		flex-basis: 100%;
 		margin: 4px 0 8px 0;
-		padding-left: 8px;
+		padding-left: 10px;
 		animation: chipReveal 0.15s ease-out;
 	}
 
