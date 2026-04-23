@@ -156,11 +156,29 @@ steps:
         of the MCP approach — the AI can actually see what it produced and make informed judgments.
       ja: Claude が 10 個の結果すべてのサムネイルを取得して視覚的に比較します。 これが MCP アプローチの主な利点です — AI が実際に生成物を見て 的確な判断を下せます。
   - type: window
-    windowTitle: Approach 1 — Otsu
+    windowTitle: Approach 1 — Otsu (raw)
     content:
       kind: fiji-image
       src: step_003.png
     subtitle: Good detection, but touching nuclei merge
+  - type: window
+    windowTitle: Approach 2 — Triangle
+    content:
+      kind: fiji-image
+      src: step_004.png
+    subtitle: Threshold too low — captures cytoplasm
+  - type: window
+    windowTitle: Approach 3 — Li
+    content:
+      kind: fiji-image
+      src: step_005.png
+    subtitle: Similar to Otsu, slightly tighter but still merges
+  - type: window
+    windowTitle: Approach 4 — Gaussian + Otsu
+    content:
+      kind: fiji-image
+      src: step_006.png
+    subtitle: Smoother edges, still merges touching nuclei
   - type: window
     windowTitle: Approach 5 — Gaussian + Otsu + Watershed
     content:
@@ -168,7 +186,25 @@ steps:
       src: step_007.png
     subtitle: Good split of touching nuclei
   - type: window
-    windowTitle: Approach 9 — Gaussian + Otsu + Open + Watershed
+    windowTitle: Approach 6 — Median + Otsu + Watershed
+    content:
+      kind: fiji-image
+      src: step_008.png
+    subtitle: "Similar to #5, slightly less smooth"
+  - type: window
+    windowTitle: Approach 7 — Gaussian + Triangle + Watershed
+    content:
+      kind: fiji-image
+      src: step_009.png
+    subtitle: Over-segments — Triangle threshold too aggressive
+  - type: window
+    windowTitle: Approach 8 — Phansalkar (local)
+    content:
+      kind: fiji-image
+      src: step_010.png
+    subtitle: Picks up nuclei but also cell edges and noise
+  - type: window
+    windowTitle: Approach 9 — Gaussian + Otsu + Open + Watershed ★
     content:
       kind: fiji-image
       src: step_011.png
@@ -181,6 +217,12 @@ steps:
         アプローチ 9（Gaussian + Otsu + Open + Watershed）が最もクリーンな結果を 生成：形態学的 opening でデブリを除去、watershed
         で接触核を分離、 Gaussian 前処理で滑らかなエッジ。
     subtitle: Winner — cleanest shapes and splits
+  - type: window
+    windowTitle: Approach 10 — Huang + Watershed
+    content:
+      kind: fiji-image
+      src: step_012.png
+    subtitle: Slightly aggressive, some fragmentation
   - type: assistant
     html: >-
       <p>All 10 inspected. Here&#39;s my assessment:</p><p>| # | Method | Verdict

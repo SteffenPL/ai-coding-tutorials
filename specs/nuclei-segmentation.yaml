@@ -202,17 +202,43 @@ steps:
         これが MCP アプローチの主な利点です — AI が実際に生成物を見て
         的確な判断を下せます。
 
-  # Approach 1 - Otsu (merges touching)
+  # All 10 approach images — shown individually as windows
   - round: 1
     step: 26
     override:
-      windowTitle: "Approach 1 — Otsu"
+      windowTitle: "Approach 1 — Otsu (raw)"
       subtitle: "Good detection, but touching nuclei merge"
       content:
         kind: fiji-image
         src: step_003.png
 
-  # Approach 5 - Gauss+Otsu+Watershed (good split)
+  - round: 1
+    step: 28
+    override:
+      windowTitle: "Approach 2 — Triangle"
+      subtitle: "Threshold too low — captures cytoplasm"
+      content:
+        kind: fiji-image
+        src: step_004.png
+
+  - round: 1
+    step: 30
+    override:
+      windowTitle: "Approach 3 — Li"
+      subtitle: "Similar to Otsu, slightly tighter but still merges"
+      content:
+        kind: fiji-image
+        src: step_005.png
+
+  - round: 1
+    step: 32
+    override:
+      windowTitle: "Approach 4 — Gaussian + Otsu"
+      subtitle: "Smoother edges, still merges touching nuclei"
+      content:
+        kind: fiji-image
+        src: step_006.png
+
   - round: 1
     step: 34
     override:
@@ -222,7 +248,33 @@ steps:
         kind: fiji-image
         src: step_007.png
 
-  # Approach 9 - winner
+  - round: 1
+    step: 47
+    override:
+      windowTitle: "Approach 6 — Median + Otsu + Watershed"
+      subtitle: "Similar to #5, slightly less smooth"
+      content:
+        kind: fiji-image
+        src: step_008.png
+
+  - round: 1
+    step: 49
+    override:
+      windowTitle: "Approach 7 — Gaussian + Triangle + Watershed"
+      subtitle: "Over-segments — Triangle threshold too aggressive"
+      content:
+        kind: fiji-image
+        src: step_009.png
+
+  - round: 1
+    step: 51
+    override:
+      windowTitle: "Approach 8 — Phansalkar (local)"
+      subtitle: "Picks up nuclei but also cell edges and noise"
+      content:
+        kind: fiji-image
+        src: step_010.png
+
   - round: 1
     step: 53
     comment:
@@ -235,11 +287,20 @@ steps:
         生成：形態学的 opening でデブリを除去、watershed で接触核を分離、
         Gaussian 前処理で滑らかなエッジ。
     override:
-      windowTitle: "Approach 9 — Gaussian + Otsu + Open + Watershed"
+      windowTitle: "Approach 9 — Gaussian + Otsu + Open + Watershed ★"
       subtitle: "Winner — cleanest shapes and splits"
       content:
         kind: fiji-image
         src: step_011.png
+
+  - round: 1
+    step: 55
+    override:
+      windowTitle: "Approach 10 — Huang + Watershed"
+      subtitle: "Slightly aggressive, some fragmentation"
+      content:
+        kind: fiji-image
+        src: step_012.png
 
   # Assessment table
   - round: 1
