@@ -259,13 +259,8 @@
 							/>
 						{/if}
 						<div class="thumbnail-controls">
-							<input
-								type="text"
-								bind:value={composition.meta.thumbnail}
-								placeholder="filename.png"
-								class="thumbnail-input"
-							/>
-							<button class="btn-sm" onclick={() => (showThumbnailPicker = true)}>Browse</button>
+							<span class="thumbnail-ref">{composition.meta.thumbnail || '(none)'}</span>
+							<button class="btn-sm" onclick={() => (showThumbnailPicker = true)}>Select / Upload</button>
 						</div>
 					</div>
 				</label>
@@ -575,9 +570,15 @@
 		align-items: center;
 		flex-wrap: wrap;
 	}
-	.thumbnail-input {
+	.thumbnail-ref {
 		flex: 1;
-		min-width: 120px;
+		min-width: 0;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 

@@ -238,24 +238,16 @@
 		</label>
 		{@const content = o.content as Record<string, unknown> | undefined}
 		{#if content && ('src' in content)}
-			<label class="field">
+			<div class="field">
 				<span class="field-label">Source file</span>
 				<div class="file-upload-row">
-					<input
-						type="text"
-						value={content.src as string ?? ''}
-						oninput={(e) => {
-							content.src = (e.target as HTMLInputElement).value;
-							bumpPreview();
-						}}
-						placeholder="filename.png"
-					/>
+					<span class="file-ref">{(content.src as string) || '(none)'}</span>
 					<button
 						class="btn-sm"
 						onclick={() => (showAssetPicker = true)}
-					>Browse</button>
+					>Select / Upload</button>
 				</div>
-			</label>
+			</div>
 		{/if}
 	{/if}
 
@@ -334,26 +326,16 @@
 			<input type="text" bind:value={ins.subtitle} oninput={bumpPreview} />
 		</label>
 		{#if ins.content.kind === 'fiji-image' || ins.content.kind === 'image' || ins.content.kind === 'video'}
-			<label class="field">
+			<div class="field">
 				<span class="field-label">Source file</span>
 				<div class="file-upload-row">
-					<input
-						type="text"
-						value={'src' in ins.content ? ins.content.src : ''}
-						oninput={(e) => {
-							if ('src' in ins.content) {
-								(ins.content as { src: string }).src = (e.target as HTMLInputElement).value;
-							}
-							bumpPreview();
-						}}
-						placeholder="filename.png"
-					/>
+					<span class="file-ref">{'src' in ins.content ? ins.content.src || '(none)' : '(none)'}</span>
 					<button
 						class="btn-sm"
 						onclick={() => (showAssetPicker = true)}
-					>Browse</button>
+					>Select / Upload</button>
 				</div>
-			</label>
+			</div>
 			{#if ins.content.kind === 'fiji-image'}
 				<label class="field">
 					<span class="field-label">Status Bar</span>
@@ -562,21 +544,19 @@
 		align-items: center;
 	}
 
-	.file-upload-row input[type='text'] {
+	.file-ref {
 		flex: 1;
 		padding: 0.45rem 0.6rem;
-		background: rgba(0, 0, 0, 0.3);
-		border: 1px solid var(--border-subtle);
+		background: rgba(0, 0, 0, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.04);
 		border-radius: 5px;
-		color: var(--text-primary);
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-	}
-
-	.file-upload-row input[type='file'] {
-		font-family: var(--font-mono);
-		font-size: 0.7rem;
 		color: var(--text-secondary);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-width: 0;
 	}
 
 	/* ─── Display mode toggle ── */
