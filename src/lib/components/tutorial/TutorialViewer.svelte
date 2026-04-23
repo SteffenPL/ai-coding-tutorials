@@ -47,16 +47,6 @@
 	function focusWindow(step: WindowStep) { focusedWindow = step; }
 	function restoreFocus() { focusedWindow = null; }
 
-	/* Auto-maximize multi-window steps when they become the current window */
-	let currentWindowStep = $derived(
-		allSteps[currentStep]?.type === 'window' ? allSteps[currentStep] as WindowStep : null
-	);
-	$effect(() => {
-		if (currentWindowStep?.content.kind === 'window-collection') {
-			focusedWindow = currentWindowStep;
-		}
-	});
-
 	let windowSteps = $derived(
 		allSteps
 			.map((s, i) => ({ step: s, index: i }))

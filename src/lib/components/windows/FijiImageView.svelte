@@ -16,7 +16,7 @@
 <style>
 	img {
 		display: block;
-		width: 100%;
+		max-width: 100%;
 		height: auto;
 		min-height: 0;
 		flex-shrink: 1;

@@ -241,7 +241,8 @@
 		position: absolute;
 		bottom: 8px;
 		left: 8px;
-		width: min(440px, 85%);
+		width: auto;
+		max-width: min(440px, 85%);
 		max-height: calc(100% - 16px);
 		transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
 		            opacity 0.35s ease-out,
@@ -257,7 +258,7 @@
 		pointer-events: auto;
 	}
 
-	.fiji-window:hover {
+	.fiji-window:hover:not(.chromeless) {
 		box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 	}
 
@@ -299,18 +300,39 @@
 		pointer-events: none;
 	}
 
-	/* Chromeless windows (collections) fill the entire area */
+	/* Chromeless windows (collections) — transparent, content-sized, centered */
 	.fiji-window.chromeless {
-		width: calc(100% - 16px);
-		height: calc(100% - 16px);
+		width: auto;
+		max-width: calc(100% - 16px);
+		max-height: calc(100% - 16px);
+		left: 50%;
+		bottom: 50%;
+		transform-origin: center center;
 		border-radius: 0;
 		box-shadow: none;
 		background: transparent;
 	}
 
+	.fiji-window.chromeless.stack-0 {
+		transform: translate(-50%, 50%) scale(1);
+	}
+
+	.fiji-window.chromeless.stack-1 {
+		transform: translate(-50%, 50%) scale(0.95);
+	}
+
+	.fiji-window.chromeless.stack-2 {
+		transform: translate(-50%, 50%) scale(0.90);
+	}
+
+	.fiji-window.chromeless.stack-3 {
+		transform: translate(-50%, 50%) scale(0.85);
+	}
+
 	.max-window.chromeless {
 		border-radius: 0;
 		background: transparent;
+		box-shadow: none;
 	}
 
 	/* ─── Maximize overlay ─── */
