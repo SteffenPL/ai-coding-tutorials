@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { TraceStep } from '$lib/trace/types';
 	import { stepLabel } from './step-helpers';
+	import AssetPickerDialog from '$lib/components/AssetPickerDialog.svelte';
 
 	let {
 		editStep,
@@ -15,6 +16,18 @@
 		onClose: () => void;
 		onFileUpload: (event: Event, roundId: string, stepId: string) => void;
 	} = $props();
+
+	let showAssetPicker = $state(false);
+
+	function handleAssetPicked(ref: string) {
+		showAssetPicker = false;
+		if (editStep.inserted && editStep.inserted.type === 'window' && 'src' in editStep.inserted.content) {
+			(editStep.inserted.content as { src: string }).src = ref;
+		} else if (editStep.overrides) {
+			const content = editStep.overrides.content as Record<string, unknown> | undefined;
+			if (content && 'src' in content) content.src = ref;
+		}
+	}
 </script>
 
 {#snippet editSourceStep(step: TraceStep)}
@@ -98,6 +111,23 @@
 				}}
 			/>
 		</label>
+		{@const content = o.content as Record<string, unknown> | undefined}
+		{#if content && ('src' in content)}
+			<label class="drawer-field">
+				<span>Source file</span>
+				<div class="file-upload-row">
+					<input
+						type="text"
+						value={content.src as string ?? ''}
+						oninput={(e) => {
+							content.src = (e.target as HTMLInputElement).value;
+						}}
+						placeholder="filename.png"
+					/>
+					<button class="btn-sm" onclick={() => (showAssetPicker = true)}>Browse</button>
+				</div>
+			</label>
+		{/if}
 	{/if}
 
 	<button
@@ -186,11 +216,7 @@
 						}}
 						placeholder="filename.png"
 					/>
-					<input
-						type="file"
-						accept="image/*,video/*"
-						onchange={(e) => onFileUpload(e, editingStep.roundId, editingStep.stepId)}
-					/>
+					<button class="btn-sm" onclick={() => (showAssetPicker = true)}>Browse</button>
 				</div>
 			</label>
 			{#if ins.content.kind === 'fiji-image'}
@@ -265,6 +291,13 @@
 		</div>
 	</div>
 </aside>
+
+<AssetPickerDialog
+	open={showAssetPicker}
+	tutorialSlug={slug}
+	onselect={handleAssetPicked}
+	onclose={() => (showAssetPicker = false)}
+/>
 
 <style>
 	/* ─── Edit drawer ─────────────────────────── */

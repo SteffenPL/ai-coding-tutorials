@@ -2,8 +2,10 @@
 	import type { TraceStep } from '$lib/trace/types';
 	import type { Step, WindowStep } from '$lib/data/tutorials';
 	import { traceStepToTutorialStep } from '$lib/trace/convert';
+	import { rewriteContent } from '$lib/compose/resolve';
 	import { stepLabel } from './step-helpers';
 	import StepRenderer from '$lib/components/tutorial/StepRenderer.svelte';
+	import AssetPickerDialog from '$lib/components/AssetPickerDialog.svelte';
 
 	let {
 		editStep,
@@ -19,12 +21,29 @@
 		onFileUpload: (event: Event, roundId: string, stepId: string) => void;
 	} = $props();
 
+	let showAssetPicker = $state(false);
+
 	let previewTick = $state(0);
 	function bumpPreview() { previewTick++; }
 
+	function handleAssetPicked(ref: string) {
+		showAssetPicker = false;
+		if (editStep.inserted && editStep.inserted.type === 'window' && 'src' in editStep.inserted.content) {
+			(editStep.inserted.content as { src: string }).src = ref;
+		} else if (editStep.overrides) {
+			const content = editStep.overrides.content as Record<string, unknown> | undefined;
+			if (content && 'src' in content) content.src = ref;
+		}
+		bumpPreview();
+	}
+
 	let previewStep = $derived.by(() => {
 		void previewTick;
-		return traceStepToTutorialStep(editStep);
+		const step = traceStepToTutorialStep(editStep);
+		if (step && step.type === 'window') {
+			return { ...step, content: rewriteContent(slug, step.content) };
+		}
+		return step;
 	});
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -119,6 +138,16 @@
 	</div>
 </div>
 
+<AssetPickerDialog
+	open={showAssetPicker}
+	tutorialSlug={slug}
+	selected={editStep.inserted?.type === 'window' && 'src' in editStep.inserted.content
+		? (editStep.inserted.content as { src: string }).src
+		: undefined}
+	onselect={handleAssetPicked}
+	onclose={() => (showAssetPicker = false)}
+/>
+
 {#snippet editSourceStep(step: TraceStep)}
 	{@const o = step.overrides as Record<string, unknown>}
 	{@const type = o?.type as string}
@@ -207,6 +236,27 @@
 				}}
 			/>
 		</label>
+		{@const content = o.content as Record<string, unknown> | undefined}
+		{#if content && ('src' in content)}
+			<label class="field">
+				<span class="field-label">Source file</span>
+				<div class="file-upload-row">
+					<input
+						type="text"
+						value={content.src as string ?? ''}
+						oninput={(e) => {
+							content.src = (e.target as HTMLInputElement).value;
+							bumpPreview();
+						}}
+						placeholder="filename.png"
+					/>
+					<button
+						class="btn-sm"
+						onclick={() => (showAssetPicker = true)}
+					>Browse</button>
+				</div>
+			</label>
+		{/if}
 	{/if}
 
 	<button
@@ -298,11 +348,10 @@
 						}}
 						placeholder="filename.png"
 					/>
-					<input
-						type="file"
-						accept="image/*,video/*"
-						onchange={(e) => { onFileUpload(e, editingStep.roundId, editingStep.stepId); bumpPreview(); }}
-					/>
+					<button
+						class="btn-sm"
+						onclick={() => (showAssetPicker = true)}
+					>Browse</button>
 				</div>
 			</label>
 			{#if ins.content.kind === 'fiji-image'}

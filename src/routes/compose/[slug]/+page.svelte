@@ -4,7 +4,7 @@
 	import type { TutorialComposition, CompositionBlock, TraceBlock, HandAuthoredBlock } from '$lib/compose/types';
 	import type { Step, WindowContentData } from '$lib/data/tutorials';
 	import BlockSearchBar from '$lib/compose/BlockSearchBar.svelte';
-	import AssetUploadDialog from '$lib/components/AssetUploadDialog.svelte';
+	import AssetPickerDialog from '$lib/components/AssetPickerDialog.svelte';
 
 	let { data } = $props();
 
@@ -24,35 +24,12 @@
 	let showBlockSearch = $state(false);
 	let expandedBlocks = $state<Set<number>>(new Set());
 	let showThumbnailPicker = $state(false);
-	let showUploadDialog = $state(false);
-	let availableAssets = $state<{ shared: string[]; tutorials: Record<string, string[]> }>({ shared: [], tutorials: {} });
-
-	async function loadAssets() {
-		try {
-			const res = await fetch('/api/assets');
-			availableAssets = await res.json();
-		} catch { /* ignore */ }
-	}
-
-	function openThumbnailPicker() {
-		loadAssets();
-		showThumbnailPicker = true;
-	}
-
-	function selectThumbnail(ref: string) {
-		composition.meta.thumbnail = ref;
-		showThumbnailPicker = false;
-	}
 
 	function thumbnailPreviewUrl(ref: string | undefined): string | undefined {
 		if (!ref) return undefined;
 		if (ref.startsWith('shared/')) return `/assets/${ref.slice(7)}`;
 		if (ref.includes('/') || ref.includes('://')) return ref;
 		return `/tutorials/${data.slug}/assets/${ref}`;
-	}
-
-	function isImageFile(name: string): boolean {
-		return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
 	}
 
 	function addTraceBlock(block: TraceBlock) {
@@ -288,8 +265,7 @@
 								placeholder="filename.png"
 								class="thumbnail-input"
 							/>
-							<button class="btn-sm" onclick={openThumbnailPicker}>Browse</button>
-							<button class="btn-sm" onclick={() => (showUploadDialog = true)}>Upload</button>
+							<button class="btn-sm" onclick={() => (showThumbnailPicker = true)}>Browse</button>
 						</div>
 					</div>
 				</label>
@@ -326,78 +302,14 @@
 		</details>
 	</section>
 
-	<!-- Thumbnail picker overlay -->
-	{#if showThumbnailPicker}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="overlay" onclick={() => (showThumbnailPicker = false)}>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-			<div class="dialog thumbnail-dialog" onclick={(e) => e.stopPropagation()}>
-				<h3>Select Thumbnail</h3>
-
-				{#if availableAssets.tutorials[data.slug]?.filter(isImageFile).length}
-					<h4>Tutorial: {data.slug}</h4>
-					<div class="asset-grid">
-						{#each availableAssets.tutorials[data.slug].filter(isImageFile) as file}
-							<button
-								class="asset-thumb"
-								class:selected={composition.meta.thumbnail === file}
-								onclick={() => selectThumbnail(file)}
-							>
-								<img src="/tutorials/{data.slug}/assets/{file}" alt={file} />
-								<span class="asset-name">{file}</span>
-							</button>
-						{/each}
-					</div>
-				{/if}
-
-				{#if availableAssets.shared.filter(isImageFile).length}
-					<h4>Shared Assets</h4>
-					<div class="asset-grid">
-						{#each availableAssets.shared.filter(isImageFile) as file}
-							<button
-								class="asset-thumb"
-								class:selected={composition.meta.thumbnail === `shared/${file}`}
-								onclick={() => selectThumbnail(`shared/${file}`)}
-							>
-								<img src="/assets/{file}" alt={file} />
-								<span class="asset-name">{file}</span>
-							</button>
-						{/each}
-					</div>
-				{/if}
-
-				{#each Object.entries(availableAssets.tutorials).filter(([s]) => s !== data.slug) as [tSlug, files]}
-					{@const images = files.filter(isImageFile)}
-					{#if images.length}
-						<h4>Tutorial: {tSlug}</h4>
-						<div class="asset-grid">
-							{#each images as file}
-								<button
-									class="asset-thumb"
-									onclick={() => selectThumbnail(`tutorials/${tSlug}/assets/${file}`)}
-								>
-									<img src="/tutorials/{tSlug}/assets/{file}" alt={file} />
-									<span class="asset-name">{file}</span>
-								</button>
-							{/each}
-						</div>
-					{/if}
-				{/each}
-
-				<div class="dialog-actions">
-					<button class="btn" onclick={() => (showThumbnailPicker = false)}>Cancel</button>
-					<button class="btn btn-primary" onclick={() => { showThumbnailPicker = false; showUploadDialog = true; }}>Upload New</button>
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	<!-- Asset upload dialog -->
-	<AssetUploadDialog
-		open={showUploadDialog}
+	<!-- Thumbnail picker -->
+	<AssetPickerDialog
+		open={showThumbnailPicker}
 		tutorialSlug={data.slug}
-		onclose={() => (showUploadDialog = false)}
-		onuploaded={(ref) => { composition.meta.thumbnail = ref; }}
+		imagesOnly
+		selected={composition.meta.thumbnail}
+		onselect={(ref) => { composition.meta.thumbnail = ref; showThumbnailPicker = false; }}
+		onclose={() => (showThumbnailPicker = false)}
 	/>
 
 	<!-- ═══ BLOCKS ═══ -->
@@ -668,60 +580,6 @@
 		min-width: 120px;
 	}
 
-	/* ─── Thumbnail picker dialog ─── */
-	.thumbnail-dialog {
-		max-width: 640px;
-		max-height: 80vh;
-		overflow-y: auto;
-	}
-	.thumbnail-dialog h4 {
-		margin: 0.75rem 0 0.3rem;
-		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		color: var(--text-tertiary);
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-	}
-	.asset-grid {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-	.asset-thumb {
-		width: 90px;
-		background: rgba(0, 0, 0, 0.3);
-		border: 2px solid transparent;
-		border-radius: 6px;
-		padding: 0;
-		cursor: pointer;
-		overflow: hidden;
-		transition: border-color 0.15s;
-		display: flex;
-		flex-direction: column;
-	}
-	.asset-thumb:hover {
-		border-color: var(--orange-400);
-	}
-	.asset-thumb.selected {
-		border-color: var(--orange-300);
-		box-shadow: 0 0 0 1px var(--orange-500);
-	}
-	.asset-thumb img {
-		width: 100%;
-		height: 60px;
-		object-fit: cover;
-		display: block;
-	}
-	.asset-name {
-		font-family: var(--font-mono);
-		font-size: 0.55rem;
-		color: var(--text-tertiary);
-		padding: 0.2rem 0.3rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		text-align: center;
-	}
 
 	/* ─── Blocks section ─── */
 	.blocks-section {

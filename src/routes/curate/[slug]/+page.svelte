@@ -386,6 +386,7 @@
 
 	<main class="curate-layout">
 		<UnifiedTracePanel
+			slug={data.slug}
 			{curation}
 			{view}
 			{editingStep}

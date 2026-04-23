@@ -3,11 +3,13 @@
 	import type { SessionView } from '$lib/session/viewmodel';
 	import type { TraceState, TraceStep, TraceRound } from '$lib/trace/types';
 	import { traceStepToTutorialStep } from '$lib/trace/convert';
+	import { rewriteContent } from '$lib/compose/resolve';
 	import { stepLabel, stepIcon, stepPreview, displayModeIcon, includedCount, totalCount } from './step-helpers';
 	import { getStepStyle, getCategory, getDefaultMode, categoryLabels, compactSummary as sharedCompactSummary } from '$lib/components/tutorial/step-colors';
 	import StepRenderer from '$lib/components/tutorial/StepRenderer.svelte';
 
 	let {
+		slug,
 		curation,
 		view,
 		editingStep,
@@ -30,6 +32,7 @@
 		onResetStep,
 		onResetRound
 	}: {
+		slug: string;
 		curation: TraceState;
 		view: SessionView | null;
 		editingStep: { roundId: string; stepId: string } | null;
@@ -203,7 +206,11 @@
 	}
 
 	function toPreviewStep(traceStep: TraceStep): Step | null {
-		return traceStepToTutorialStep(traceStep);
+		const step = traceStepToTutorialStep(traceStep);
+		if (step && step.type === 'window') {
+			return { ...step, content: rewriteContent(slug, step.content) };
+		}
+		return step;
 	}
 
 	function noopFocus(_step: WindowStep) {}
