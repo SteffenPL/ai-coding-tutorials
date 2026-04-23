@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { MultiWindowContent } from '$lib/data/tutorials';
+	import { getWindowIcon } from '$lib/data/tutorials';
+	import WindowChrome from './WindowChrome.svelte';
 	import WindowContent from './WindowContent.svelte';
 
 	let { content }: { content: MultiWindowContent } = $props();
@@ -10,9 +12,12 @@
 	style="--cols: {content.cols}; --rows: {content.rows};"
 >
 	{#each content.windows as entry, i}
-		<div class="cell" style="--delay: {i * 60}ms;">
-			<div class="cell-label">{entry.label}</div>
-			<div class="cell-content">
+		<div class="sub-window" style="--delay: {i * 80}ms;">
+			<WindowChrome
+				title={entry.label}
+				icon={getWindowIcon(entry.content)}
+			/>
+			<div class="sub-body">
 				<WindowContent content={entry.content} />
 			</div>
 		</div>
@@ -24,56 +29,47 @@
 		display: grid;
 		grid-template-columns: repeat(var(--cols), 1fr);
 		grid-template-rows: repeat(var(--rows), 1fr);
-		gap: 2px;
-		background: #1a1216;
+		gap: 6px;
+		padding: 6px;
+		background: rgba(0, 0, 0, 0.3);
 		width: 100%;
 		height: 100%;
 		min-height: 0;
 		overflow: auto;
 	}
 
-	.cell {
+	.sub-window {
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
 		min-width: 0;
-		background: #0d0a0c;
-		animation: cell-appear 0.3s ease both;
+		border-radius: 8px;
+		overflow: hidden;
+		border: 1px solid var(--border-subtle);
+		background: var(--bg-secondary);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		animation: sub-appear 0.35s ease both;
 		animation-delay: var(--delay);
 	}
 
-	@keyframes cell-appear {
+	@keyframes sub-appear {
 		from {
 			opacity: 0;
-			transform: scale(0.92);
+			transform: scale(0.88) translateY(8px);
 		}
 		to {
 			opacity: 1;
-			transform: scale(1);
+			transform: scale(1) translateY(0);
 		}
 	}
 
-	.cell-label {
-		font-family: var(--font-mono);
-		font-size: 10px;
-		font-weight: 600;
-		color: var(--text-tertiary);
-		padding: 4px 8px 2px;
-		background: #1a1216;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		flex-shrink: 0;
-	}
-
-	.cell-content {
+	.sub-body {
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
 	}
 
-	/* Override nested image rendering for grid cells */
-	.cell-content :global(img) {
+	.sub-body :global(img) {
 		image-rendering: auto;
 	}
 </style>
