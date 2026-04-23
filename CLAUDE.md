@@ -63,7 +63,7 @@ Each `type: 'window'` step wraps a `content` discriminated union (`content.kind`
 | `source` | `text`, `language?` | Source code with line numbers |
 | `folder` | `entries: FolderEntry[]` | Tree view of files/folders |
 | `video` | `src`, `poster?` | Looping muted video |
-| `multi-window` | `rows`, `cols`, `windows: MultiWindowEntry[]` | Grid of sub-windows with staggered entrance |
+| `window-collection` | `rows`, `cols`, `windows: {title, subtitle?, content}[]` | Chromeless grid of sub-windows with own title bars |
 
 View components live in `src/lib/components/windows/`. The dispatcher is `WindowContent.svelte`. To add a new window type: add a content interface to `tutorials.ts`, create a `*View.svelte` component, add a branch in `WindowContent.svelte`.
 

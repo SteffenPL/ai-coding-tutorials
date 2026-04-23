@@ -16,7 +16,7 @@
 	import SourceView from './SourceView.svelte';
 	import FolderView from './FolderView.svelte';
 	import VideoView from './VideoView.svelte';
-	import MultiWindowView from './MultiWindowView.svelte';
+	import WindowCollectionView from './WindowCollectionView.svelte';
 
 	let { content }: { content: WindowContentData } = $props();
 </script>
@@ -33,6 +33,6 @@
 	<FolderView {content} />
 {:else if content.kind === 'video'}
 	<VideoView {content} />
-{:else if content.kind === 'multi-window'}
-	<MultiWindowView {content} />
+{:else if content.kind === 'window-collection'}
+	<WindowCollectionView {content} />
 {/if}

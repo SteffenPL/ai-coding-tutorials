@@ -158,47 +158,47 @@ steps:
   - type: window
     windowTitle: Segmentation Approaches — Comparison
     content:
-      kind: multi-window
+      kind: window-collection
       rows: 2
       cols: 5
       windows:
-        - label: "#1 Otsu (raw)"
+        - title: "#1 Otsu (raw)"
           content:
             kind: fiji-image
             src: step_003.png
-        - label: "#2 Triangle"
+        - title: "#2 Triangle"
           content:
             kind: fiji-image
             src: step_004.png
-        - label: "#3 Li"
+        - title: "#3 Li"
           content:
             kind: fiji-image
             src: step_005.png
-        - label: "#4 Gaussian + Otsu"
+        - title: "#4 Gaussian + Otsu"
           content:
             kind: fiji-image
             src: step_006.png
-        - label: "#5 Gaussian + Otsu + WS"
+        - title: "#5 Gaussian + Otsu + WS"
           content:
             kind: fiji-image
             src: step_007.png
-        - label: "#6 Median + Otsu + WS"
+        - title: "#6 Median + Otsu + WS"
           content:
             kind: fiji-image
             src: step_008.png
-        - label: "#7 Gaussian + Triangle + WS"
+        - title: "#7 Gaussian + Triangle + WS"
           content:
             kind: fiji-image
             src: step_009.png
-        - label: "#8 Phansalkar (local)"
+        - title: "#8 Phansalkar (local)"
           content:
             kind: fiji-image
             src: step_010.png
-        - label: "#9 Gaussian + Otsu + Open + WS ★"
+        - title: "#9 Gaussian + Otsu + Open + WS ★"
           content:
             kind: fiji-image
             src: step_011.png
-        - label: "#10 Huang + WS"
+        - title: "#10 Huang + WS"
           content:
             kind: fiji-image
             src: step_012.png

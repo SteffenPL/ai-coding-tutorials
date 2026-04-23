@@ -1,20 +1,21 @@
 <script lang="ts">
-	import type { MultiWindowContent } from '$lib/data/tutorials';
+	import type { WindowCollectionContent } from '$lib/data/tutorials';
 	import { getWindowIcon } from '$lib/data/tutorials';
 	import WindowChrome from './WindowChrome.svelte';
 	import WindowContent from './WindowContent.svelte';
 
-	let { content }: { content: MultiWindowContent } = $props();
+	let { content }: { content: WindowCollectionContent } = $props();
 </script>
 
 <div
-	class="multi-grid"
+	class="collection-grid"
 	style="--cols: {content.cols}; --rows: {content.rows};"
 >
 	{#each content.windows as entry, i}
 		<div class="sub-window" style="--delay: {i * 80}ms;">
 			<WindowChrome
-				title={entry.label}
+				title={entry.title}
+				subtitle={entry.subtitle}
 				icon={getWindowIcon(entry.content)}
 			/>
 			<div class="sub-body">
@@ -25,13 +26,12 @@
 </div>
 
 <style>
-	.multi-grid {
+	.collection-grid {
 		display: grid;
 		grid-template-columns: repeat(var(--cols), 1fr);
 		grid-template-rows: repeat(var(--rows), 1fr);
 		gap: 6px;
 		padding: 6px;
-		background: rgba(0, 0, 0, 0.3);
 		width: 100%;
 		height: 100%;
 		min-height: 0;
