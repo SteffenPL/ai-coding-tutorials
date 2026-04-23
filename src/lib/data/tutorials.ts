@@ -232,13 +232,30 @@ export interface VideoContent {
 	poster?: string;
 }
 
+/**
+ * Grid of sub-windows rendered in a rows×cols layout.
+ * Each child is a labelled WindowContentData item.
+ */
+export interface MultiWindowContent {
+	kind: 'multi-window';
+	rows: number;
+	cols: number;
+	windows: MultiWindowEntry[];
+}
+
+export interface MultiWindowEntry {
+	label: string;
+	content: WindowContentData;
+}
+
 export type WindowContentData =
 	| FijiImageContent
 	| ImageContent
 	| MarkdownContent
 	| SourceContent
 	| FolderContent
-	| VideoContent;
+	| VideoContent
+	| MultiWindowContent;
 
 /** Default icon text for each window content kind */
 export function getWindowIcon(content: WindowContentData): string {
@@ -249,6 +266,7 @@ export function getWindowIcon(content: WindowContentData): string {
 		case 'source': return '</>';
 		case 'folder': return '📁';
 		case 'video': return '▶';
+		case 'multi-window': return '⊞';
 	}
 }
 

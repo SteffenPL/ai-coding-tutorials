@@ -145,6 +145,7 @@ language, since those are the real trace.
 | `source`     | `text`, `language?`                    |
 | `folder`     | `entries: FolderEntry[]`               |
 | `video`      | `src`, `poster?`                       |
+| `multi-window` | `rows`, `cols`, `windows: {label, content}[]` |
 
 ## YAML gotchas
 

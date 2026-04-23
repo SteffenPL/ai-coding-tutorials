@@ -202,105 +202,47 @@ steps:
         これが MCP アプローチの主な利点です — AI が実際に生成物を見て
         的確な判断を下せます。
 
-  # All 10 approach images — shown individually as windows
+  # All 10 approach results as a multi-window grid
   - round: 1
     step: 26
-    override:
-      windowTitle: "Approach 1 — Otsu (raw)"
-      subtitle: "Good detection, but touching nuclei merge"
-      content:
-        kind: fiji-image
-        src: step_003.png
-
-  - round: 1
-    step: 28
-    override:
-      windowTitle: "Approach 2 — Triangle"
-      subtitle: "Threshold too low — captures cytoplasm"
-      content:
-        kind: fiji-image
-        src: step_004.png
-
-  - round: 1
-    step: 30
-    override:
-      windowTitle: "Approach 3 — Li"
-      subtitle: "Similar to Otsu, slightly tighter but still merges"
-      content:
-        kind: fiji-image
-        src: step_005.png
-
-  - round: 1
-    step: 32
-    override:
-      windowTitle: "Approach 4 — Gaussian + Otsu"
-      subtitle: "Smoother edges, still merges touching nuclei"
-      content:
-        kind: fiji-image
-        src: step_006.png
-
-  - round: 1
-    step: 34
-    override:
-      windowTitle: "Approach 5 — Gaussian + Otsu + Watershed"
-      subtitle: "Good split of touching nuclei"
-      content:
-        kind: fiji-image
-        src: step_007.png
-
-  - round: 1
-    step: 47
-    override:
-      windowTitle: "Approach 6 — Median + Otsu + Watershed"
-      subtitle: "Similar to #5, slightly less smooth"
-      content:
-        kind: fiji-image
-        src: step_008.png
-
-  - round: 1
-    step: 49
-    override:
-      windowTitle: "Approach 7 — Gaussian + Triangle + Watershed"
-      subtitle: "Over-segments — Triangle threshold too aggressive"
-      content:
-        kind: fiji-image
-        src: step_009.png
-
-  - round: 1
-    step: 51
-    override:
-      windowTitle: "Approach 8 — Phansalkar (local)"
-      subtitle: "Picks up nuclei but also cell edges and noise"
-      content:
-        kind: fiji-image
-        src: step_010.png
-
-  - round: 1
-    step: 53
     comment:
       en: >-
-        Approach 9 (Gaussian + Otsu + Open + Watershed) produces the cleanest
-        result: debris removed by morphological opening, touching nuclei split
-        by watershed, smooth edges from Gaussian pre-filtering.
+        All 10 segmentation results side by side. Approach 9 (Gaussian +
+        Otsu + Open + Watershed) wins — morphological opening removes thin
+        bridges between touching nuclei before Watershed splits them,
+        producing the cleanest shapes.
       ja: >-
-        アプローチ 9（Gaussian + Otsu + Open + Watershed）が最もクリーンな結果を
-        生成：形態学的 opening でデブリを除去、watershed で接触核を分離、
-        Gaussian 前処理で滑らかなエッジ。
+        10 種類のセグメンテーション結果を並べて表示。アプローチ 9（Gaussian +
+        Otsu + Open + Watershed）が勝利 — 形態学的 opening が接触核間の
+        細い橋を除去し、Watershed が分離、最もクリーンな形状を生成。
     override:
-      windowTitle: "Approach 9 — Gaussian + Otsu + Open + Watershed ★"
-      subtitle: "Winner — cleanest shapes and splits"
+      windowTitle: "Segmentation Approaches — Comparison"
+      subtitle: "10 methods · 2×5 grid"
       content:
-        kind: fiji-image
-        src: step_011.png
-
-  - round: 1
-    step: 55
-    override:
-      windowTitle: "Approach 10 — Huang + Watershed"
-      subtitle: "Slightly aggressive, some fragmentation"
-      content:
-        kind: fiji-image
-        src: step_012.png
+        kind: multi-window
+        rows: 2
+        cols: 5
+        windows:
+          - label: "#1 Otsu (raw)"
+            content: { kind: fiji-image, src: step_003.png }
+          - label: "#2 Triangle"
+            content: { kind: fiji-image, src: step_004.png }
+          - label: "#3 Li"
+            content: { kind: fiji-image, src: step_005.png }
+          - label: "#4 Gaussian + Otsu"
+            content: { kind: fiji-image, src: step_006.png }
+          - label: "#5 Gaussian + Otsu + WS"
+            content: { kind: fiji-image, src: step_007.png }
+          - label: "#6 Median + Otsu + WS"
+            content: { kind: fiji-image, src: step_008.png }
+          - label: "#7 Gaussian + Triangle + WS"
+            content: { kind: fiji-image, src: step_009.png }
+          - label: "#8 Phansalkar (local)"
+            content: { kind: fiji-image, src: step_010.png }
+          - label: "#9 Gaussian + Otsu + Open + WS ★"
+            content: { kind: fiji-image, src: step_011.png }
+          - label: "#10 Huang + WS"
+            content: { kind: fiji-image, src: step_012.png }
 
   # Assessment table
   - round: 1

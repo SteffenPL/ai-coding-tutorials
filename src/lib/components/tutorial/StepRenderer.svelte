@@ -266,12 +266,32 @@
 	</div>
 
 {:else if step.type === 'window'}
-	<!-- Desktop: compact marker in terminal; window itself lives in the right panel -->
-	<button type="button" class="window-marker" onclick={() => onFocusWindow(step)} title="Maximize {step.windowTitle}">
-		<span class="marker-icon" aria-hidden="true">&#8599;</span>
-		<span class="marker-title">{step.windowTitle}</span>
-		{#if step.subtitle}<span class="marker-sub">{step.subtitle}</span>{/if}
-	</button>
+	{#if step.content.kind === 'multi-window'}
+		<!-- Desktop: collapsible marker with sub-window list -->
+		<details class="multi-window-marker">
+			<summary class="window-marker" role="button">
+				<span class="marker-icon" aria-hidden="true">⊞</span>
+				<span class="marker-title">{step.windowTitle}</span>
+				{#if step.subtitle}<span class="marker-sub">{step.subtitle}</span>{/if}
+				<span class="marker-count">{step.content.windows.length}</span>
+			</summary>
+			<div class="multi-window-children">
+				{#each step.content.windows as entry}
+					<button type="button" class="window-marker window-marker--child" onclick={() => onFocusWindow(step)}>
+						<span class="marker-icon" aria-hidden="true">&#8599;</span>
+						<span class="marker-title">{entry.label}</span>
+					</button>
+				{/each}
+			</div>
+		</details>
+	{:else}
+		<!-- Desktop: compact marker in terminal; window itself lives in the right panel -->
+		<button type="button" class="window-marker" onclick={() => onFocusWindow(step)} title="Maximize {step.windowTitle}">
+			<span class="marker-icon" aria-hidden="true">&#8599;</span>
+			<span class="marker-title">{step.windowTitle}</span>
+			{#if step.subtitle}<span class="marker-sub">{step.subtitle}</span>{/if}
+		</button>
+	{/if}
 	<!-- Mobile: full inline window -->
 	<div class="inline-fiji">
 		<WindowChrome
@@ -931,6 +951,53 @@
 		white-space: nowrap;
 	}
 
+	/* ── Multi-window marker ── */
+	.multi-window-marker {
+		margin: 6px 0 6px 4px;
+	}
+
+	.multi-window-marker > summary {
+		list-style: none;
+	}
+
+	.multi-window-marker > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.multi-window-marker > summary .marker-icon {
+		transition: transform 0.2s ease;
+	}
+
+	.multi-window-marker[open] > summary .marker-icon {
+		transform: rotate(90deg);
+	}
+
+	.marker-count {
+		font-size: 10px;
+		font-weight: 600;
+		color: var(--orange-300);
+		background: rgba(233, 84, 32, 0.12);
+		padding: 1px 6px;
+		border-radius: 8px;
+		flex-shrink: 0;
+	}
+
+	.multi-window-children {
+		padding-left: 16px;
+		border-left: 1px solid var(--border-subtle);
+		margin-left: 12px;
+	}
+
+	.window-marker--child {
+		margin: 2px 0;
+		padding: 4px 10px;
+		font-size: 11px;
+	}
+
+	.window-marker--child .marker-title {
+		font-weight: 500;
+	}
+
 	/* ── Cursor ── */
 	@keyframes cursorBlink {
 		0%, 50% { opacity: 1; }
@@ -956,6 +1023,7 @@
 
 		/* On mobile, hide the desktop marker — full inline window shown instead */
 		.window-marker { display: none; }
+		.multi-window-marker { display: none; }
 
 		.inline-fiji {
 			display: inline-flex;
