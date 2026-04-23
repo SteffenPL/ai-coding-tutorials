@@ -78,9 +78,29 @@
 	}
 
 	function formatAssistantHtml(html: string): string {
-		if (html.includes('<br>') || html.includes('<br/>') || html.includes('<br />')) return html;
-		if (!html.includes('\n')) return html;
-		return html
+		const hasHtmlBreaks = html.includes('<br>') || html.includes('<br/>') || html.includes('<br />');
+
+		let result = html;
+
+		// Inline markdown: **bold**, *italic* / _italic_, `code`
+		// Skip if content already has <strong>/<em> tags for that segment
+		result = result.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+		result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+		result = result.replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>');
+		result = result.replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
+
+		// Block-level: heading lines (# ... at start of line)
+		result = result.replace(/(^|\n)#{1,3}\s+(.+)/g, '$1<span class="md-heading">$2</span>');
+
+		// Decorative rules: lines that are all ─ or ═ or — (≥3 chars)
+		result = result.replace(/(^|\n)([─═—]{3,})(\n|$)/g, '$1<span class="decorative-rule">$2</span>$3');
+
+		// ★ Insight headers
+		result = result.replace(/(^|\n)(★\s+\w[^\n]*[─—]+)/g, '$1<span class="decorative-rule">$2</span>');
+
+		if (hasHtmlBreaks) return result;
+		if (!result.includes('\n')) return result;
+		return result
 			.replace(/\n\n+/g, '</p><p>')
 			.replace(/\n/g, '<br>');
 	}
@@ -404,6 +424,14 @@
 		color: var(--mauve);
 		letter-spacing: 0.5px;
 		opacity: 0.7;
+	}
+
+	.assistant-text :global(.md-heading) {
+		display: block;
+		font-weight: 700;
+		color: var(--orange-300);
+		font-size: 13px;
+		margin: 10px 0 4px 0;
 	}
 
 	.assistant-text :global(ul),
