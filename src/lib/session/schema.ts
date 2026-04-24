@@ -185,13 +185,23 @@ export const CustomTitleEvent = z.object({
 	customTitle: z.string()
 });
 
+/* ─── Session header (first line of versioned JSONL) ──────────────────── */
+
+export const HeaderEvent = z.object({
+	type: z.literal('header'),
+	formatVersion: z.string(),
+	importDate: z.string(),
+	sourceSessionId: z.string().optional()
+});
+
 /* ─── Top-level union ──────────────────────────────────────────────────── */
 
 export const SessionEvent = z.discriminatedUnion('type', [
 	UserEvent,
 	AssistantEvent,
 	SystemCompactEvent,
-	CustomTitleEvent
+	CustomTitleEvent,
+	HeaderEvent
 ]);
 
 export type SessionEvent = z.infer<typeof SessionEvent>;
@@ -199,6 +209,7 @@ export type UserEvent = z.infer<typeof UserEvent>;
 export type AssistantEvent = z.infer<typeof AssistantEvent>;
 export type SystemCompactEvent = z.infer<typeof SystemCompactEvent>;
 export type CustomTitleEvent = z.infer<typeof CustomTitleEvent>;
+export type HeaderEvent = z.infer<typeof HeaderEvent>;
 export type ToolUseBlockT = z.infer<typeof ToolUseBlock>;
 export type ToolResultBlockT = z.infer<typeof ToolResultBlock>;
 

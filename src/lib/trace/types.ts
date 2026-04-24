@@ -29,6 +29,7 @@ export interface TraceRound {
 }
 
 export interface TraceState {
+	formatVersion?: string;
 	sessionSlug: string;
 	title?: string;
 	rounds: TraceRound[];

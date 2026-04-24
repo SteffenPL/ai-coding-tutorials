@@ -1,24 +1,14 @@
 # Tutorials folder
 
 Each tutorial is a self-contained folder under `src/tutorials/<slug>/`.
-Content is YAML; TypeScript types live in `src/lib/data/tutorials.ts`.
-
-Raw session logs and curated trace state have moved out of this folder
-(see "Pipeline" below). A tutorial folder now contains only what the
-production build reads.
+The canonical format is `composition.json` (JSON); TypeScript types live
+in `src/lib/data/tutorials.ts` and `src/lib/compose/types.ts`.
 
 ## Layout
 
 ```
 src/tutorials/<slug>/
-├── meta.yaml               # title, tags, thumbnail, welcome, briefing, devOnly?
-├── composition.json        # optional: compose-tool state (blocks + overrides)
-├── tutorial/               # curated rounds, shown by default
-│   ├── round-01.yaml
-│   └── round-02.yaml
-└── full-log/               # optional unabridged log (enables "Log" toggle)
-    ├── round-01.yaml
-    └── round-02.yaml
+└── composition.json        # canonical tutorial definition (blocks + meta)
 
 static/tutorials/<slug>/assets/
 └── *.png / *.mp4           # per-tutorial, referenced by bare filename
@@ -30,68 +20,70 @@ static/assets/
 Raw sessions live at `src/sessions/<slug>/` (committed JSONL, see
 `src/lib/session/CLAUDE.md`). Curated trace state lives at
 `src/traces/<slug>/trace.json`. A slug can appear in any subset of
-those locations — nothing is required except `meta.yaml` or
-`composition.json` for a published tutorial.
+those locations — `composition.json` is required for a published tutorial.
 
 ## Pipeline
 
-Two formats are currently in use:
-
-**New (composition-based)** — one `composition.json` references one or
-more traces + optional hand-authored rounds. The compose-export step
-renders it to `round-NN.yaml + meta.yaml` for the static build.
-
 ```
-src/sessions/<slug>/           (raw filtered JSONL)
+src/sessions/<slug>/           (raw filtered JSONL, with header event)
     │
     ▼  /curate/<slug>
-src/traces/<slug>/trace.json   (curated TraceState)
+src/traces/<slug>/trace.json   (curated TraceState, with formatVersion)
     │
     ▼  /compose/<slug>
-src/tutorials/<slug>/composition.json
+src/tutorials/<slug>/composition.json  (with formatVersion)
     │
-    ▼  /api/compose/[slug]/export
-src/tutorials/<slug>/tutorial/round-NN.yaml  +  meta.yaml
+    ▼  tutorial-loader.ts (build time)
+Tutorial object → rendered by TutorialViewer
 ```
 
-**Legacy (round-YAML only)** — `install-claude-code` has hand-edited
-`round-NN.yaml` files without a composition. The static build still
-reads these. Prefer the new pipeline for new tutorials.
+The tutorial-loader globs `composition.json` files and resolves them
+at build time via `resolveComposition()`. No YAML export step needed.
 
-## meta.yaml
+## composition.json
 
-```yaml
-slug: my-tutorial             # should match the folder name
-devOnly: false                # omit or false for production; true = hidden in prod build
-title:
-  en: "..."
-  ja: "..."                   # optional
-tags: [fiji, segmentation]
-thumbnail: step_001.png       # filename in assets/
-welcome:                      # optional; shown before playback starts
-  heading:     { en, ja? }
-  description: { en, ja? }
-  learnings:
-    - { en: "...", ja?: "..." }
-briefing:                     # optional longer HTML shown at the bottom of welcome
-  en: "..."
-  ja: "..."
+```json
+{
+  "formatVersion": "1.0.0",
+  "slug": "my-tutorial",
+  "meta": {
+    "slug": "my-tutorial",
+    "title": { "en": "My Tutorial", "ja": "..." },
+    "tags": ["fiji", "segmentation"],
+    "thumbnail": "step_001.png",
+    "author": "Author Name"
+  },
+  "welcome": {
+    "heading": { "en": "..." },
+    "description": { "en": "..." },
+    "learnings": [{ "en": "..." }]
+  },
+  "devOnly": false,
+  "blocks": [
+    { "kind": "trace", "sourceSlug": "my-trace" },
+    { "kind": "round", "round": { "kind": "claude", "prompt": "...", "steps": [...] } }
+  ],
+  "fullBlocks": [...]
+}
 ```
 
-## Round YAML
+Blocks reference traces (`kind: "trace"`) or contain hand-authored
+rounds (`kind: "round"`). `fullBlocks` is optional and provides the
+unabridged log (enables "Full Log" toggle).
 
-```yaml
-kind: claude                 # or "terminal" — default: claude
-prompt: "User message..."
-cwd: ~/workspace/demo        # optional, shown in terminal rounds
-steps:
-  - type: thinking
-    text: "..."
-    duration: "3s"
-  - type: assistant
-    html: "<p>...</p>"
-    final: true              # highlights as final answer (teal bar)
-    comment: "<p>Optional HTML for the tutorial comment panel.</p>"
+## Round structure (inside blocks)
+
+```json
+{
+  "kind": "claude",
+  "prompt": "User message...",
+  "cwd": "~/workspace/demo",
+  "steps": [
+    { "type": "thinking", "text": "...", "duration": "3s" },
+    { "type": "assistant", "html": "<p>...</p>", "final": true,
+      "comment": { "en": "Tutorial note", "ja": "..." } }
+  ]
+}
 ```
 
 ### Step types (map 1:1 to TS interfaces in `src/lib/data/tutorials.ts`)
@@ -147,25 +139,21 @@ language, since those are the real trace.
 | `video`      | `src`, `poster?`                       |
 | `window-collection` | `rows`, `cols`, `windows: {title, subtitle?, content}[]` |
 
-## YAML gotchas
+## Asset references
 
-- Use `|-` for multi-line code blocks (preserves newlines, trims final `\n`).
-- Quote any value that contains `: ` (colon-space) — YAML would parse it
-  as a key-value pair. Example: `text: "✓ completed — active image: x"`.
-- Use `>-` for long wrapped HTML that should render as one paragraph.
-- Asset refs are **bare filenames** (`step_001.png`) for per-tutorial assets,
-  rewritten to `tutorials/<slug>/assets/<file>`. Use **`shared/` prefix**
-  (`shared/fiji-logo.png`) for shared assets at `static/assets/`, rewritten
-  to `assets/<file>`. A value containing `/` that doesn't start with `shared/`
-  is passed through unchanged.
+Asset refs are **bare filenames** (`step_001.png`) for per-tutorial assets,
+rewritten to `tutorials/<slug>/assets/<file>`. Use **`shared/` prefix**
+(`shared/fiji-logo.png`) for shared assets at `static/assets/`, rewritten
+to `assets/<file>`. A value containing `/` that doesn't start with `shared/`
+is passed through unchanged.
 
 ## Build pipeline
 
-1. **Loader** (`src/lib/data/tutorial-loader.ts`) — globs `meta.yaml`,
-   `tutorial/round-*.yaml`, `full-log/round-*.yaml` via
-   `import.meta.glob('…', { eager: true, query: '?raw', import: 'default' })`,
-   parses with `js-yaml`, rewrites asset paths, filters `devOnly` in prod,
-   and exposes `getAllTutorials()` / `getTutorialBySlug()`.
+1. **Loader** (`src/lib/data/tutorial-loader.ts`) — globs
+   `composition.json` files via `import.meta.glob`, parses JSON, resolves
+   via `resolveComposition()`, rewrites asset paths, filters `devOnly` in
+   prod, validates `formatVersion`, and exposes `getAllTutorials()` /
+   `getTutorialBySlug()`.
 2. **Page loader** (`src/routes/tutorials/[slug]/+page.ts`) — uses
    `entries()` to prerender one static page per slug.
 3. **Static adapter** — writes `build/tutorials/<slug>.html` + copies
@@ -184,9 +172,8 @@ flow is:
    compact/full per step, add comments. Saved to `src/traces/<slug>/trace.json`.
 3. **Compose tutorial** — open `/compose/<slug>`, add trace blocks
    and/or hand-authored rounds, edit metadata. Saved to
-   `src/tutorials/<slug>/composition.json`.
-4. **Export YAML** — from `/compose/<slug>`, writes
-   `tutorial/round-NN.yaml` + `meta.yaml` ready for the static build.
+   `src/tutorials/<slug>/composition.json`. The static build reads
+   this directly — no export step needed.
 
 ## CLI workflow (for agents)
 
@@ -209,9 +196,8 @@ it; prefer the new CLI or dashboard for new work.
 
 ## devOnly
 
-Setting `devOnly: true` in `meta.yaml` excludes a tutorial from the
-production prerender. The YAML is still bundled (eager glob), so keep
-devOnly tutorials small.
+Setting `"devOnly": true` in `composition.json` excludes a tutorial
+from the production prerender.
 
 ## Adding a new step type or window kind
 
@@ -220,4 +206,4 @@ devOnly tutorials small.
    (terminal step) or add a `*View.svelte` + branch in
    `src/lib/components/windows/WindowContent.svelte` (window kind).
 3. If the new kind references assets, extend `rewriteContent` in
-   `tutorial-loader.ts` so bare filenames get rewritten.
+   `src/lib/compose/resolve.ts` so bare filenames get rewritten.

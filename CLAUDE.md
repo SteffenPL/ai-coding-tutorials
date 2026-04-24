@@ -8,12 +8,12 @@ Live site: https://steffenpl.github.io/ai-coding-tutorials/
 
 - **SvelteKit 2** + Svelte 5 (runes mode) + TypeScript
 - **Static adapter** — builds to `build/` as pure HTML/JS/CSS
-- **No markdown** — tutorial content is structured YAML data (`src/tutorials/<slug>/`)
+- **No markdown** — tutorial content is structured JSON data (`src/tutorials/<slug>/composition.json`)
 - **Single dark theme** — aubergine + orange palette, no light/dark toggle
 
 ## Tutorial data system
 
-Each tutorial is a YAML folder in `src/tutorials/<slug>/`. Tutorials are organized into **rounds** (one per user prompt), each containing an ordered list of steps:
+Each tutorial is a `composition.json` file in `src/tutorials/<slug>/`. Compositions reference traces and/or contain hand-authored rounds. The `Tutorial` type consumed by the viewer is organized into **rounds** (one per user prompt), each containing an ordered list of steps:
 
 ```ts
 export const myTutorial: Tutorial = {
@@ -156,13 +156,13 @@ Deleting a session or trace shows a warning if referenced by downstream resource
 | `static/assets/<file>` | Shared across all tutorials | `/assets/<file>` |
 | `static/tutorials/<slug>/assets/<file>` | Per-tutorial | `/tutorials/<slug>/assets/<file>` |
 
-### Reference convention in YAML
+### Reference convention in composition JSON
 
 - **Bare filename** (`step_001.png`) → per-tutorial, rewritten to `tutorials/<slug>/assets/step_001.png`
 - **`shared/` prefix** (`shared/fiji-logo.png`) → shared, rewritten to `assets/fiji-logo.png`
 - **Path with `/`** (not `shared/`) or URL → passed through unchanged
 
-Asset path rewriting is handled by `rewriteAssetPath()` in `src/lib/compose/resolve.ts`, imported by both the compose and trace preview endpoints.
+Asset path rewriting is handled by `rewriteAssetPath()` in `src/lib/compose/resolve.ts`, used by the tutorial-loader at build time and by the compose/trace preview endpoints at dev time.
 
 ### Upload endpoints (dev-only)
 
@@ -181,7 +181,7 @@ The composition tool at `/compose/<slug>` assembles tutorials from trace blocks 
 ```
 Traces (src/traces/<slug>/trace.json)
     → /compose/<slug> UI → TutorialComposition (composition.json)
-    → Preview (in-memory) or Export (round-NN.yaml + meta.yaml)
+    → tutorial-loader.ts resolves at build time → Tutorial → TutorialViewer
 ```
 
 ### Key files
@@ -204,7 +204,7 @@ Session JSONL → import (via /edit or script) → filtered JSONL in src/session
     → consumed as a source in compositions (/compose/<slug>)
 ```
 
-Tutorial YAML (`round-NN.yaml` + `meta.yaml`) is written by the compose step, not by curate.
+The composition (`composition.json`) is the canonical tutorial format. The build reads it directly — no YAML export step.
 
 ### Server routes (dev-only, stripped by static adapter)
 
@@ -238,16 +238,27 @@ Bilingual EN/JA with English fallback. Use `t({ en: '...', ja?: '...' })` from `
 ## Tutorial creation (CLI workflow for agents)
 
 ```
-Session JSONL → inspect → spec YAML → generate → tutorial folder
+Session JSONL → inspect → spec YAML → generate → composition.json
 ```
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/import-session.ts` | Filter raw Claude Code JSONL → `src/sessions/<slug>/` |
+| `scripts/import-session.ts` | Filter raw Claude Code JSONL → `src/sessions/<slug>/` (with header event) |
 | `scripts/session-to-tutorial.ts inspect` | Print session structure as JSON (rounds, steps, types) |
-| `scripts/session-to-tutorial.ts generate` | Spec YAML → `meta.yaml` + `tutorial/` + `full-log/` + assets |
+| `scripts/session-to-tutorial.ts generate` | Spec YAML → `composition.json` + assets |
+| `scripts/migrate-yaml-to-composition.ts` | One-time: convert legacy YAML tutorials → `composition.json` |
 
 Spec files live in `specs/<slug>.yaml`. Full format and workflow documented in `scripts/TUTORIAL-WORKFLOW.md`.
+
+## Data format versioning
+
+All data layers carry a `formatVersion` field (semver, currently `"1.0.0"`):
+
+- **Sessions** (JSONL): first-line `{"type":"header","formatVersion":"1.0.0","importDate":"..."}` event
+- **Traces** (JSON): `formatVersion` field on `TraceState`
+- **Compositions** (JSON): `formatVersion` field on `TutorialComposition`
+
+Loaders validate the version on read and warn on unknown versions. The constant `FORMAT_VERSION` in `src/lib/compose/types.ts` is the canonical current version.
 
 ## Development & deployment
 

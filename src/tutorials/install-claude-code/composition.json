@@ -1,0 +1,323 @@
+{
+  "formatVersion": "1.0.0",
+  "slug": "install-claude-code",
+  "meta": {
+    "slug": "install-claude-code",
+    "title": {
+      "en": "Install Claude Code",
+      "ja": "Claude Code のインストール"
+    },
+    "tags": [
+      "beginner",
+      "getting-started",
+      "setup"
+    ],
+    "thumbnail": "movie.mov",
+    "sessions": [
+      {
+        "id": "a3912923-cfb8-4524-a125-b91c3001efb9",
+        "imported": true
+      }
+    ],
+    "author": "Steffen Plunder"
+  },
+  "welcome": {
+    "heading": {
+      "en": "Install Claude Code",
+      "ja": "Claude Code のインストール"
+    },
+    "description": {
+      "en": "A beginner-friendly walkthrough for your very first Claude Code installation: install the CLI with one command, log in for the first time, and make Claude Code build your first tiny webpage. No prior Claude Code experience required.",
+      "ja": "初めて Claude Code をインストールする方向けの、初心者に優しいウォークスルー： ワンコマンドで CLI をインストールし、初回ログインを行い、 Claude Code に最初の小さなウェブページを作らせます。Claude Code の事前経験は不要です。"
+    },
+    "learnings": [
+      {
+        "en": "Installing Claude Code with a single curl command",
+        "ja": "単一の curl コマンドで Claude Code をインストールする"
+      },
+      {
+        "en": "Logging in on first launch",
+        "ja": "初回起動時にログインする"
+      },
+      {
+        "en": "Running a first end-to-end prompt (build + open a webpage)",
+        "ja": "最初のエンドツーエンドのプロンプトを実行する（構築して開く）"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "kind": "round",
+      "round": {
+        "kind": "terminal",
+        "cwd": "~/ping-pong",
+        "prompt": "claude",
+        "steps": [
+          {
+            "type": "output",
+            "text": "┌  Claude Code v2.0\n│  First launch — let's get you signed in.\n└",
+            "comment": {
+              "en": "On the very first run, Claude Code detects it has no credentials and walks you through authentication before dropping you into a prompt.",
+              "ja": "初回起動時、Claude Code は認証情報がないことを検出し、プロンプトに入る前に 認証フローを案内します。"
+            }
+          },
+          {
+            "type": "question",
+            "html": "<p>How would you like to authenticate?</p> <ol>\n  <li>Claude subscription (Pro / Max)</li>\n  <li>API billing via Anthropic Console</li>\n</ol>",
+            "answer": "1",
+            "comment": {
+              "en": "Pick option 1 if you already pay for Claude (Pro or Max) — it reuses your subscription quota. Option 2 is per-token billing via the Anthropic Console, useful for teams and heavier workloads.",
+              "ja": "すでに Claude（Pro または Max）を契約している場合は 1 を選びます — サブスクリプションのクォータをそのまま利用できます。2 は Anthropic Console 経由の トークン単位の課金で、チーム利用や負荷の高いワークロードに向いています。"
+            }
+          },
+          {
+            "type": "output",
+            "text": "Opening browser for sign-in…\n✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp",
+            "comment": {
+              "en": "A browser window pops open for OAuth. Sign in, approve the device, and the terminal picks the token back up automatically.",
+              "ja": "OAuth 用にブラウザウィンドウが開きます。サインインしてデバイスを承認すると、 ターミナル側が自動的にトークンを受け取ります。"
+            }
+          },
+          {
+            "type": "status",
+            "text": "✓ signed in — ready for prompts",
+            "variant": "success"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Please create a small html page with a simulation of the game of life",
+        "steps": [
+          {
+            "type": "assistant",
+            "html": "<p>The directory is empty, so I'll create a fresh Game of Life page.</p>",
+            "comment": {
+              "en": "Claude confirms the working directory is empty and plans to write a single self-contained HTML file — no build step, no dependencies.",
+              "ja": "Claude は作業ディレクトリが空であることを確認し、ビルドステップも依存関係もない 単一の自己完結型 HTML ファイルを作成する方針を立てます。"
+            }
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Write",
+            "code": "file: game-of-life.html\n(~180 lines of HTML + inline CSS + JS)",
+            "comment": {
+              "en": "One <code>Write</code> call produces the whole page: canvas rendering, a toroidal grid, a speed slider, and Start / Random controls — all inline in one file.",
+              "ja": "1 回の <code>Write</code> 呼び出しでページ全体を生成します：キャンバス描画、 トーラス状のグリッド、スピードスライダー、Start / Random コントロール — すべてが 1 ファイルにインライン化されています。"
+            }
+          },
+          {
+            "type": "window",
+            "windowTitle": "game-of-life.html",
+            "subtitle": "html",
+            "content": {
+              "kind": "source",
+              "language": "html",
+              "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Conway's Game of Life</title>\n  <style>…</style>\n</head>\n<body>\n  <h1>Conway's Game of Life</h1>\n  <canvas id=\"grid\"></canvas>\n  <div class=\"controls\">…</div>\n  <script>\n    // double-buffered grid, toroidal wrap,\n    // requestAnimationFrame loop, click-to-toggle.\n  </script>\n</body>\n</html>"
+            }
+          },
+          {
+            "type": "assistant",
+            "final": true,
+            "html": "<p>Done — <code>game-of-life.html</code> is ready. Open it in a browser, click <strong>Start</strong>, or <strong>Random</strong> to seed the whole board.</p>",
+            "comment": {
+              "en": "Claude finishes with a short summary and a hint at the next action: opening the file to see it run.",
+              "ja": "Claude は短い要約と、次のアクション（ファイルを開いて動作を確認する）への ヒントを添えて締めくくります。"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Open the webpage",
+        "steps": [
+          {
+            "type": "tool_call",
+            "toolName": "Bash",
+            "code": "open game-of-life.html",
+            "comment": {
+              "en": "On macOS, <code>open</code> hands the file to Launch Services, which routes <code>.html</code> to your default browser. It's the CLI equivalent of double-clicking in Finder.",
+              "ja": "macOS では <code>open</code> がファイルを Launch Services に渡し、 <code>.html</code> が既定のブラウザへルーティングされます。Finder で ダブルクリックするのと同等の CLI 操作です。"
+            }
+          },
+          {
+            "type": "window",
+            "windowTitle": "Conway's Game of Life",
+            "subtitle": "localhost — game-of-life.html",
+            "content": {
+              "kind": "video",
+              "src": "movie.mov"
+            },
+            "comment": {
+              "en": "The page loads straight from the filesystem over <code>file://</code> — no server, no build. A glider drifts across the grid, and the controls let you seed a random board or tune the frame rate.",
+              "ja": "ページは <code>file://</code> でファイルシステムから直接読み込まれます — サーバーもビルドも不要です。グライダーがグリッド上を進み、コントロールで ランダムな盤面の初期化やフレームレートの調整ができます。"
+            }
+          },
+          {
+            "type": "assistant",
+            "final": true,
+            "html": "<p>Opened in your default browser. Click <strong>Start</strong> to animate the glider, or <strong>Random</strong> to seed the whole board.</p>",
+            "comment": {
+              "en": "That's the full loop: install, log in, prompt, result. From here, every Claude Code workflow is just another prompt in this same REPL.",
+              "ja": "これで一連のループが完成です：インストール、ログイン、プロンプト、結果。 ここから先の Claude Code のワークフローはすべて、この同じ REPL への 別のプロンプトにすぎません。"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fullBlocks": [
+    {
+      "kind": "round",
+      "round": {
+        "kind": "terminal",
+        "cwd": null,
+        "prompt": "curl -fsSL https://claude.ai/install.sh | bash",
+        "steps": [
+          {
+            "type": "output",
+            "text": "Downloading Claude Code installer…\nDetected: darwin arm64\nFetching latest release metadata from claude.ai…\n✓ claude v2.0 (darwin-arm64, 18.2 MB)\nVerifying checksum (sha256)…\n✓ checksum OK\nInstalling to /Users/steffen/.local/bin/claude\n✓ installed\nEnsuring ~/.local/bin is on PATH…\n✓ added export to ~/.zshrc\n\nclaude v2.0 installed. Restart your shell or run:\n  source ~/.zshrc"
+          },
+          {
+            "type": "status",
+            "text": "✓ installation complete",
+            "variant": "success"
+          },
+          {
+            "type": "output",
+            "text": "$ source ~/.zshrc\n$ which claude\n/Users/steffen/.local/bin/claude\n$ claude --version\nclaude 2.0.0"
+          },
+          {
+            "type": "divider",
+            "label": "create a working folder"
+          },
+          {
+            "type": "output",
+            "text": "$ mkdir ping-pong\n$ cd ping-pong\n$ pwd\n/Users/steffen/ping-pong\n$ ls\n(empty)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "terminal",
+        "cwd": "~/ping-pong",
+        "prompt": "claude",
+        "steps": [
+          {
+            "type": "output",
+            "text": "┌  Claude Code v2.0\n│  ✧ No credentials found — first-run setup\n│\n│  Welcome! Before we begin, let's get you signed in.\n│  You can use an existing Claude subscription (Pro or Max)\n│  or bill usage through an Anthropic Console API key.\n└"
+          },
+          {
+            "type": "question",
+            "html": "<p>How would you like to authenticate?</p> <ol>\n  <li>Claude subscription (Pro / Max) — recommended</li>\n  <li>API billing via Anthropic Console</li>\n  <li>Skip for now (read-only mode)</li>\n</ol>",
+            "answer": "1"
+          },
+          {
+            "type": "output",
+            "text": "Starting device-code flow…\nOpening https://claude.ai/device in your default browser.\nEnter code:  QX7K-9RT2\n\nWaiting for approval…\n✓ approved\n✓ token stored in ~/.claude/config.json\n✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp (Claude Max)"
+          },
+          {
+            "type": "status",
+            "text": "✓ signed in — ready",
+            "variant": "success"
+          },
+          {
+            "type": "output",
+            "text": "┌  Claude Code v2.0\n│  ✧ Model: claude-opus-4-7 (1M context)\n│  📁 cwd: /Users/steffen/ping-pong\n│  Type your prompt, or /help for commands.\n└"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Please create a small html page with a simulation of the game of life",
+        "steps": [
+          {
+            "type": "thinking",
+            "text": "The user wants a small HTML page with Conway's Game of Life. I'll first check what's in the working directory so I don't overwrite anything, then write a self-contained HTML file with canvas-based rendering, a toroidal grid, and simple controls.",
+            "duration": "2s"
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Bash",
+            "code": "ls /Users/SteffenPlunder/Documents/Workspace/ping-pong/"
+          },
+          {
+            "type": "tool_result",
+            "text": "(Bash completed with no output)"
+          },
+          {
+            "type": "assistant",
+            "html": "<p>The directory is empty, so I'll create a fresh Game of Life page.</p> <p><strong>★ Insight</strong></p> <ul>\n  <li>Conway's Game of Life needs <strong>double buffering</strong>:\n  we can't update cells in-place because each cell's next state\n  depends on its neighbors' <em>current</em> state. Modifying live\n  data mid-iteration corrupts the calculation.</li>\n  <li>Using a flat <code>Uint8Array</code> instead of a 2D array is\n  much faster — contiguous memory, no nested array overhead, and the\n  index <code>y * cols + x</code> maps directly to a CPU cache\n  line.</li>\n  <li>We'll use <code>requestAnimationFrame</code> instead of\n  <code>setInterval</code> — it syncs to the display refresh rate\n  and pauses automatically in background tabs.</li>\n</ul>"
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Write",
+            "code": "file_path: /Users/steffen/ping-pong/game-of-life.html\ncontent: (5241 chars — full HTML document with canvas rendering,\n         double-buffered Uint8Array grid, toroidal wrap, and\n         Start/Step/Clear/Random/Speed controls)"
+          },
+          {
+            "type": "tool_result",
+            "text": "File created successfully at: /Users/steffen/ping-pong/game-of-life.html"
+          },
+          {
+            "type": "window",
+            "windowTitle": "game-of-life.html",
+            "subtitle": "html",
+            "content": {
+              "kind": "source",
+              "language": "html",
+              "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Conway's Game of Life</title>\n<style>\n  body {\n    margin: 0;\n    min-height: 100vh;\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    background: #0f1117;\n    color: #e6e8ef;\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n    gap: 16px;\n    padding: 20px;\n  }\n  h1 { margin: 0; font-weight: 500; font-size: 22px; letter-spacing: 0.5px; }\n  canvas {\n    background: #1a1d26;\n    border: 1px solid #2a2e3a;\n    border-radius: 4px;\n    cursor: crosshair;\n  }\n  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }\n  button {\n    background: #2a2e3a; color: #e6e8ef; border: 1px solid #3a3f4d;\n    padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;\n    transition: background 0.15s;\n  }\n  button:hover { background: #353a48; }\n  button.primary { background: #4a7eff; border-color: #4a7eff; }\n  button.primary:hover { background: #3a6eee; }\n  label { font-size: 13px; opacity: 0.8; }\n  .stats { font-size: 12px; opacity: 0.6; font-variant-numeric: tabular-nums; }\n</style>\n</head>\n<body>\n  <h1>Conway's Game of Life</h1>\n  <canvas id=\"board\" width=\"640\" height=\"480\"></canvas>\n  <div class=\"controls\">\n    <button id=\"toggle\" class=\"primary\">Start</button>\n    <button id=\"step\">Step</button>\n    <button id=\"clear\">Clear</button>\n    <button id=\"random\">Random</button>\n    <label>Speed: <input id=\"speed\" type=\"range\" min=\"1\" max=\"60\" value=\"15\"></label>\n  </div>\n  <div class=\"stats\">\n    Generation: <span id=\"gen\">0</span> · Alive: <span id=\"alive\">0</span> · Click/drag to draw\n  </div>\n<script>\n(() => {\n  const CELL = 8;\n  const canvas = document.getElementById('board');\n  const ctx = canvas.getContext('2d');\n  const cols = canvas.width / CELL;\n  const rows = canvas.height / CELL;\n\n  let grid = new Uint8Array(cols * rows);\n  let next = new Uint8Array(cols * rows);\n  let running = false;\n  let generation = 0;\n  let lastTick = 0;\n  let fps = 15;\n\n  const idx = (x, y) => y * cols + x;\n\n  function draw() {\n    ctx.fillStyle = '#1a1d26';\n    ctx.fillRect(0, 0, canvas.width, canvas.height);\n    ctx.fillStyle = '#6cf0a8';\n    let alive = 0;\n    for (let y = 0; y < rows; y++) {\n      for (let x = 0; x < cols; x++) {\n        if (grid[idx(x, y)]) {\n          ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1);\n          alive++;\n        }\n      }\n    }\n    document.getElementById('alive').textContent = alive;\n    document.getElementById('gen').textContent = generation;\n  }\n\n  function step() {\n    for (let y = 0; y < rows; y++) {\n      for (let x = 0; x < cols; x++) {\n        let n = 0;\n        for (let dy = -1; dy <= 1; dy++) {\n          for (let dx = -1; dx <= 1; dx++) {\n            if (dx === 0 && dy === 0) continue;\n            const nx = (x + dx + cols) % cols;\n            const ny = (y + dy + rows) % rows;\n            n += grid[idx(nx, ny)];\n          }\n        }\n        const alive = grid[idx(x, y)];\n        next[idx(x, y)] = (alive && (n === 2 || n === 3)) || (!alive && n === 3) ? 1 : 0;\n      }\n    }\n    [grid, next] = [next, grid];\n    generation++;\n  }\n\n  function loop(ts) {\n    if (running && ts - lastTick >= 1000 / fps) {\n      step();\n      draw();\n      lastTick = ts;\n    }\n    requestAnimationFrame(loop);\n  }\n\n  // Drawing with mouse — toggle-on-click\n  let drawing = false;\n  let drawValue = 1;\n  canvas.addEventListener('mousedown', e => { /* ... */ });\n  canvas.addEventListener('mousemove', e => { /* ... */ });\n  window.addEventListener('mouseup', () => drawing = false);\n\n  // Buttons\n  const toggleBtn = document.getElementById('toggle');\n  toggleBtn.addEventListener('click', () => {\n    running = !running;\n    toggleBtn.textContent = running ? 'Pause' : 'Start';\n  });\n  document.getElementById('step').addEventListener('click', () => { step(); draw(); });\n  document.getElementById('clear').addEventListener('click', () => { grid.fill(0); generation = 0; draw(); });\n  document.getElementById('random').addEventListener('click', () => {\n    for (let i = 0; i < grid.length; i++) grid[i] = Math.random() < 0.25 ? 1 : 0;\n    generation = 0;\n    draw();\n  });\n  document.getElementById('speed').addEventListener('input', e => { fps = Number(e.target.value); });\n\n  // Seed with a glider\n  const seed = [[1,0],[2,1],[0,2],[1,2],[2,2]];\n  seed.forEach(([x, y]) => grid[idx(x + 5, y + 5)] = 1);\n\n  draw();\n  requestAnimationFrame(loop);\n})();\n</script>\n</body>\n</html>"
+            }
+          },
+          {
+            "type": "assistant",
+            "final": true,
+            "html": "<p><strong>★ Insight</strong></p> <ul>\n  <li><strong>Toroidal topology</strong>: <code>(x + dx + cols) %\n  cols</code> wraps coordinates so the grid edges connect — a glider\n  crossing the right edge reappears on the left. Without this,\n  patterns \"die\" at the boundary.</li>\n  <li><strong>Decoupling simulation from rendering</strong>: the\n  <code>loop</code> uses <code>requestAnimationFrame</code> (ties to\n  ~60fps screen refresh) but gates the actual <code>step()</code>\n  behind a custom interval (<code>1000/fps</code>). This lets the\n  speed slider control simulation rate independently of the render\n  loop, and keeps the UI responsive.</li>\n  <li><strong>Toggle-on-click drawing</strong>: on\n  <code>mousedown</code> we read the cell's current state and invert\n  it, then <code>mousemove</code> paints that same value. Start a\n  drag on a dead cell and everything you touch becomes alive; start\n  on a live cell and you erase.</li>\n</ul> <p>Open <code>game-of-life.html</code> in a browser. A glider is pre-seeded in the corner — hit <strong>Start</strong> to watch it travel diagonally, or click <strong>Random</strong> to fill the board and observe emergent patterns (still lifes, oscillators, occasional gliders).</p>"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Open the webpage",
+        "steps": [
+          {
+            "type": "tool_call",
+            "toolName": "Bash",
+            "code": "open /Users/steffen/ping-pong/game-of-life.html"
+          },
+          {
+            "type": "tool_result",
+            "text": "(Bash completed with no output)"
+          },
+          {
+            "type": "window",
+            "windowTitle": "Conway's Game of Life",
+            "subtitle": "file:// — game-of-life.html",
+            "content": {
+              "kind": "video",
+              "src": "movie.mov"
+            }
+          },
+          {
+            "type": "assistant",
+            "final": true,
+            "html": "<p>Opened in your default browser. The glider should be visible in the top-left — click <strong>Start</strong> to animate it, or <strong>Random</strong> to seed the whole board.</p> <p><strong>★ Insight</strong></p> <ul>\n  <li>macOS's <code>open</code> command uses Launch Services to\n  pick the default handler for the file type (<code>.html</code> →\n  your default browser). It's the CLI equivalent of double-clicking\n  in Finder.</li>\n  <li>Because the file is loaded via <code>file://</code> rather\n  than <code>http://</code>, there's no server involved —\n  everything runs locally in the browser's JS engine. This also\n  means some browser APIs (like <code>fetch</code> to relative\n  paths, service workers, or <code>SharedArrayBuffer</code>) would\n  be restricted under stricter CORS rules, but our self-contained\n  page doesn't need them.</li>\n</ul>"
+          }
+        ]
+      }
+    }
+  ]
+}

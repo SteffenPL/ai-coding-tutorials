@@ -1,6 +1,6 @@
 import type { Tutorial, TutorialRound, TutorialWelcome, WindowStep, WindowContentData } from '$lib/data/tutorials';
 import type { TraceState } from '$lib/trace/types';
-import type { TutorialComposition } from './types';
+import type { TutorialComposition, CompositionBlock } from './types';
 import { traceStateToTutorialRounds } from '$lib/trace/convert';
 
 export type TraceLoader = (slug: string) => TraceState | null;
@@ -24,6 +24,14 @@ export function rewriteContent(slug: string, content: WindowContentData): Window
 				src: rewriteAssetPath(slug, content.src)!,
 				poster: rewriteAssetPath(slug, content.poster)
 			};
+		case 'window-collection':
+			return {
+				...content,
+				windows: content.windows.map((w) => ({
+					...w,
+					content: rewriteContent(slug, w.content)
+				}))
+			};
 		default:
 			return content;
 	}
@@ -42,13 +50,12 @@ function rewriteRoundAssets(slug: string, rounds: TutorialRound[]): TutorialRoun
 	return rounds;
 }
 
-export function resolveComposition(
-	composition: TutorialComposition,
+function resolveBlocks(
+	blocks: CompositionBlock[],
 	loadTrace: TraceLoader
-): Tutorial {
+): TutorialRound[] {
 	const allRounds: TutorialRound[] = [];
-
-	for (const block of composition.blocks) {
+	for (const block of blocks) {
 		if (block.kind === 'round') {
 			allRounds.push(block.round);
 		} else {
@@ -63,8 +70,20 @@ export function resolveComposition(
 			allRounds.push(...rounds);
 		}
 	}
+	return allRounds;
+}
 
+export function resolveComposition(
+	composition: TutorialComposition,
+	loadTrace: TraceLoader
+): Tutorial {
 	const slug = composition.slug;
+	const rounds = resolveBlocks(composition.blocks, loadTrace);
+
+	let fullRounds: TutorialRound[] | undefined;
+	if (composition.fullBlocks && composition.fullBlocks.length > 0) {
+		fullRounds = resolveBlocks(composition.fullBlocks, loadTrace);
+	}
 
 	let welcome: TutorialWelcome | undefined;
 	if (composition.description) {
@@ -86,6 +105,7 @@ export function resolveComposition(
 		},
 		...(welcome ? { welcome } : {}),
 		...(composition.briefing ? { briefing: composition.briefing } : {}),
-		rounds: rewriteRoundAssets(slug, allRounds)
+		rounds: rewriteRoundAssets(slug, rounds),
+		...(fullRounds ? { fullRounds: rewriteRoundAssets(slug, fullRounds) } : {})
 	};
 }

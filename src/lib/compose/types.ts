@@ -1,6 +1,9 @@
 import type { TutorialMeta, TutorialWelcome, TutorialRound } from '$lib/data/tutorials';
 
+export const FORMAT_VERSION = '1.0.0';
+
 export interface TutorialComposition {
+	formatVersion?: string;
 	slug: string;
 	meta: TutorialMeta;
 	/** Markdown description (replaces structured welcome heading + description + learnings) */
@@ -11,6 +14,8 @@ export interface TutorialComposition {
 	welcome?: TutorialWelcome;
 	briefing?: { en: string; ja?: string };
 	blocks: CompositionBlock[];
+	fullBlocks?: CompositionBlock[];
+	devOnly?: boolean;
 }
 
 export type CompositionBlock = TraceBlock | HandAuthoredBlock;

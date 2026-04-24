@@ -27,6 +27,7 @@ import {
 	KNOWN_DROPPED_TYPES,
 	KNOWN_DROPPED_SYSTEM_SUBTYPES
 } from '../src/lib/session/schema.ts';
+import { FORMAT_VERSION } from '../src/lib/compose/types.ts';
 
 /* ─── CLI ──────────────────────────────────────────────────────────────── */
 
@@ -218,6 +219,17 @@ function sum(m: Map<string, number>): number {
 	return s;
 }
 
+/* ─── Header line ─────────────────────────────────────────────────────── */
+
+function makeHeaderLine(sourceSessionId: string): string {
+	return JSON.stringify({
+		type: 'header',
+		formatVersion: FORMAT_VERSION,
+		importDate: new Date().toISOString(),
+		sourceSessionId
+	});
+}
+
 /* ─── Main ─────────────────────────────────────────────────────────────── */
 
 function main() {
@@ -241,7 +253,8 @@ function main() {
 
 	if (!args.dryRun) {
 		mkdirSync(outDir, { recursive: true });
-		writeFileSync(join(outDir, `${sessionId}.jsonl`), mainLines.join('\n') + '\n');
+		const headerLine = makeHeaderLine(sessionId);
+		writeFileSync(join(outDir, `${sessionId}.jsonl`), headerLine + '\n' + mainLines.join('\n') + '\n');
 	}
 
 	/* Subagents */
@@ -257,7 +270,8 @@ function main() {
 			const lines = filterJsonl(readFileSync(s.jsonlPath, 'utf-8'), subStats);
 			reportStats(`subagent ${s.agentId}`, subStats);
 			if (!args.dryRun) {
-				writeFileSync(join(outSubDir, `agent-${s.agentId}.jsonl`), lines.join('\n') + '\n');
+				const subHeader = makeHeaderLine(s.agentId);
+				writeFileSync(join(outSubDir, `agent-${s.agentId}.jsonl`), subHeader + '\n' + lines.join('\n') + '\n');
 				if (s.metaPath) {
 					const meta = filterMeta(s.metaPath);
 					if (meta)

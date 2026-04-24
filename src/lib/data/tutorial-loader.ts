@@ -1,202 +1,100 @@
 /**
- * Folder-based tutorial loader.
+ * Composition-based tutorial loader.
  *
- * Tutorials live in `src/tutorials/<slug>/` with:
- *   - `meta.yaml`              — title, tags, thumbnail, welcome, optional devOnly
- *   - `tutorial/round-NN.yaml` — curated simplified rounds
- *   - `full-log/round-NN.yaml` — optional unabridged log
+ * Tutorials live in `src/tutorials/<slug>/` with a single `composition.json`
+ * that references traces and/or contains hand-authored rounds.
  *
- * Assets live in `static/tutorials/<slug>/assets/<file>` and are referenced
- * by filename only in YAML. The loader rewrites bare filenames to the
- * site-relative path `tutorials/<slug>/assets/<file>` so that
- * `{base}/{src}` resolves correctly in window components.
+ * Traces live at `src/traces/<slug>/trace.json`.
  *
- * YAML files are imported via `import.meta.glob` with `?raw`, parsed by
- * `js-yaml` at module-load time. `eager: true` lets the loader expose a
- * synchronous `getAllTutorials()` so SvelteKit's prerender `entries()` can
- * discover slugs statically.
+ * Both are loaded via `import.meta.glob` with `?raw` + `eager: true` for
+ * synchronous build-time access, matching the pattern used throughout this
+ * project.
  */
 
-import yaml from 'js-yaml';
-import type {
-	Tutorial,
-	TutorialMeta,
-	TutorialRound,
-	TutorialWelcome,
-	SessionRef,
-	Step,
-	WindowStep,
-	WindowContentData
-} from './tutorials';
+import type { Tutorial } from './tutorials';
+import type { TutorialComposition } from '$lib/compose/types';
+import { FORMAT_VERSION } from '$lib/compose/types';
+import type { TraceState } from '$lib/trace/types';
+import { resolveComposition } from '$lib/compose/resolve';
+
+function checkVersion(label: string, version: string | undefined) {
+	if (!version) {
+		console.warn(`tutorial-loader: ${label} is missing formatVersion`);
+	} else if (!version.startsWith('1.')) {
+		console.warn(`tutorial-loader: ${label} has unknown formatVersion "${version}"`);
+	}
+}
 
 /* ─── Vite globs ────────────────────────────── */
 
-const metaRaw = import.meta.glob('/src/tutorials/*/meta.yaml', {
+const compositionRaw = import.meta.glob('/src/tutorials/*/composition.json', {
 	eager: true,
 	query: '?raw',
 	import: 'default'
 }) as Record<string, string>;
 
-const tutorialRoundsRaw = import.meta.glob('/src/tutorials/*/tutorial/round-*.yaml', {
+const traceRaw = import.meta.glob('/src/traces/*/trace.json', {
 	eager: true,
 	query: '?raw',
 	import: 'default'
 }) as Record<string, string>;
 
-const fullRoundsRaw = import.meta.glob('/src/tutorials/*/full-log/round-*.yaml', {
-	eager: true,
-	query: '?raw',
-	import: 'default'
-}) as Record<string, string>;
+/* ─── Trace loader ─────────────────────────── */
 
-/* ─── Path helpers ──────────────────────────── */
+const tracesBySlug = new Map<string, TraceState>();
+for (const [path, raw] of Object.entries(traceRaw)) {
+	const m = path.match(/\/src\/traces\/([^/]+)\/trace\.json$/);
+	if (!m) continue;
+	try {
+		const trace: TraceState = JSON.parse(raw);
+		checkVersion(`trace "${m[1]}"`, trace.formatVersion);
+		tracesBySlug.set(m[1], trace);
+	} catch (e) {
+		console.warn(`tutorial-loader: failed to parse trace at ${path}:`, e);
+	}
+}
 
-function slugFromMetaPath(path: string): string {
-	const m = path.match(/\/src\/tutorials\/([^/]+)\/meta\.yaml$/);
-	if (!m) throw new Error(`tutorial-loader: unexpected meta path: ${path}`);
+function loadTrace(slug: string): TraceState | null {
+	return tracesBySlug.get(slug) ?? null;
+}
+
+/* ─── Composition loading ──────────────────── */
+
+function slugFromPath(path: string): string {
+	const m = path.match(/\/src\/tutorials\/([^/]+)\/composition\.json$/);
+	if (!m) throw new Error(`tutorial-loader: unexpected composition path: ${path}`);
 	return m[1];
 }
 
-function numericSuffix(path: string): number {
-	const m = path.match(/round-(\d+)\.yaml$/);
-	return m ? parseInt(m[1], 10) : 0;
-}
-
-/* ─── Asset path rewriting ──────────────────── */
-
-/**
- * Turn a bare filename (`step_001.png`) into a site-relative asset path
- * (`tutorials/<slug>/assets/step_001.png`). Paths that already contain a
- * slash or a protocol are passed through untouched, so pre-existing fully
- * qualified references still work.
- */
-function rewriteAssetPath(slug: string, ref: string | undefined): string | undefined {
-	if (!ref) return ref;
-	if (ref.includes('/') || ref.includes('://')) return ref;
-	return `tutorials/${slug}/assets/${ref}`;
-}
-
-function rewriteContent(slug: string, content: WindowContentData): WindowContentData {
-	switch (content.kind) {
-		case 'fiji-image':
-			return { ...content, src: rewriteAssetPath(slug, content.src)! };
-		case 'image':
-			return { ...content, src: rewriteAssetPath(slug, content.src)! };
-		case 'video':
-			return {
-				...content,
-				src: rewriteAssetPath(slug, content.src)!,
-				poster: rewriteAssetPath(slug, content.poster)
-			};
-		case 'window-collection':
-			return {
-				...content,
-				windows: content.windows.map((w) => ({
-					...w,
-					content: rewriteContent(slug, w.content)
-				}))
-			};
-		default:
-			return content;
+function buildTutorial(path: string, raw: string): Tutorial | null {
+	let composition: TutorialComposition;
+	try {
+		composition = JSON.parse(raw);
+	} catch (e) {
+		console.warn(`tutorial-loader: failed to parse ${path}:`, e);
+		return null;
 	}
-}
 
-function rewriteStep(slug: string, step: Step): Step {
-	if (step.type === 'window') {
-		const w = step as WindowStep;
-		return { ...w, content: rewriteContent(slug, w.content) };
+	const slug = slugFromPath(path);
+	checkVersion(`composition "${slug}"`, composition.formatVersion);
+	if (composition.slug !== slug) {
+		console.warn(
+			`tutorial-loader: composition.slug "${composition.slug}" doesn't match directory "${slug}"`
+		);
 	}
-	return step;
-}
 
-/* ─── YAML parsing ──────────────────────────── */
+	if (composition.devOnly && !import.meta.env.DEV) return null;
 
-interface LoadedMeta extends TutorialMeta {
-	welcome?: TutorialWelcome;
-	devOnly?: boolean;
-}
+	const tutorial = resolveComposition(composition, loadTrace);
 
-function parseMeta(raw: string, slug: string): LoadedMeta {
-	const data = yaml.load(raw) as Partial<LoadedMeta> | null;
-	if (!data || typeof data !== 'object') {
-		throw new Error(`tutorial-loader: ${slug}/meta.yaml did not parse to an object`);
+	if (tutorial.rounds.length === 0) {
+		console.warn(`tutorial-loader: ${slug} resolved to 0 rounds`);
 	}
-	if (!data.title || !data.title.en) {
-		throw new Error(`tutorial-loader: ${slug}/meta.yaml is missing title.en`);
-	}
-	if (import.meta.env.DEV && !Array.isArray(data.sessions)) {
-		console.warn(`tutorial-loader: ${slug}/meta.yaml is missing 'sessions' — add source session references`);
-	}
-	return {
-		slug: data.slug ?? slug,
-		title: data.title,
-		tags: data.tags ?? [],
-		thumbnail: rewriteAssetPath(slug, data.thumbnail),
-		sessions: Array.isArray(data.sessions) ? data.sessions as SessionRef[] : undefined,
-		author: (data as Record<string, unknown>).author as string | undefined ?? 'Steffen Plunder',
-		welcome: data.welcome,
-		devOnly: data.devOnly === true
-	};
+
+	return tutorial;
 }
 
-function parseRound(raw: string, slug: string, source: string): TutorialRound {
-	const data = yaml.load(raw) as Partial<TutorialRound> | null;
-	if (!data || typeof data !== 'object') {
-		throw new Error(`tutorial-loader: ${source} did not parse to an object`);
-	}
-	const steps = Array.isArray(data.steps) ? data.steps : [];
-	return {
-		kind: data.kind ?? 'claude',
-		prompt: data.prompt ?? '',
-		...(data.cwd !== undefined ? { cwd: data.cwd } : {}),
-		steps: steps.map((s) => rewriteStep(slug, s as Step))
-	};
-}
-
-/* ─── Round collection ──────────────────────── */
-
-function collectRounds(
-	slug: string,
-	entries: Record<string, string>,
-	prefix: 'tutorial' | 'full-log'
-): TutorialRound[] {
-	const base = `/src/tutorials/${slug}/${prefix}/`;
-	return Object.entries(entries)
-		.filter(([path]) => path.startsWith(base))
-		.sort(([a], [b]) => numericSuffix(a) - numericSuffix(b))
-		.map(([path, raw]) => parseRound(raw, slug, path));
-}
-
-/* ─── Assembly ──────────────────────────────── */
-
-function buildTutorial(metaPath: string, metaYaml: string): Tutorial | null {
-	const slug = slugFromMetaPath(metaPath);
-	const meta = parseMeta(metaYaml, slug);
-
-	if (meta.devOnly && !import.meta.env.DEV) return null;
-
-	const rounds = collectRounds(slug, tutorialRoundsRaw, 'tutorial');
-	if (rounds.length === 0) {
-		throw new Error(`tutorial-loader: ${slug} has no tutorial/round-*.yaml files`);
-	}
-	const fullRounds = collectRounds(slug, fullRoundsRaw, 'full-log');
-
-	return {
-		meta: {
-			slug: meta.slug,
-			title: meta.title,
-			tags: meta.tags,
-			...(meta.thumbnail ? { thumbnail: meta.thumbnail } : {}),
-			...(meta.sessions ? { sessions: meta.sessions } : {}),
-			author: meta.author
-		},
-		...(meta.welcome ? { welcome: meta.welcome } : {}),
-		rounds,
-		...(fullRounds.length > 0 ? { fullRounds } : {})
-	};
-}
-
-const allTutorials: Tutorial[] = Object.entries(metaRaw)
+const allTutorials: Tutorial[] = Object.entries(compositionRaw)
 	.map(([path, raw]) => buildTutorial(path, raw))
 	.filter((t): t is Tutorial => t !== null)
 	.sort((a, b) => a.meta.slug.localeCompare(b.meta.slug));

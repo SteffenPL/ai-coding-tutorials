@@ -119,8 +119,14 @@ function parseSubagentMetaPath(
 
 /* ─── Parsing ───────────────────────────────────────────────────────────── */
 
-function parseJsonl(raw: string, source: string): TSessionEvent[] {
+interface ParsedJsonl {
+	events: TSessionEvent[];
+	formatVersion?: string;
+}
+
+function parseJsonl(raw: string, source: string): ParsedJsonl {
 	const events: TSessionEvent[] = [];
+	let formatVersion: string | undefined;
 	const lines = raw.split('\n');
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i].trim();
@@ -133,10 +139,20 @@ function parseJsonl(raw: string, source: string): TSessionEvent[] {
 			continue;
 		}
 		const result = SessionEvent.safeParse(obj);
-		if (result.success) events.push(result.data);
-		else console.warn(`[session loader] ${source}:${i + 1} — ${result.error.issues[0]?.message}`);
+		if (result.success) {
+			if (result.data.type === 'header') {
+				formatVersion = result.data.formatVersion;
+				if (!formatVersion.startsWith('1.')) {
+					console.warn(`[session loader] ${source} — unknown formatVersion "${formatVersion}"`);
+				}
+			} else {
+				events.push(result.data);
+			}
+		} else {
+			console.warn(`[session loader] ${source}:${i + 1} — ${result.error.issues[0]?.message}`);
+		}
 	}
-	return events;
+	return { events, formatVersion };
 }
 
 function parseMeta(raw: string, source: string): TSubagentMeta | null {
@@ -206,7 +222,7 @@ for (const [path, raw] of Object.entries(subagentMetaRaw)) {
 /* ─── Public API ────────────────────────────────────────────────────────── */
 
 function buildSession(bucket: SlugBucket): LoadedSession {
-	const events = parseJsonl(bucket.mainRaw, bucket.mainPath);
+	const { events } = parseJsonl(bucket.mainRaw, bucket.mainPath);
 
 	const customTitle = events.find(
 		(e): e is CustomTitleEvent => e.type === 'custom-title'
@@ -221,7 +237,7 @@ function buildSession(bucket: SlugBucket): LoadedSession {
 		subagents[agentId] = {
 			agentId,
 			meta: meta ?? { agentType: 'unknown', description: '' },
-			events: parseJsonl(jsonlRaw, `subagent ${agentId}`)
+			events: parseJsonl(jsonlRaw, `subagent ${agentId}`).events
 		};
 	}
 

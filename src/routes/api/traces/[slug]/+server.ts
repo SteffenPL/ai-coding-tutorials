@@ -2,6 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync, rmdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import type { RequestHandler } from './$types';
+import { FORMAT_VERSION } from '$lib/compose/types';
 
 export const prerender = false;
 
@@ -20,6 +21,7 @@ export const GET: RequestHandler = ({ params }) => {
 
 export const POST: RequestHandler = async ({ params, request }) => {
 	const state = await request.json();
+	if (!state.formatVersion) state.formatVersion = FORMAT_VERSION;
 	const dir = resolve('src/traces', params.slug);
 	if (!existsSync(dir)) {
 		mkdirSync(dir, { recursive: true });
