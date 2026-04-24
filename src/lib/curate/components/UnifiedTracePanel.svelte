@@ -458,7 +458,7 @@
 						{#if round.sourceRoundIndex !== undefined}
 							<span class="source-indicator">R{round.sourceRoundIndex + 1}</span>
 						{/if}
-						<span class="round-count">{includedCount(round)}/{totalCount(round)}</span>
+						<span class="round-count">{#if includedCount(round) < totalCount(round)}{includedCount(round)}/{totalCount(round)}{:else}{totalCount(round)} steps{/if}</span>
 						<div class="round-actions">
 							{#if view && round.sourceRoundIndex !== undefined}
 								<button class="btn-icon" title="Reset round" onclick={() => onResetRound(round.id)}>↻</button>
