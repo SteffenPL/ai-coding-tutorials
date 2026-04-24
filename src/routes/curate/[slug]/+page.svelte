@@ -24,7 +24,7 @@
 
 	function createBlankTrace(): TraceState {
 		return {
-			sessionSlug: data.slug,
+			...(data.sessionSlug !== data.slug ? { sessionSlug: data.sessionSlug } : { sessionSlug: data.slug }),
 			title: data.slug,
 			rounds: []
 		};

@@ -1,7 +1,7 @@
 {
   "formatVersion": "1.0.0",
-  "sessionSlug": "Nuclei Segmentation",
-  "title": "Nuclei Segmentation",
+  "sessionSlug": "nuclei-segmentation",
+  "title": "nuclei-segmentation",
   "rounds": [
     {
       "id": "r-18",

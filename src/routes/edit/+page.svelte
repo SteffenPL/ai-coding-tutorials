@@ -18,6 +18,7 @@
 	let showNewTutorial = $state(false);
 	let newTraceSlug = $state('');
 	let showNewTrace = $state(false);
+	let newTraceFromSession = $state<string | null>(null);
 
 	let expandedTutorialAssets: Record<string, boolean> = $state({});
 	let copyToast = $state('');
@@ -223,17 +224,42 @@
 		{:else}
 			<ul class="item-list">
 				{#each data.sessions as session}
-					<li class="item">
-						<span class="item-slug">{session.slug}</span>
-						<div class="item-actions">
-							<a class="btn-sm" href="{base}/log/{session.slug}">View</a>
-							{#if session.hasTrace}
-								<a class="btn-sm" href="{base}/curate/{session.slug}">Edit Trace</a>
-							{:else}
-								<button class="btn-sm btn-accent" onclick={() => createTrace(session.slug)}>Create Trace</button>
-							{/if}
+					{@const sessionTraces = data.traces.filter(t => t.sessionSlug === session.slug)}
+					<li class="item item-col">
+						<div class="item-row">
+							<span class="item-slug">{session.slug}</span>
+							<div class="item-actions">
+								<a class="btn-sm" href="{base}/log/{session.slug}">View Log</a>
+								<button class="btn-sm btn-accent" onclick={() => {
+									newTraceFromSession = session.slug;
+									newTraceSlug = session.slug + '-trace';
+								}}>New Trace</button>
 								<button class="btn-sm btn-danger" onclick={() => deleteItem('session', { slug: session.slug })}>Delete</button>
+							</div>
 						</div>
+						{#if sessionTraces.length > 0}
+							<div class="item-sub">
+								{#each sessionTraces as trace}
+									<a class="sub-link" href="{base}/curate/{trace.slug}">{trace.slug}</a>
+								{/each}
+							</div>
+						{/if}
+						{#if newTraceFromSession === session.slug}
+							<div class="inline-form">
+								<input
+									type="text"
+									bind:value={newTraceSlug}
+									placeholder="trace-slug"
+									class="slug-input"
+								/>
+								<a
+									class="btn btn-primary"
+									href={newTraceSlug ? `${base}/curate/${newTraceSlug}?session=${session.slug}` : '#'}
+									class:disabled={!newTraceSlug}
+								>Create</a>
+								<button class="btn-sm" onclick={() => (newTraceFromSession = null)}>Cancel</button>
+							</div>
+						{/if}
 					</li>
 				{/each}
 			</ul>
@@ -278,7 +304,14 @@
 							{#if trace.title && trace.title !== trace.slug}
 								<span class="item-title">{trace.title}</span>
 							{/if}
-							<span class="item-meta">{trace.roundCount} rounds{trace.sessionSlug ? ` · from ${trace.sessionSlug}` : ' · standalone'}</span>
+							<span class="item-meta">
+								{trace.roundCount} rounds
+								{#if trace.sessionSlug}
+									· from <a class="meta-link" href="{base}/log/{trace.sessionSlug}">{trace.sessionSlug}</a>
+								{:else}
+									· standalone
+								{/if}
+							</span>
 						</div>
 						<div class="item-actions">
 							<a class="btn-sm" href="{base}/curate/{trace.slug}">Edit</a>
@@ -323,12 +356,9 @@
 								<span class="item-title">{tutorial.title}</span>
 							{/if}
 							<span class="item-meta">
-								{#if tutorial.hasComposition}{tutorial.blockCount} blocks{/if}
-								{#if tutorial.hasYaml}
-									{tutorial.hasComposition ? ' · ' : ''}YAML exported
-									{#if tutorial.exportDate}
-										· {new Date(tutorial.exportDate).toLocaleDateString()}
-									{/if}
+								{tutorial.blockCount} blocks
+								{#if tutorial.sourceSlugs?.length}
+									· traces: {tutorial.sourceSlugs.join(', ')}
 								{/if}
 							</span>
 						</div>
@@ -951,5 +981,49 @@
 	.disabled {
 		opacity: 0.4;
 		pointer-events: none;
+	}
+
+	.item-col {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.35rem;
+	}
+
+	.item-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.item-sub {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+		padding-left: 0.5rem;
+	}
+
+	.sub-link {
+		font-family: var(--font-mono);
+		font-size: 0.62rem;
+		color: var(--text-tertiary);
+		background: rgba(255, 255, 255, 0.04);
+		padding: 0.1rem 0.4rem;
+		border-radius: 4px;
+		text-decoration: none;
+		transition: all 0.15s;
+	}
+
+	.sub-link:hover {
+		color: var(--orange-300);
+		background: rgba(233, 84, 32, 0.1);
+	}
+
+	.meta-link {
+		color: var(--text-tertiary);
+		text-decoration: none;
+	}
+
+	.meta-link:hover {
+		color: var(--orange-300);
 	}
 </style>
