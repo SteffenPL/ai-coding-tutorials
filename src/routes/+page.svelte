@@ -22,7 +22,7 @@
 	function scrambleTo(target: string) {
 		const from = displayText;
 		const maxLen = Math.max(from.length, target.length);
-		const totalFrames = 12;
+		const totalFrames = 6;
 		let frame = 0;
 
 		const tick = setInterval(() => {
@@ -42,7 +42,7 @@
 				clearInterval(tick);
 				displayText = target;
 			}
-		}, 105);
+		}, 50);
 	}
 
 	$effect(() => {
