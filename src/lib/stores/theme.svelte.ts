@@ -1,22 +1,20 @@
 import { browser } from '$app/environment';
 
-export type ColorTheme = 'dark' | 'warm' | 'light';
-export type WallpaperName = 'mesh-aubergine' | 'mesh-ocean' | 'mesh-forest'
-	| 'dynamic-aurora' | 'dynamic-particles'
+export type ColorTheme = 'warm' | 'dark' | 'light';
+export type WallpaperName = 'mesh-aubergine' | 'mesh-ocean' | 'mesh-forest' | 'mesh-sunset'
 	| 'solid-theme' | 'solid-charcoal';
 
 export const COLOR_THEMES: { id: ColorTheme; label: string; swatch: string }[] = [
-	{ id: 'dark', label: 'Dark', swatch: '#2C001E' },
-	{ id: 'warm', label: 'Warm', swatch: '#2a1e16' },
+	{ id: 'warm', label: 'Warm', swatch: '#2C001E' },
+	{ id: 'dark', label: 'Dark', swatch: '#1a1a20' },
 	{ id: 'light', label: 'Light', swatch: '#f0e8e4' }
 ];
 
-export const WALLPAPERS: { id: WallpaperName; label: string; category: 'gradient' | 'dynamic' | 'solid' }[] = [
+export const WALLPAPERS: { id: WallpaperName; label: string; category: 'gradient' | 'solid' }[] = [
 	{ id: 'mesh-aubergine', label: 'Aubergine', category: 'gradient' },
 	{ id: 'mesh-ocean', label: 'Ocean', category: 'gradient' },
 	{ id: 'mesh-forest', label: 'Forest', category: 'gradient' },
-	{ id: 'dynamic-aurora', label: 'Aurora', category: 'dynamic' },
-	{ id: 'dynamic-particles', label: 'Particles', category: 'dynamic' },
+	{ id: 'mesh-sunset', label: 'Sunset', category: 'gradient' },
 	{ id: 'solid-theme', label: 'Solid', category: 'solid' },
 	{ id: 'solid-charcoal', label: 'Charcoal', category: 'solid' }
 ];
@@ -29,7 +27,7 @@ interface ThemePrefs {
 }
 
 const DEFAULTS: ThemePrefs = {
-	colorTheme: 'dark',
+	colorTheme: 'warm',
 	wallpaper: 'mesh-aubergine'
 };
 
