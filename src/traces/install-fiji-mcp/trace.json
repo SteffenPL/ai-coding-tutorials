@@ -107,7 +107,7 @@
     {
       "id": "r-open-image",
       "kind": "claude",
-      "prompt": "Open the sample image blobs.gif in Fiji and show me a thumbnail.",
+      "prompt": "Open the ImageJ sample image blobs.gif in Fiji using the run_ij_macro tool with this macro code: open(\"https://imagej.net/images/blobs.gif\");",
       "included": true,
       "steps": [
         {
@@ -116,8 +116,7 @@
           "displayMode": "normal",
           "inserted": {
             "type": "thinking",
-            "text": "The user wants to open a sample image in Fiji. I can use the run_ij_macro tool to open the blobs.gif sample image from the ImageJ sample images URL, then get_thumbnail to show it.",
-            "duration": "2s"
+            "text": "The user wants to open the ImageJ sample image blobs.gif in Fiji using the run_ij_macro tool. Let me use the fiji-mcp skill/tool to do this."
           }
         },
         {
@@ -125,13 +124,8 @@
           "included": true,
           "displayMode": "normal",
           "inserted": {
-            "type": "tool_call",
-            "toolName": "fiji · run_ij_macro",
-            "code": "open(\"https://imagej.net/images/blobs.gif\");",
-            "comment": {
-              "en": "Claude uses the <code>run_ij_macro</code> tool to execute an ImageJ macro inside Fiji. The first tool call auto-launches Fiji and starts the bridge plugin if it is not already running.",
-              "ja": "Claude は <code>run_ij_macro</code> ツールを使って Fiji 内で ImageJ マクロを実行します。最初のツール呼び出し時に、Fiji がまだ起動していなければ自動的に起動し、ブリッジプラグインも開始されます。"
-            }
+            "type": "assistant",
+            "html": "<p>I'll open the blobs.gif image in Fiji using the run_ij_macro tool now.</p>"
           }
         },
         {
@@ -139,8 +133,13 @@
           "included": true,
           "displayMode": "normal",
           "inserted": {
-            "type": "tool_result",
-            "text": "Macro executed successfully.\nActive image: blobs.gif (256×254, 8-bit)"
+            "type": "tool_call",
+            "toolName": "fiji-mcp · run_ij_macro",
+            "code": "open(\"https://imagej.net/images/blobs.gif\");",
+            "comment": {
+              "en": "Claude uses the <code>run_ij_macro</code> MCP tool to execute an ImageJ macro inside Fiji. The first tool call auto-launches Fiji and starts the bridge plugin if it is not already running. The <code>open()</code> macro function fetches directly from URLs — no local file needed for ImageJ sample images.",
+              "ja": "Claude は <code>run_ij_macro</code> MCP ツールを使って Fiji 内で ImageJ マクロを実行します。最初のツール呼び出し時に、Fiji がまだ起動していなければ自動的に起動し、ブリッジプラグインも開始されます。<code>open()</code> マクロ関数は URL から直接取得するため、ImageJ サンプル画像にはローカルファイルが不要です。"
+            }
           }
         },
         {
@@ -148,9 +147,8 @@
           "included": true,
           "displayMode": "normal",
           "inserted": {
-            "type": "tool_call",
-            "toolName": "fiji · get_thumbnail",
-            "code": "title: blobs.gif\nwidth: 512"
+            "type": "tool_result",
+            "text": "{\"status\":\"completed\",\"stdout\":\"\",\"stderr\":\"\",\"value\":null,\"error\":null,\"duration_ms\":1595,\"active_image\":\"blobs.gif\",\"dismissed_dialogs\":[],\"results_snapshot\":null}"
           }
         },
         {
@@ -158,36 +156,73 @@
           "included": true,
           "displayMode": "normal",
           "inserted": {
-            "type": "tool_result",
-            "text": "Thumbnail saved to /tmp/fiji-mcp/thumbnails/blobs_thumb.png (512×505, 8-bit)"
+            "type": "assistant",
+            "html": "<p>The image <code>blobs.gif</code> opened successfully in Fiji — the active image is now <code>blobs.gif</code>.</p>",
+            "final": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "r-thumbnail",
+      "kind": "claude",
+      "prompt": "Now get a thumbnail of the opened blobs.gif image using the get_thumbnail tool.",
+      "included": true,
+      "steps": [
+        {
+          "id": "s-thumb-1",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "thinking",
+            "text": "The user wants to get a thumbnail of the blobs.gif image using the get_thumbnail tool."
           }
         },
         {
-          "id": "s-open-6",
+          "id": "s-thumb-2",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "tool_call",
+            "toolName": "fiji-mcp · get_thumbnail",
+            "code": "title: blobs.gif"
+          }
+        },
+        {
+          "id": "s-thumb-3",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "tool_result",
+            "text": "{\"path\":\"/var/folders/.../fiji_mcp_thumb_1777022999174.png\",\"width\":256,\"height\":254,\"is_inverted\":true}"
+          }
+        },
+        {
+          "id": "s-thumb-4",
           "included": true,
           "displayMode": "normal",
           "inserted": {
             "type": "window",
             "windowTitle": "blobs.gif",
-            "subtitle": "256×254 · 8-bit",
+            "subtitle": "256×254 · 8-bit · inverted LUT",
             "content": {
               "kind": "fiji-image",
               "src": "blobs_thumbnail.png",
-              "statusBar": "256×254 pixels; 8-bit; 64K"
+              "statusBar": "256×254 pixels; 8-bit; inverted LUT"
             },
             "comment": {
-              "en": "The <code>get_thumbnail</code> tool returns a display-ready PNG with the current LUT and brightness/contrast baked in — exactly what you see in Fiji. The agent can now <em>see</em> the image and reason about its contents.",
-              "ja": "<code>get_thumbnail</code> ツールは、現在の LUT と明るさ/コントラストが適用された表示用 PNG を返します — Fiji で見ているものと同じです。エージェントはこれで画像を<em>見て</em>、内容について推論できるようになります。"
+              "en": "The <code>get_thumbnail</code> tool returns a display-ready PNG with the current LUT and brightness/contrast baked in — exactly what you see in Fiji. Notice <code>is_inverted: true</code> — the LUT is inverted, so low pixel values appear bright. The agent can now <em>see</em> the image and reason about its contents.",
+              "ja": "<code>get_thumbnail</code> ツールは、現在の LUT と明るさ/コントラストが適用された表示用 PNG を返します — Fiji で見ているものと同じです。<code>is_inverted: true</code> に注目 — LUT が反転しているため、低いピクセル値が明るく表示されます。エージェントはこれで画像を<em>見て</em>、内容について推論できるようになります。"
             }
           }
         },
         {
-          "id": "s-open-7",
+          "id": "s-thumb-5",
           "included": true,
           "displayMode": "normal",
           "inserted": {
             "type": "assistant",
-            "html": "<p>I've opened the sample image <strong>blobs.gif</strong> in Fiji. It's a 256×254 pixel, 8-bit grayscale image showing a collection of binary blobs — a classic ImageJ test image often used for segmentation and particle analysis demos.</p><p>The fiji-mcp bridge is working. You can now ask me to process images, run macros, apply filters, or perform measurements — all through Fiji.</p>",
+            "html": "<p>Here's the thumbnail of <code>blobs.gif</code> — 256×254 pixels, showing the classic dark circular blobs on a bright background.</p>",
             "final": true,
             "comment": {
               "en": "That's it! With fiji-mcp installed, Claude Code can run ImageJ macros, inspect images via thumbnails, and control Fiji interactively. Try asking it to apply a Gaussian blur, threshold the image, or run particle analysis next.",
