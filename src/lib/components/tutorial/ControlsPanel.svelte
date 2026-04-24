@@ -17,6 +17,8 @@
 		currentStep,
 		currentRoundIdx,
 		currentTutorialInRound,
+		currentTutorialGlobal,
+		totalTutorialStops,
 		playing,
 		detailMode = $bindable(),
 		showSettings = $bindable(false),
@@ -29,6 +31,8 @@
 		currentStep: number;
 		currentRoundIdx: number;
 		currentTutorialInRound: number;
+		currentTutorialGlobal: number;
+		totalTutorialStops: number;
 		playing: boolean;
 		detailMode: 'steps' | 'tutorial' | 'round';
 		showSettings: boolean;
@@ -41,14 +45,14 @@
 
 <div class="bottom-panel">
 	<div class="comment-panel">
-		{#if currentStep >= 0}
-			<div class="comment-header">Tutorial</div>
+		<div class="comment-header">Tutorial ({currentTutorialGlobal + 1} / {totalTutorialStops})</div>
+		<div class="comment-scroll">
 			{#key commentHtml}
 				<div class="comment-text comment-fade">
 					{@html commentHtml}
 				</div>
 			{/key}
-		{/if}
+		</div>
 	</div>
 
 	<div class="controls">
@@ -118,9 +122,8 @@
 		max-height: 400px;
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-end;
 		gap: 10px;
-		overflow-y: auto;
+		overflow: hidden;
 	}
 
 	/* ─── Controls bar ─── */
@@ -325,13 +328,22 @@
 		-webkit-backdrop-filter: blur(10px);
 		border: 1px solid var(--border-color);
 		border-radius: 10px;
-		max-height: 160px;
+		flex: 1 1 0;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.comment-scroll {
+		flex: 1 1 0;
+		min-height: 0;
 		overflow-y: auto;
 	}
 
-	.comment-panel::-webkit-scrollbar { width: 6px; }
-	.comment-panel::-webkit-scrollbar-track { background: transparent; }
-	.comment-panel::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+	.comment-scroll::-webkit-scrollbar { width: 6px; }
+	.comment-scroll::-webkit-scrollbar-track { background: transparent; }
+	.comment-scroll::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
 
 	.comment-header {
 		font-size: 10px;

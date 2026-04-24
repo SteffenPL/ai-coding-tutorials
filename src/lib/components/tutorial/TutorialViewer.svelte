@@ -95,6 +95,16 @@
 	let currentRoundIdx = $derived(currentStep >= 0 ? getRoundIdx(currentStep) : -1);
 	let currentTutorialInRound = $derived(currentStep >= 0 ? getTutorialIdxInRound(currentStep) : -1);
 
+	let currentTutorialGlobal = $derived.by(() => {
+		if (currentStep < 0) return -1;
+		let idx = -1;
+		for (let i = 0; i < tutorialStops.length; i++) {
+			if (tutorialStops[i] <= currentStep) idx = i;
+			else break;
+		}
+		return idx;
+	});
+
 	const defaultComment =
 		'Press <strong>Next</strong> or <strong>Play</strong> to step through the AI trace, or simply scroll through the terminal.';
 
@@ -441,6 +451,8 @@
 				{currentStep}
 				{currentRoundIdx}
 				{currentTutorialInRound}
+				{currentTutorialGlobal}
+				totalTutorialStops={tutorialStops.length}
 				{playing}
 
 				bind:detailMode

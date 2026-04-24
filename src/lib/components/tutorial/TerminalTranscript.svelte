@@ -377,7 +377,12 @@
 	   scrolls out, instead of stacking behind prompt N+1. */
 	.round-block {
 		display: block;
-		margin-bottom: 48px;
+		margin-bottom: 32px;
+	}
+
+	.round-block + .round-block {
+		padding-top: 32px;
+		border-top: 1px solid var(--border-subtle);
 	}
 
 	.round-block:last-child {
@@ -587,6 +592,11 @@
 
 		.round-block:first-child {
 			margin-top: 0;
+		}
+
+		.round-block + .round-block {
+			padding-top: 0;
+			border-top: none;
 		}
 
 		/* On mobile, prompts are regular flow (not sticky) */

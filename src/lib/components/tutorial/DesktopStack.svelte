@@ -54,12 +54,21 @@
 		if (depth < 0) {
 			return 'opacity:0;transform:translateY(6px) scale(0.98);pointer-events:none';
 		}
-		const tx = chromeless ? 0 : depth * 50;
-		const ty = chromeless ? 0 : depth * -22;
-		const scale = chromeless ? 1 : Math.max(0.7, 1 - depth * 0.04);
-		const opacity = chromeless ? 1 : Math.max(0.1, 1 - depth * 0.18);
-		const brightness = chromeless ? 1 : Math.max(0.35, 1 - depth * 0.12);
-		const z = Math.max(1, 30 - depth * 5);
+		if (chromeless) {
+			const tx = depth * 50;
+			const ty = depth * -22;
+			const scale = Math.max(0.7, 1 - depth * 0.04);
+			const brightness = Math.max(0.35, 1 - depth * 0.12);
+			const opacity = Math.max(0.1, 1 - depth * 0.18);
+			const z = Math.max(2, 30 - depth * 5);
+			return `opacity:${opacity};transform:translate(${tx}px,${ty}px) scale(${scale});filter:brightness(${brightness});z-index:${z};pointer-events:auto`;
+		}
+		const tx = depth * 50;
+		const ty = depth * -22;
+		const scale = Math.max(0.7, 1 - depth * 0.04);
+		const opacity = Math.max(0.1, 1 - depth * 0.18);
+		const brightness = Math.max(0.35, 1 - depth * 0.12);
+		const z = Math.max(2, 30 - depth * 5);
 		return `opacity:${opacity};transform:translate(${tx}px,${ty}px) scale(${scale});filter:brightness(${brightness});z-index:${z};pointer-events:auto;box-shadow:var(--shadow-window-1)`;
 	}
 
