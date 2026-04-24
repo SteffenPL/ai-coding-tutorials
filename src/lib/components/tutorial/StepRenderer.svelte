@@ -60,6 +60,29 @@
 		}
 	}
 
+	/* ── Question option parsing ── */
+
+	function parseQuestion(html: string, answer: string): { prompt: string; options: { label: string; selected: boolean }[] } {
+		const olMatch = html.match(/([\s\S]*?)<ol[^>]*>([\s\S]*?)<\/ol>/i);
+		if (!olMatch) {
+			return { prompt: html, options: [{ label: answer, selected: true }] };
+		}
+		const prompt = olMatch[1].trim();
+		const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+		const options: { label: string; selected: boolean }[] = [];
+		let match;
+		let index = 1;
+		while ((match = liRegex.exec(olMatch[2])) !== null) {
+			const label = match[1].replace(/<[^>]*>/g, '').trim();
+			options.push({ label, selected: String(index) === answer.trim() });
+			index++;
+		}
+		if (options.length === 0) {
+			return { prompt: html, options: [{ label: answer, selected: true }] };
+		}
+		return { prompt, options };
+	}
+
 	function summarizeValue(key: string, val: unknown): string {
 		if (typeof val === 'string') {
 			const short = val.replace(/\n/g, ' ').slice(0, 60);
@@ -184,11 +207,16 @@
 	</div>
 
 {:else if step.type === 'question'}
+	{@const questionParts = parseQuestion(step.html, step.answer)}
 	<div class="question-block">
-		<div class="question-text">{@html step.html}</div>
-		<div class="question-answer">
-			<span class="answer-chevron">&#8250;</span>
-			<span class="answer-text">{step.answer}</span>
+		<div class="question-text">{@html questionParts.prompt}</div>
+		<div class="question-options">
+			{#each questionParts.options as opt}
+				<div class="question-option" class:selected={opt.selected}>
+					<span class="option-check">{opt.selected ? '[x]' : '[ ]'}</span>
+					<span class="option-label">{opt.label}</span>
+				</div>
+			{/each}
 		</div>
 	</div>
 
@@ -727,38 +755,51 @@
 	}
 
 	.question-text {
-		padding: 10px 14px;
+		padding: 10px 14px 4px;
 		color: var(--text-secondary);
 		line-height: 1.7;
 		font-size: 13px;
 	}
 
 	.question-text :global(p) {
-		margin-bottom: 10px;
+		margin-bottom: 6px;
 	}
 
-	.question-answer {
+	.question-options {
+		padding: 2px 14px 8px;
 		display: flex;
-		align-items: flex-start;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.question-option {
+		display: flex;
+		align-items: baseline;
 		gap: 8px;
-		padding: 8px 14px;
-		background: rgba(233, 84, 32, 0.10);
-		border-right: 2px solid var(--accent);
-		border-radius: 4px 0 0 4px;
-		margin: 4px 0;
+		padding: 3px 8px;
+		border-radius: 4px;
+		font-size: 12.5px;
+		color: var(--text-muted, #888);
+		line-height: 1.5;
 	}
 
-	.answer-chevron {
-		color: var(--accent);
-		font-weight: 700;
-		font-size: 16px;
-		line-height: 1.3;
-		flex-shrink: 0;
-	}
-
-	.answer-text {
+	.question-option.selected {
 		color: var(--text-secondary);
+		background: rgba(233, 84, 32, 0.10);
+	}
+
+	.option-check {
+		font-family: 'JetBrains Mono', monospace;
 		font-size: 12px;
+		flex-shrink: 0;
+		color: var(--text-muted, #888);
+	}
+
+	.question-option.selected .option-check {
+		color: var(--accent);
+	}
+
+	.option-label {
 		line-height: 1.5;
 	}
 
