@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>{t({ en: 'About — AI Coding Tutorials', ja: 'About — AI コーディングチュートリアル' })}</title>
+	<title>{t({ en: 'About — AI Research Tutorials', ja: 'About — AI リサーチチュートリアル' })}</title>
 </svelte:head>
 
 <Nav />
@@ -24,7 +24,7 @@
 			<p>
 				{t({
 					en: 'This site collects interactive tutorials that show how AI coding agents (like Claude Code) can be used for real research tasks. Each tutorial is presented as a step-by-step trace — you see exactly what the researcher asked, what the AI did, and what the results look like.',
-					ja: 'このサイトでは、AI コーディングエージェント（Claude Code など）を実際の研究タスクに活用する方法を示すインタラクティブなチュートリアルを紹介します。各チュートリアルはステップごとのトレースとして提示され、研究者が何を尋ね、AI が何を行い、どのような結果が得られたかを正確に確認できます。'
+					ja: 'このサイトでは、AI リサーチエージェント（Claude Code など）を実際の研究タスクに活用する方法を示すインタラクティブなチュートリアルを紹介します。各チュートリアルはステップごとのトレースとして提示され、研究者が何を尋ね、AI が何を行い、どのような結果が得られたかを正確に確認できます。'
 				})}
 			</p>
 			<p>

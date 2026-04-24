@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>{t({ en: 'AI Coding Tutorials', ja: 'AI コーディングチュートリアル' })}</title>
+	<title>{t({ en: 'AI Research Tutorials', ja: 'AI リサーチチュートリアル' })}</title>
 	<meta
 		name="description"
 		content={t({
@@ -31,7 +31,7 @@
 			<span>{t({ en: 'Kyoto University \u00b7 ASHBi', ja: '京都大学 \u00b7 ASHBi' })}</span>
 		</div>
 		<h1 class="hero__title">
-			{t({ en: 'AI Coding', ja: 'AI コーディング' })}<br />
+			{t({ en: 'AI Research', ja: 'AI リサーチ' })}<br />
 			<span>{t({ en: 'Tutorials', ja: 'チュートリアル' })}</span>
 		</h1>
 		<p class="hero__subtitle">

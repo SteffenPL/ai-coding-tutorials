@@ -373,7 +373,7 @@
 </script>
 
 <svelte:head>
-	<title>{title} — AI Coding Tutorials</title>
+	<title>{title} — AI Research Tutorials</title>
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} onpointerdown={() => showSettings = false} />
