@@ -1,8 +1,8 @@
-# AI Coding Tutorials
+# AI Research Tutorials
 
 Interactive tutorial site for AI-assisted research workflows. Renders curated Claude Code + MCP sessions as explorable, step-by-step webpages with a virtual desktop experience.
 
-Live site: https://steffenpl.github.io/ai-coding-tutorials/
+Live site: https://steffenpl.github.io/ai-research-tutorials/
 
 ## Tech stack
 
@@ -269,4 +269,4 @@ npm run build        # production build to build/
 ./deploy.sh          # build + push to gh-pages branch
 ```
 
-Target repo: `steffenpl/ai-coding-tutorials` (GitHub Pages from `gh-pages` branch).
+Target repo: `steffenpl/ai-research-tutorials` (GitHub Pages from `gh-pages` branch).

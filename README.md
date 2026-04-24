@@ -1,10 +1,12 @@
-# AI Coding Tutorials
+# AI Research Tutorials
 
 Interactive tutorial site that renders Claude Code sessions as explorable, step-by-step webpages with a virtual desktop experience.
 
-**Live site:** https://steffenpl.github.io/ai-coding-tutorials/
+**Live site:** https://steffenpl.github.io/ai-research-tutorials/
 
 ## Getting started
+
+Requires [Node.js](https://nodejs.org/) (which includes npm).
 
 ```bash
 npm install
