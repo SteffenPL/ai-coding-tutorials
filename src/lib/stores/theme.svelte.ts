@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 
 export type ColorTheme = 'warm' | 'dark' | 'light';
 export type WallpaperName = 'mesh-aubergine' | 'mesh-ocean' | 'mesh-forest' | 'mesh-sunset'
-	| 'solid-theme' | 'solid-charcoal';
+	| 'solid-theme' | 'solid-color';
 
 export const COLOR_THEMES: { id: ColorTheme; label: string; swatch: string }[] = [
 	{ id: 'warm', label: 'Warm', swatch: '#2C001E' },
@@ -16,7 +16,7 @@ export const WALLPAPERS: { id: WallpaperName; label: string; category: 'gradient
 	{ id: 'mesh-forest', label: 'Forest', category: 'gradient' },
 	{ id: 'mesh-sunset', label: 'Sunset', category: 'gradient' },
 	{ id: 'solid-theme', label: 'Solid', category: 'solid' },
-	{ id: 'solid-charcoal', label: 'Charcoal', category: 'solid' }
+	{ id: 'solid-color', label: 'Color', category: 'solid' }
 ];
 
 const STORAGE_KEY = 'ai-tutorials-theme';

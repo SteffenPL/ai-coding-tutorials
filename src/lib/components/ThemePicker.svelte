@@ -146,7 +146,7 @@
 	.wp-preview--solid-theme {
 		background: var(--bg-primary);
 	}
-	.wp-preview--solid-charcoal {
-		background: #1a1a1a;
+	.wp-preview--solid-color {
+		background: linear-gradient(135deg, #e84040 0%, #e8a020 25%, #40b848 50%, #3090d8 75%, #8848c0 100%);
 	}
 </style>

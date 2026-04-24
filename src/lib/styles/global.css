@@ -429,9 +429,31 @@
 	--card-shadow-hover: 0 6px 24px rgba(168, 104, 16, 0.10), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Charcoal wallpaper → override wallpaper base to dark gray */
-[data-wallpaper="solid-charcoal"] {
-	--wallpaper-base: #1a1a1a;
+/* Color wallpaper → vibrant theme-fitting solid tints */
+[data-theme="warm"][data-wallpaper="solid-color"] {
+	--wallpaper-base: #3d1440;
+}
+[data-theme="dark"][data-wallpaper="solid-color"] {
+	--wallpaper-base: #101830;
+}
+[data-theme="light"][data-wallpaper="solid-color"] {
+	--wallpaper-base: #c8ddf0;
+	--accent: #1868a8;
+	--orange-500: #1868a8;
+	--orange-400: #2078b8;
+	--orange-300: #105080;
+	--orange-200: #0e4468;
+	--accent-glow: rgba(24, 104, 168, 0.14);
+	--accent-soft: rgba(24, 104, 168, 0.07);
+	--accent-muted: rgba(24, 104, 168, 0.03);
+	--accent-border: rgba(24, 104, 168, 0.22);
+	--accent-hover: rgba(24, 104, 168, 0.10);
+	--step-prompt-bg: rgba(24, 104, 168, 0.08);
+	--step-prompt-answer: rgba(24, 104, 168, 0.04);
+	--step-prompt-glow: rgba(24, 104, 168, 0.12);
+	--step-prompt-border: rgba(32, 120, 184, 0.2);
+	--tag-text: var(--orange-300);
+	--card-shadow-hover: 0 6px 24px rgba(24, 104, 168, 0.10), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ─── Reset & Base ─── */
