@@ -92,6 +92,21 @@
           }
         },
         {
+          "id": "s-window-source",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "window",
+            "windowTitle": "game-of-life.html",
+            "subtitle": "html",
+            "content": {
+              "kind": "source",
+              "language": "html",
+              "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Conway's Game of Life</title>\n  <style>…</style>\n</head>\n<body>\n  <h1>Conway's Game of Life</h1>\n  <canvas id=\"grid\"></canvas>\n  <div class=\"controls\">…</div>\n  <script>\n    // double-buffered grid, toroidal wrap,\n    // requestAnimationFrame loop, click-to-toggle.\n  </script>\n</body>\n</html>"
+            }
+          }
+        },
+        {
           "id": "s-7",
           "sourceRef": {
             "roundIndex": 0,
@@ -139,6 +154,24 @@
             "type": "tool_result",
             "text": "(Bash completed with no output)",
             "_isError": false
+          }
+        },
+        {
+          "id": "s-window-video",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "window",
+            "windowTitle": "Conway's Game of Life",
+            "subtitle": "localhost — game-of-life.html",
+            "content": {
+              "kind": "video",
+              "src": "movie.mov"
+            },
+            "comment": {
+              "en": "The page loads straight from the filesystem over <code>file://</code> — no server, no build. A glider drifts across the grid, and the controls let you seed a random board or tune the frame rate.",
+              "ja": "ページは <code>file://</code> でファイルシステムから直接読み込まれます — サーバーもビルドも不要です。グライダーがグリッド上を進み、コントロールで ランダムな盤面の初期化やフレームレートの調整ができます。"
+            }
           }
         },
         {
