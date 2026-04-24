@@ -226,6 +226,33 @@
 
 	.welcome-description.md :global(p) { margin: 0 0 0.6em; }
 	.welcome-description.md :global(p:last-child) { margin-bottom: 0; }
+	.welcome-description.md :global(h1),
+	.welcome-description.md :global(h2),
+	.welcome-description.md :global(h3) {
+		color: var(--text-primary);
+		font-family: var(--font-display);
+		font-weight: 600;
+		margin: 0.8em 0 0.4em;
+		line-height: 1.3;
+	}
+	.welcome-description.md :global(h1:first-child),
+	.welcome-description.md :global(h2:first-child),
+	.welcome-description.md :global(h3:first-child) { margin-top: 0; }
+	.welcome-description.md :global(h1) { font-size: 1.1rem; }
+	.welcome-description.md :global(h2) { font-size: 0.95rem; }
+	.welcome-description.md :global(h3) { font-size: 0.85rem; color: var(--orange-300); }
+	.welcome-description.md :global(strong) { color: var(--text-primary); }
+	.welcome-description.md :global(ul),
+	.welcome-description.md :global(ol) { margin: 0 0 0.6em; padding-left: 1.3em; }
+	.welcome-description.md :global(li) { margin-bottom: 0.2em; }
+	.welcome-description.md :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.85em;
+		padding: 0.05em 0.35em;
+		background: rgba(0, 0, 0, 0.3);
+		border-radius: 3px;
+		color: var(--peach);
+	}
 
 	.welcome-requirements {
 		text-align: left;
