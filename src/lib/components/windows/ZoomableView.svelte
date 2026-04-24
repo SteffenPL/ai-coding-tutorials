@@ -159,7 +159,7 @@
 		z-index: 4;
 		display: inline-flex;
 		align-items: center;
-		background: rgba(44, 0, 30, 0.82);
+		background: var(--zoom-controls-bg);
 		border: 1px solid var(--border-subtle);
 		border-radius: 8px;
 		padding: 2px;
@@ -196,7 +196,7 @@
 	}
 
 	.zoom-controls button:hover:not(:disabled) {
-		background: rgba(255, 255, 255, 0.08);
+		background: var(--glass-ultra);
 		color: var(--text-primary);
 	}
 

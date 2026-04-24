@@ -95,7 +95,7 @@
 		position: relative;
 		flex: 1;
 		overflow: auto;
-		background: #1e151a;
+		background: var(--bg-deep);
 		font-family: var(--font-mono);
 		font-size: 12px;
 		line-height: 1.6;
@@ -135,7 +135,7 @@
 		opacity: 0.55;
 		font-size: 11px;
 		user-select: none;
-		border-right: 1px solid rgba(255, 255, 255, 0.04);
+		border-right: 1px solid var(--glass-faint);
 	}
 
 	/* Plaintext fallback — mirrors Shiki's layout so there's no jump on highlight */
@@ -168,7 +168,7 @@
 		font-size: 11px;
 		font-weight: 500;
 		color: var(--text-secondary);
-		background: rgba(44, 0, 30, 0.75);
+		background: var(--source-gutter-bg);
 		border: 1px solid var(--border-subtle);
 		border-radius: 6px;
 		cursor: pointer;

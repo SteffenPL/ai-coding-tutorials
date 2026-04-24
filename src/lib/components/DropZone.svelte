@@ -100,7 +100,7 @@
 		padding: 1.25rem 1rem;
 		border: 2px dashed var(--border-subtle);
 		border-radius: 8px;
-		background: rgba(0, 0, 0, 0.15);
+		background: var(--overlay-dim);
 		cursor: pointer;
 		transition: border-color 0.2s, background 0.2s;
 		width: 100%;
@@ -110,12 +110,12 @@
 
 	.dropzone:hover {
 		border-color: var(--orange-400);
-		background: rgba(233, 84, 32, 0.04);
+		background: var(--accent-muted);
 	}
 
 	.dropzone.dragging {
 		border-color: var(--orange-400);
-		background: rgba(233, 84, 32, 0.08);
+		background: var(--accent-soft);
 		border-style: solid;
 	}
 

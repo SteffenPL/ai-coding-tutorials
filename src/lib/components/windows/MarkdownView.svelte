@@ -51,7 +51,7 @@
 		font-size: 13px;
 		line-height: 1.65;
 		color: var(--text-secondary);
-		background: #1e151a;
+		background: var(--bg-deep);
 	}
 
 	.md-loading {
@@ -92,7 +92,7 @@
 	.md :global(a) {
 		color: var(--accent);
 		text-decoration: none;
-		border-bottom: 1px dashed rgba(233, 84, 32, 0.4);
+		border-bottom: 1px dashed var(--accent-border);
 		transition: border-color 0.15s ease;
 	}
 	.md :global(a:hover) {
@@ -114,7 +114,7 @@
 		padding: 0.1em 0.9em;
 		border-left: 3px solid var(--accent);
 		color: var(--text-secondary);
-		background: rgba(233, 84, 32, 0.05);
+		background: var(--accent-muted);
 		border-radius: 0 4px 4px 0;
 	}
 	.md :global(blockquote p:last-child) { margin-bottom: 0; }
@@ -124,7 +124,7 @@
 		font-family: var(--font-mono);
 		font-size: 0.9em;
 		padding: 0.08em 0.4em;
-		background: rgba(0, 0, 0, 0.3);
+		background: var(--overlay-light);
 		border: 1px solid var(--border-color);
 		border-radius: 4px;
 		color: var(--peach);
@@ -134,7 +134,7 @@
 	.md :global(pre) {
 		margin: 0 0 0.9em;
 		padding: 12px 14px;
-		background: rgba(0, 0, 0, 0.35);
+		background: var(--overlay-light);
 		border: 1px solid var(--border-color);
 		border-radius: 6px;
 		overflow-x: auto;

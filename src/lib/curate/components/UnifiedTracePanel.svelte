@@ -662,7 +662,7 @@
 
 	/* ─── Terminal-like background ─── */
 	.terminal-bg {
-		background: #241a20;
+		background: var(--bg-terminal);
 		padding: 12px 16px;
 		font-family: var(--font-mono);
 		font-size: 13px;
@@ -1210,7 +1210,7 @@
 		height: 18px;
 		border-radius: 50%;
 		border: 1px solid var(--border-subtle);
-		background: #332730;
+		background: var(--bg-secondary);
 		color: var(--text-tertiary);
 		font-size: 8px;
 		line-height: 1;

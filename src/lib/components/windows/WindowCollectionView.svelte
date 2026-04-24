@@ -63,7 +63,7 @@
 		overflow: hidden;
 		border: 1px solid var(--border-subtle);
 		background: var(--bg-secondary);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		box-shadow: var(--card-shadow);
 		animation: sub-appear 0.35s ease both;
 		animation-delay: var(--delay);
 	}
@@ -95,7 +95,7 @@
 	.max-backdrop {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.6);
+		background: var(--overlay-bg);
 		z-index: 300;
 	}
 
@@ -112,7 +112,7 @@
 		overflow: hidden;
 		border: 1px solid var(--border-subtle);
 		background: var(--bg-secondary);
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+		box-shadow: var(--shadow-xl);
 		animation: maxPopIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 

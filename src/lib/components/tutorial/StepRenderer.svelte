@@ -418,7 +418,7 @@
 		padding: 10px 14px 10px 0;
 		border-left: 3px solid var(--teal);
 		padding-left: 10px;
-		background: rgba(112, 200, 184, 0.06);
+		background: var(--step-teal-bg);
 		border-radius: 0 4px 4px 0;
 	}
 
@@ -452,13 +452,13 @@
 
 	.assistant-text :global(code),
 	.assistant-text :global(.inline-code) {
-		background: rgba(255, 255, 255, 0.08);
+		background: var(--glass-ultra);
 		color: var(--text-primary);
 		padding: 2px 6px;
 		border-radius: 4px;
 		font-family: var(--font-mono);
 		font-size: 0.85em;
-		border: 1px solid rgba(255, 255, 255, 0.06);
+		border: 1px solid var(--glass-highlight);
 	}
 
 	.assistant-text :global(.decorative-rule) {
@@ -512,8 +512,8 @@
 	}
 
 	.assistant-text :global(pre) {
-		background: rgba(0, 0, 0, 0.25);
-		border: 1px solid rgba(255, 255, 255, 0.06);
+		background: var(--step-badge-bg);
+		border: 1px solid var(--glass-highlight);
 		border-radius: 6px;
 		padding: 10px 14px;
 		margin: 8px 0;
@@ -559,7 +559,7 @@
 	.assistant-text :global(td) {
 		padding: 3px 10px;
 		color: var(--text-secondary);
-		border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+		border-bottom: 1px solid var(--glass-divider);
 	}
 
 	/* ── Tool calls + results ── */
@@ -575,7 +575,7 @@
 	}
 
 	.tool-call:hover {
-		background: rgba(232, 160, 112, 0.04);
+		background: var(--step-tool-bg);
 	}
 
 	.tool-name {
@@ -692,7 +692,7 @@
 		margin-left: 4px;
 		border-left: 2px solid var(--mauve);
 		border-radius: 0;
-		background: rgba(122, 69, 104, 0.06);
+		background: var(--step-mauve-bg);
 	}
 
 	.thinking-summary {
@@ -778,7 +778,7 @@
 
 	.question-option.selected {
 		color: var(--text-secondary);
-		background: rgba(233, 84, 32, 0.10);
+		background: var(--step-prompt-bg);
 	}
 
 	.option-check {
@@ -803,7 +803,7 @@
 		border-left: 2px solid var(--orange-300);
 		border-radius: 0;
 		padding: 6px 12px;
-		background: rgba(233, 84, 32, 0.04);
+		background: var(--step-prompt-answer);
 	}
 
 	.permission-header {
@@ -819,7 +819,7 @@
 		font-size: 10px;
 		letter-spacing: 0.5px;
 		text-transform: uppercase;
-		background: rgba(233, 84, 32, 0.15);
+		background: var(--step-prompt-glow);
 		padding: 1px 6px;
 		border-radius: 3px;
 	}
@@ -901,7 +901,7 @@
 		color: var(--orange-300);
 		text-align: left;
 		padding: 4px 10px 4px 0;
-		border-bottom: 1px solid rgba(240, 160, 80, 0.2);
+		border-bottom: 1px solid var(--step-prompt-border);
 		font-weight: 500;
 	}
 
@@ -912,7 +912,7 @@
 	}
 
 	.results-table tr:nth-child(even) td {
-		background: rgba(255, 255, 255, 0.015);
+		background: var(--step-question-bg);
 	}
 
 	/* ── Divider ── */
@@ -959,7 +959,7 @@
 	}
 
 	.window-marker:hover {
-		background: rgba(255, 255, 255, 0.03);
+		background: var(--step-table-bg);
 		border-left-color: var(--orange-300);
 		color: var(--text-primary);
 	}
@@ -1012,7 +1012,7 @@
 		font-size: 10px;
 		font-weight: 600;
 		color: var(--orange-300);
-		background: rgba(233, 84, 32, 0.12);
+		background: var(--accent-hover);
 		padding: 1px 6px;
 		border-radius: 8px;
 		flex-shrink: 0;
@@ -1069,7 +1069,7 @@
 			border-radius: 10px;
 			overflow: hidden;
 			border: 1px solid var(--border-subtle);
-			box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+			box-shadow: var(--shadow-md);
 			background: var(--bg-secondary);
 		}
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { langStore, t } from '$lib/stores/lang.svelte';
+	import ThemePicker from '$lib/components/ThemePicker.svelte';
 
 	interface Props {
 		showBack?: boolean;
@@ -9,7 +10,10 @@
 	}
 
 	let { showBack = false, pageTitle, editHref }: Props = $props();
+	let showTheme = $state(false);
 </script>
+
+<svelte:window onpointerdown={() => showTheme = false} />
 
 <nav class="nav" aria-label="Main navigation">
 	<div class="nav__inner">
@@ -44,6 +48,20 @@
 			<a href="{base}/about" class="nav__link">
 				{t({ en: 'About', ja: 'About' })}
 			</a>
+			<div class="theme-wrap">
+				<button class="nav__link theme-btn" title="Theme" onclick={(e) => { e.stopPropagation(); showTheme = !showTheme; }}>
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="4" />
+						<path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+					</svg>
+				</button>
+				{#if showTheme}
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<div class="theme-popover" onpointerdown={(e) => e.stopPropagation()}>
+						<ThemePicker />
+					</div>
+				{/if}
+			</div>
 			<div class="lang-switch" role="group" aria-label="Language switcher">
 				<button
 					class="lang-switch__btn"
@@ -190,7 +208,7 @@
 	.lang-switch {
 		display: flex;
 		align-items: center;
-		background: rgba(0, 0, 0, 0.25);
+		background: var(--overlay-subtle);
 		border-radius: 8px;
 		padding: 3px;
 		gap: 2px;
@@ -213,7 +231,41 @@
 	.lang-switch__btn.active {
 		background: var(--bg-secondary);
 		color: var(--text-primary);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+		box-shadow: var(--shadow-sm);
+	}
+
+	/* ─── Theme picker ─── */
+	.theme-wrap {
+		position: relative;
+	}
+
+	.theme-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 4px;
+		cursor: pointer;
+		background: none;
+		border: none;
+	}
+
+	.theme-popover {
+		position: absolute;
+		top: calc(100% + 12px);
+		right: 0;
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
+		border-radius: 10px;
+		padding: 12px 14px;
+		box-shadow: var(--shadow-lg);
+		z-index: 150;
+		min-width: 260px;
+		animation: themePopIn 0.15s ease-out;
+	}
+
+	@keyframes themePopIn {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 
 	@media (max-width: 640px) {

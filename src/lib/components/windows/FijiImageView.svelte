@@ -27,14 +27,14 @@
 
 	.statusbar {
 		height: 20px;
-		background: #241a20;
+		background: var(--bg-terminal);
 		font-family: var(--font-mono);
 		font-size: 10px;
 		color: var(--text-tertiary);
 		display: flex;
 		align-items: center;
 		padding: 0 10px;
-		border-top: 1px solid rgba(255, 255, 255, 0.03);
+		border-top: 1px solid var(--glass-divider);
 		flex-shrink: 0;
 	}
 </style>

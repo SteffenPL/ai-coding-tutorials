@@ -185,7 +185,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(0, 0, 0, 0.6);
+		background: var(--overlay-bg);
 		backdrop-filter: blur(4px);
 	}
 
@@ -193,7 +193,7 @@
 		width: 90%;
 		max-width: 640px;
 		max-height: 80vh;
-		background: #2a1a24;
+		background: var(--bg-dialog);
 		border: 1px solid var(--border-subtle);
 		border-radius: 12px;
 		display: flex;
@@ -207,7 +207,7 @@
 		justify-content: space-between;
 		padding: 0.75rem 1rem;
 		border-bottom: 1px solid var(--border-subtle);
-		background: rgba(0, 0, 0, 0.2);
+		background: var(--overlay-subtle);
 		flex-shrink: 0;
 	}
 
@@ -232,21 +232,21 @@
 
 	.close-btn:hover {
 		color: var(--text-primary);
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 	}
 
 	.picker-toolbar {
 		display: flex;
 		gap: 0.5rem;
 		padding: 0.6rem 1rem;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+		border-bottom: 1px solid var(--glass-highlight);
 		flex-shrink: 0;
 	}
 
 	.search-input {
 		flex: 1;
 		padding: 0.4rem 0.6rem;
-		background: rgba(0, 0, 0, 0.3);
+		background: var(--overlay-light);
 		border: 1px solid var(--border-subtle);
 		border-radius: 5px;
 		color: var(--text-primary);

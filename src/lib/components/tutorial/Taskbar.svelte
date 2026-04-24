@@ -141,7 +141,7 @@
 <style>
 	.taskbar {
 		height: 44px;
-		background: rgba(28, 16, 23, 0.85);
+		background: var(--glass-bg-medium);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 		border-top: 1px solid var(--border-color);
@@ -187,7 +187,7 @@
 	}
 
 	.taskbar-item:hover {
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 	}
 
 	.taskbar-item.visible-item {
@@ -195,7 +195,7 @@
 	}
 
 	.taskbar-item.active {
-		background: rgba(233, 84, 32, 0.12);
+		background: var(--accent-hover);
 		color: var(--text-primary);
 		opacity: 1;
 	}
@@ -211,7 +211,7 @@
 		font-weight: 700;
 	}
 
-	.taskbar-icon.terminal { background: #241a20; color: var(--accent); }
+	.taskbar-icon.terminal { background: var(--bg-terminal); color: var(--accent); }
 	.taskbar-icon.fiji { background: var(--bg-hover); color: var(--text-secondary); }
 
 	/* ─── Pagination arrows ─── */
@@ -232,7 +232,7 @@
 	}
 
 	.page-arrow:hover {
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 		color: var(--text-primary);
 	}
 

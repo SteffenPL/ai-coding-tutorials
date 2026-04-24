@@ -156,14 +156,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(0, 0, 0, 0.6);
+		background: var(--overlay-bg);
 		backdrop-filter: blur(4px);
 	}
 
 	.dialog {
 		width: 90%;
 		max-width: 460px;
-		background: #2a1a24;
+		background: var(--bg-dialog);
 		border: 1px solid var(--border-subtle);
 		border-radius: 12px;
 		overflow: hidden;
@@ -175,7 +175,7 @@
 		justify-content: space-between;
 		padding: 0.75rem 1rem;
 		border-bottom: 1px solid var(--border-subtle);
-		background: rgba(0, 0, 0, 0.2);
+		background: var(--overlay-subtle);
 	}
 
 	.dialog-header h3 {
@@ -199,7 +199,7 @@
 
 	.close-btn:hover {
 		color: var(--text-primary);
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 	}
 
 	.dialog-body {
@@ -237,17 +237,17 @@
 		border-radius: 6px;
 		cursor: pointer;
 		transition: all 0.15s;
-		background: rgba(0, 0, 0, 0.15);
+		background: var(--overlay-dim);
 	}
 
 	.target-option:hover {
 		border-color: var(--orange-400);
-		background: rgba(233, 84, 32, 0.04);
+		background: var(--accent-muted);
 	}
 
 	.target-option.selected {
 		border-color: var(--orange-400);
-		background: rgba(233, 84, 32, 0.08);
+		background: var(--accent-soft);
 	}
 
 	.target-option input[type='radio'] {
@@ -285,7 +285,7 @@
 		display: flex;
 		justify-content: center;
 		padding: 0.5rem;
-		background: rgba(0, 0, 0, 0.2);
+		background: var(--overlay-subtle);
 		border-radius: 6px;
 	}
 
@@ -305,7 +305,7 @@
 
 	.btn {
 		padding: 0.35rem 0.75rem;
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 		border: 1px solid var(--border-subtle);
 		border-radius: 6px;
 		color: var(--text-primary);
@@ -316,7 +316,7 @@
 	}
 
 	.btn:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--glass-highlight-hover);
 		border-color: var(--orange-400);
 	}
 

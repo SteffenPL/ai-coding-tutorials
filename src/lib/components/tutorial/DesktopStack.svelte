@@ -170,7 +170,7 @@
 		max-width: 480px;
 		max-height: 100%;
 		width: 100%;
-		background: rgba(28, 16, 23, 0.7);
+		background: var(--glass-bg-soft);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
 		border: 1px solid var(--border-color);
@@ -247,14 +247,14 @@
 		font-family: var(--font-mono);
 		font-size: 0.85em;
 		padding: 0.05em 0.35em;
-		background: rgba(0, 0, 0, 0.3);
+		background: var(--overlay-light);
 		border-radius: 3px;
 		color: var(--peach);
 	}
 
 	.welcome-requirements {
 		text-align: left;
-		background: rgba(0, 0, 0, 0.2);
+		background: var(--overlay-subtle);
 		border-radius: 10px;
 		padding: 12px 16px;
 		font-size: 0.82rem;
@@ -291,7 +291,7 @@
 	}
 
 	.fiji-window:hover:not(.chromeless) {
-		box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+		box-shadow: var(--shadow-window-0) !important;
 	}
 
 	/* Stack depth — 0 is frontmost (bottom-left), 3 is deepest (toward top-right) */
@@ -299,7 +299,7 @@
 		opacity: 1;
 		transform: translate(0, 0) scale(1);
 		z-index: 30;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 3px 10px rgba(0, 0, 0, 0.3);
+		box-shadow: var(--shadow-window-1);
 	}
 
 	.fiji-window.stack-1 {
@@ -307,7 +307,7 @@
 		transform: translate(60px, -30px) scale(0.95);
 		z-index: 20;
 		filter: brightness(0.8);
-		box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+		box-shadow: var(--shadow-window-2);
 	}
 
 	.fiji-window.stack-2 {
@@ -315,7 +315,7 @@
 		transform: translate(130px, -55px) scale(0.90);
 		z-index: 10;
 		filter: brightness(0.65);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+		box-shadow: var(--shadow-window-3);
 	}
 
 	.fiji-window.stack-3 {
@@ -323,7 +323,7 @@
 		transform: translate(210px, -75px) scale(0.85);
 		z-index: 5;
 		filter: brightness(0.5);
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+		box-shadow: var(--shadow-window-4);
 	}
 
 	/* Hide the stack entry while its content is shown in the max overlay */
@@ -378,7 +378,7 @@
 	.max-backdrop {
 		position: absolute;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.6);
+		background: var(--overlay-bg);
 		z-index: 200;
 		animation: maxFadeIn 0.18s ease-out;
 	}

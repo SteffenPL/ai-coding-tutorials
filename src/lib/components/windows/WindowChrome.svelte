@@ -142,7 +142,7 @@
 		gap: 7px;
 		flex-shrink: 0;
 		user-select: none;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+		border-bottom: 1px solid var(--glass-faint);
 		transition: background-color 0.15s;
 	}
 
@@ -151,7 +151,7 @@
 	}
 
 	.window-header.clickable:hover {
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 	}
 
 	.window-title {
@@ -186,7 +186,7 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		background: rgba(255, 255, 255, 0.06);
+		background: var(--glass-highlight);
 		color: var(--text-tertiary);
 	}
 
@@ -232,7 +232,7 @@
 		background: var(--border-subtle);
 		opacity: 0.55;
 		cursor: not-allowed;
-		color: rgba(0, 0, 0, 0.7);
+		color: var(--dot-text);
 	}
 
 	button.maximize.active {
@@ -262,10 +262,10 @@
 		background: var(--border-subtle);
 		opacity: 0.55;
 		cursor: not-allowed;
-		color: rgba(0, 0, 0, 0.7);
+		color: var(--dot-text);
 	}
 	button.minimize.active {
-		background: #f0b030; /* macOS yellow */
+		background: var(--dot-yellow);
 		opacity: 1;
 		cursor: pointer;
 	}

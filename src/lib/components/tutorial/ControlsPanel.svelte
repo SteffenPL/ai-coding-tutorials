@@ -10,6 +10,8 @@
 	document-level pointerdown dismisses it; that listener lives on the page.
 -->
 <script lang="ts">
+	import ThemePicker from '$lib/components/ThemePicker.svelte';
+
 	let {
 		commentHtml,
 		currentStep,
@@ -71,6 +73,8 @@
 								</button>
 							{/each}
 						</div>
+						<div class="settings-divider"></div>
+						<ThemePicker />
 					</div>
 				{/if}
 			</div>
@@ -179,7 +183,7 @@
 		border: 1px solid var(--border-color);
 		border-radius: 10px;
 		padding: 12px 14px;
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+		box-shadow: var(--shadow-lg);
 		z-index: 50;
 		white-space: nowrap;
 		animation: popIn 0.15s ease-out;
@@ -257,7 +261,7 @@
 	.detail-pills {
 		display: flex;
 		gap: 2px;
-		background: rgba(0, 0, 0, 0.2);
+		background: var(--overlay-subtle);
 		border-radius: 5px;
 		padding: 2px;
 	}
@@ -390,7 +394,7 @@
 			border-left: none;
 			border-right: none;
 			border-bottom: none;
-			background: rgba(28, 16, 23, 0.95);
+			background: var(--glass-bg-strong);
 			backdrop-filter: blur(12px);
 			-webkit-backdrop-filter: blur(12px);
 		}

@@ -18,6 +18,6 @@
 		min-height: 0;
 		flex-shrink: 1;
 		object-fit: contain;
-		background: #1a1a1a;
+		background: var(--bg-deep);
 	}
 </style>

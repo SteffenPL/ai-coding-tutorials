@@ -160,7 +160,7 @@
 	.search-container {
 		width: 100%;
 		max-width: 560px;
-		background: rgba(30, 16, 26, 0.98);
+		background: var(--glass-bg-strong);
 		border: 1px solid var(--border-subtle);
 		border-radius: 10px;
 		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);

@@ -205,7 +205,7 @@
 
 	.terminal-body {
 		flex: 1;
-		background: #241a20;
+		background: var(--bg-terminal);
 		overflow-y: auto;
 		padding: 16px 20px;
 		font-family: var(--font-mono);
@@ -215,7 +215,7 @@
 	}
 
 	.terminal-body::-webkit-scrollbar { width: 8px; }
-	.terminal-body::-webkit-scrollbar-track { background: #241a20; }
+	.terminal-body::-webkit-scrollbar-track { background: var(--bg-terminal); }
 	.terminal-body::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
 
 	/* Spacer pushes content to bottom initially (and lets last step reach bottom) */
@@ -257,10 +257,10 @@
 		font-size: 13px;
 		font-weight: 500;
 		color: var(--text-secondary);
-		background: rgba(255, 255, 255, 0.04);
+		background: var(--glass-faint);
 		border: 1px solid var(--border-subtle);
 		border-radius: 6px;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+		box-shadow: var(--shadow-sm);
 		line-height: 1;
 	}
 
@@ -288,7 +288,7 @@
 		gap: 10px;
 		padding: 14px 20px;
 		margin-top: 20px;
-		background: rgba(233, 84, 32, 0.11);
+		background: var(--step-prompt-bg);
 		border-right: 3px solid var(--accent);
 		border-radius: 6px 0 0 6px;
 		font-family: var(--font-mono);
@@ -317,7 +317,7 @@
 
 	/* ── Terminal-round prompt variant ── */
 	.prompt-block.terminal-prompt {
-		background: rgba(255, 255, 255, 0.04);
+		background: var(--glass-faint);
 		border-right-color: var(--text-tertiary);
 		flex-direction: column;
 		gap: 2px;
@@ -353,7 +353,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 10;
-		background: #241a20;
+		background: var(--bg-terminal);
 		margin: 0 -20px;
 		padding: 0 20px;
 	}
@@ -379,7 +379,7 @@
 	/* ─── Mobile: inline document flow ── */
 	@media (max-width: 900px) {
 		.terminal-segment {
-			background: #241a20;
+			background: var(--bg-terminal);
 			border-radius: 12px;
 			margin: 12px 0;
 			overflow: hidden;
@@ -429,7 +429,7 @@
 			left: -1px;
 			right: -1px;
 			height: 24px;
-			background: linear-gradient(to bottom, #241a20, transparent);
+			background: linear-gradient(to bottom, var(--bg-terminal), transparent);
 			border-left: 1px solid var(--border-subtle);
 			border-right: 1px solid var(--border-subtle);
 			pointer-events: none;
@@ -443,7 +443,7 @@
 			left: -1px;
 			right: -1px;
 			height: 24px;
-			background: linear-gradient(to top, #241a20, transparent);
+			background: linear-gradient(to top, var(--bg-terminal), transparent);
 			border-left: 1px solid var(--border-subtle);
 			border-right: 1px solid var(--border-subtle);
 			pointer-events: none;
@@ -457,7 +457,7 @@
 			padding: 8px 12px;
 			margin-bottom: 10px;
 			background: var(--bg-hover);
-			border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+			border-bottom: 1px solid var(--glass-faint);
 		}
 
 		.segment-dot {
@@ -466,9 +466,9 @@
 			border-radius: 50%;
 		}
 
-		.segment-dot--red { background: #ff5f57; opacity: 0.4; }
-		.segment-dot--yellow { background: #febc2e; opacity: 0.4; }
-		.segment-dot--green { background: #28c840; opacity: 0.4; }
+		.segment-dot--red { background: var(--dot-red); opacity: 0.4; }
+		.segment-dot--yellow { background: var(--dot-yellow); opacity: 0.4; }
+		.segment-dot--green { background: var(--dot-green); opacity: 0.4; }
 
 		.segment-title {
 			font-family: var(--font-mono);
@@ -482,7 +482,7 @@
 			display: block;
 			margin: 16px 12px;
 			padding: 16px 20px;
-			background: rgba(28, 16, 23, 0.7);
+			background: var(--glass-bg-soft);
 			backdrop-filter: blur(16px);
 			-webkit-backdrop-filter: blur(16px);
 			border-radius: 12px;

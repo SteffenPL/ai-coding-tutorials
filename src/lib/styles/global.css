@@ -1,9 +1,10 @@
 /* ═══════════════════════════════════════════
    AI Coding Tutorials — Design System
-   Aubergine + Orange warm dark palette
+   Themeable palette with CSS custom properties
    ═══════════════════════════════════════════ */
 
-:root {
+:root,
+[data-theme="dark"] {
 	/* Core palette — Ubuntu-inspired aubergine + orange */
 	--aubergine-900: #1a0012;
 	--aubergine-800: #2C001E;
@@ -22,6 +23,10 @@
 	--bg-secondary: #332730;
 	--bg-surface: rgba(34, 22, 30, 0.75);
 	--bg-hover: #453540;
+	--bg-terminal: #241a20;
+	--bg-dialog: #2a1a24;
+	--bg-deep: #1e151a;
+	--bg-inset: #120810;
 	--text-primary: #f0e4ea;
 	--text-secondary: #c8b4c0;
 	--text-tertiary: #8d7a85;
@@ -30,6 +35,9 @@
 	--accent: var(--orange-500);
 	--accent-glow: rgba(233, 84, 32, 0.15);
 	--accent-soft: rgba(233, 84, 32, 0.08);
+	--accent-muted: rgba(233, 84, 32, 0.04);
+	--accent-border: rgba(233, 84, 32, 0.25);
+	--accent-hover: rgba(233, 84, 32, 0.12);
 
 	/* Semantic colors */
 	--green: #8bc990;
@@ -38,6 +46,21 @@
 	--peach: #e8a070;
 	--red: #e86070;
 	--teal: #70c8b8;
+
+	/* Overlay / glass */
+	--overlay-bg: rgba(0, 0, 0, 0.6);
+	--overlay-light: rgba(0, 0, 0, 0.3);
+	--overlay-subtle: rgba(0, 0, 0, 0.2);
+	--overlay-dim: rgba(0, 0, 0, 0.15);
+	--glass-highlight: rgba(255, 255, 255, 0.06);
+	--glass-highlight-hover: rgba(255, 255, 255, 0.1);
+	--glass-faint: rgba(255, 255, 255, 0.04);
+	--glass-divider: rgba(255, 255, 255, 0.03);
+	--glass-ultra: rgba(255, 255, 255, 0.08);
+	--glass-bg: rgba(28, 16, 23, 0.88);
+	--glass-bg-strong: rgba(28, 16, 23, 0.95);
+	--glass-bg-medium: rgba(28, 16, 23, 0.85);
+	--glass-bg-soft: rgba(28, 16, 23, 0.7);
 
 	/* Typography */
 	--font-display: 'Cantarell', sans-serif;
@@ -48,14 +71,244 @@
 	--transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
 	/* Surfaces */
-	--nav-bg: rgba(28, 16, 23, 0.88);
+	--nav-bg: var(--glass-bg);
 	--card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 	--card-shadow-hover: 0 6px 24px rgba(233, 84, 32, 0.12), 0 2px 8px rgba(0, 0, 0, 0.3);
 
 	/* Tag styling */
-	--tag-bg: rgba(233, 84, 32, 0.08);
-	--tag-border: rgba(233, 84, 32, 0.25);
+	--tag-bg: var(--accent-soft);
+	--tag-border: var(--accent-border);
 	--tag-text: var(--orange-300);
+
+	/* Step rendering */
+	--step-teal-bg: rgba(112, 200, 184, 0.06);
+	--step-tool-bg: rgba(232, 160, 112, 0.04);
+	--step-mauve-bg: rgba(122, 69, 104, 0.06);
+	--step-prompt-bg: rgba(233, 84, 32, 0.10);
+	--step-prompt-answer: rgba(233, 84, 32, 0.04);
+	--step-prompt-glow: rgba(233, 84, 32, 0.15);
+	--step-prompt-border: rgba(240, 160, 80, 0.2);
+	--step-question-bg: rgba(255, 255, 255, 0.015);
+	--step-table-bg: rgba(255, 255, 255, 0.03);
+	--step-badge-bg: rgba(0, 0, 0, 0.25);
+
+	/* Window chrome */
+	--dot-red: #ff5f57;
+	--dot-yellow: #f0b030;
+	--dot-green: #28c840;
+	--dot-text: rgba(0, 0, 0, 0.7);
+
+	/* Zoomable */
+	--zoom-controls-bg: rgba(44, 0, 30, 0.82);
+	--source-gutter-bg: rgba(44, 0, 30, 0.75);
+
+	/* Shadows */
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+	--shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+	--shadow-window-0: 0 12px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+	--shadow-window-1: 0 10px 40px rgba(0, 0, 0, 0.6), 0 3px 10px rgba(0, 0, 0, 0.3);
+	--shadow-window-2: 0 6px 24px rgba(0, 0, 0, 0.6);
+	--shadow-window-3: 0 4px 16px rgba(0, 0, 0, 0.6);
+	--shadow-window-4: 0 2px 10px rgba(0, 0, 0, 0.6);
+
+	/* Wallpaper base (for solid wallpapers) */
+	--wallpaper-base: #2C001E;
+	--wallpaper-gradient: linear-gradient(150deg, #3a0626 0%, #461230 20%, #521a3a 40%, #481530 60%, #380a28 80%, #320822 100%);
+	--page-gradient: linear-gradient(150deg, #2C001E 0%, #380a28 20%, #42122e 40%, #3a0e26 60%, #30051f 80%, #2C001E 100%);
+	--edit-gradient: linear-gradient(150deg, #32061f 0%, #3c0e2a 20%, #481832 40%, #40122a 60%, #360a22 80%, #32061f 100%);
+}
+
+/* ─── Warm Theme ─── */
+[data-theme="warm"] {
+	--aubergine-900: #140e08;
+	--aubergine-800: #231a12;
+	--aubergine-700: #2e231a;
+	--aubergine-600: #382c20;
+	--aubergine-500: #4e3e2e;
+	--aubergine-400: #6e5842;
+	--aubergine-300: #8e7862;
+	--orange-500: #d4812a;
+	--orange-400: #e09848;
+	--orange-300: #e8b468;
+	--orange-200: #f0cc88;
+
+	--bg-primary: var(--aubergine-800);
+	--bg-secondary: #2e2520;
+	--bg-surface: rgba(35, 26, 18, 0.75);
+	--bg-hover: #3e3428;
+	--bg-terminal: #1e1810;
+	--bg-dialog: #261e16;
+	--bg-deep: #1a1510;
+	--bg-inset: #120e08;
+	--text-primary: #f0e8dc;
+	--text-secondary: #c8b8a4;
+	--text-tertiary: #8d7e6c;
+	--border-color: #4a3e30;
+	--border-subtle: #605040;
+	--accent: var(--orange-500);
+	--accent-glow: rgba(212, 129, 42, 0.15);
+	--accent-soft: rgba(212, 129, 42, 0.08);
+	--accent-muted: rgba(212, 129, 42, 0.04);
+	--accent-border: rgba(212, 129, 42, 0.25);
+	--accent-hover: rgba(212, 129, 42, 0.12);
+
+	--green: #8ec98a;
+	--blue: #8ab0e8;
+	--mauve: #b898c8;
+	--peach: #e0a070;
+	--red: #d86060;
+	--teal: #68c0a8;
+
+	--overlay-bg: rgba(0, 0, 0, 0.55);
+	--overlay-light: rgba(0, 0, 0, 0.25);
+	--overlay-subtle: rgba(0, 0, 0, 0.18);
+	--overlay-dim: rgba(0, 0, 0, 0.12);
+	--glass-highlight: rgba(255, 245, 230, 0.06);
+	--glass-highlight-hover: rgba(255, 245, 230, 0.1);
+	--glass-faint: rgba(255, 245, 230, 0.04);
+	--glass-divider: rgba(255, 245, 230, 0.03);
+	--glass-ultra: rgba(255, 245, 230, 0.08);
+	--glass-bg: rgba(30, 22, 14, 0.88);
+	--glass-bg-strong: rgba(30, 22, 14, 0.95);
+	--glass-bg-medium: rgba(30, 22, 14, 0.85);
+	--glass-bg-soft: rgba(30, 22, 14, 0.7);
+
+	--nav-bg: var(--glass-bg);
+	--card-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	--card-shadow-hover: 0 6px 24px rgba(212, 129, 42, 0.12), 0 2px 8px rgba(0, 0, 0, 0.25);
+
+	--tag-bg: var(--accent-soft);
+	--tag-border: var(--accent-border);
+	--tag-text: var(--orange-300);
+
+	--step-teal-bg: rgba(104, 192, 168, 0.06);
+	--step-tool-bg: rgba(224, 160, 112, 0.04);
+	--step-mauve-bg: rgba(120, 72, 100, 0.06);
+	--step-prompt-bg: rgba(212, 129, 42, 0.10);
+	--step-prompt-answer: rgba(212, 129, 42, 0.04);
+	--step-prompt-glow: rgba(212, 129, 42, 0.15);
+	--step-prompt-border: rgba(224, 160, 80, 0.2);
+	--step-question-bg: rgba(255, 248, 240, 0.015);
+	--step-table-bg: rgba(255, 248, 240, 0.03);
+	--step-badge-bg: rgba(0, 0, 0, 0.22);
+
+	--zoom-controls-bg: rgba(35, 26, 18, 0.82);
+	--source-gutter-bg: rgba(35, 26, 18, 0.75);
+
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.18);
+	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+	--shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.25);
+	--shadow-window-0: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.35);
+	--shadow-window-1: 0 10px 40px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.25);
+	--shadow-window-2: 0 6px 24px rgba(0, 0, 0, 0.5);
+	--shadow-window-3: 0 4px 16px rgba(0, 0, 0, 0.5);
+	--shadow-window-4: 0 2px 10px rgba(0, 0, 0, 0.5);
+
+	--wallpaper-base: #231a12;
+	--wallpaper-gradient: linear-gradient(150deg, #2a1a0e 0%, #382818 20%, #443020 40%, #3a2818 60%, #2e1e10 80%, #241a0c 100%);
+	--page-gradient: linear-gradient(150deg, #231a12 0%, #2e231a 20%, #382c20 40%, #32261a 60%, #281e14 80%, #231a12 100%);
+	--edit-gradient: linear-gradient(150deg, #261a0e 0%, #302214 20%, #3c2c1c 40%, #342616 60%, #2a1e10 80%, #261a0e 100%);
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+	--aubergine-900: #f8f2ee;
+	--aubergine-800: #f0e8e4;
+	--aubergine-700: #e8ddd8;
+	--aubergine-600: #ddd0ca;
+	--aubergine-500: #c8b8b0;
+	--aubergine-400: #a89890;
+	--aubergine-300: #887870;
+	--orange-500: #c84810;
+	--orange-400: #d86020;
+	--orange-300: #b04010;
+	--orange-200: #984018;
+
+	--bg-primary: var(--aubergine-800);
+	--bg-secondary: #e8ddd8;
+	--bg-surface: rgba(240, 232, 228, 0.8);
+	--bg-hover: #ddd0ca;
+	--bg-terminal: #faf6f4;
+	--bg-dialog: #f4eeea;
+	--bg-deep: #faf8f6;
+	--bg-inset: #ffffff;
+	--text-primary: #2a1e16;
+	--text-secondary: #5a4e44;
+	--text-tertiary: #8a7e74;
+	--border-color: #d0c4ba;
+	--border-subtle: #c0b4aa;
+	--accent: var(--orange-500);
+	--accent-glow: rgba(200, 72, 16, 0.12);
+	--accent-soft: rgba(200, 72, 16, 0.06);
+	--accent-muted: rgba(200, 72, 16, 0.03);
+	--accent-border: rgba(200, 72, 16, 0.2);
+	--accent-hover: rgba(200, 72, 16, 0.10);
+
+	--green: #2e8040;
+	--blue: #3070c0;
+	--mauve: #8050a0;
+	--peach: #b06030;
+	--red: #c04040;
+	--teal: #288878;
+
+	--overlay-bg: rgba(0, 0, 0, 0.35);
+	--overlay-light: rgba(0, 0, 0, 0.12);
+	--overlay-subtle: rgba(0, 0, 0, 0.08);
+	--overlay-dim: rgba(0, 0, 0, 0.05);
+	--glass-highlight: rgba(0, 0, 0, 0.04);
+	--glass-highlight-hover: rgba(0, 0, 0, 0.08);
+	--glass-faint: rgba(0, 0, 0, 0.03);
+	--glass-divider: rgba(0, 0, 0, 0.06);
+	--glass-ultra: rgba(0, 0, 0, 0.05);
+	--glass-bg: rgba(240, 232, 228, 0.92);
+	--glass-bg-strong: rgba(240, 232, 228, 0.97);
+	--glass-bg-medium: rgba(240, 232, 228, 0.90);
+	--glass-bg-soft: rgba(240, 232, 228, 0.75);
+
+	--nav-bg: var(--glass-bg);
+	--card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--card-shadow-hover: 0 6px 24px rgba(200, 72, 16, 0.08), 0 2px 8px rgba(0, 0, 0, 0.08);
+
+	--tag-bg: var(--accent-soft);
+	--tag-border: var(--accent-border);
+	--tag-text: var(--orange-300);
+
+	--step-teal-bg: rgba(40, 136, 120, 0.06);
+	--step-tool-bg: rgba(176, 96, 48, 0.04);
+	--step-mauve-bg: rgba(128, 80, 160, 0.06);
+	--step-prompt-bg: rgba(200, 72, 16, 0.08);
+	--step-prompt-answer: rgba(200, 72, 16, 0.04);
+	--step-prompt-glow: rgba(200, 72, 16, 0.12);
+	--step-prompt-border: rgba(200, 96, 40, 0.2);
+	--step-question-bg: rgba(0, 0, 0, 0.02);
+	--step-table-bg: rgba(0, 0, 0, 0.03);
+	--step-badge-bg: rgba(0, 0, 0, 0.06);
+
+	--dot-red: #ff5f57;
+	--dot-yellow: #f0b030;
+	--dot-green: #28c840;
+	--dot-text: rgba(0, 0, 0, 0.7);
+
+	--zoom-controls-bg: rgba(240, 232, 228, 0.9);
+	--source-gutter-bg: rgba(240, 232, 228, 0.85);
+
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+	--shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+	--shadow-window-0: 0 12px 48px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+	--shadow-window-1: 0 10px 40px rgba(0, 0, 0, 0.10), 0 3px 10px rgba(0, 0, 0, 0.06);
+	--shadow-window-2: 0 6px 24px rgba(0, 0, 0, 0.10);
+	--shadow-window-3: 0 4px 16px rgba(0, 0, 0, 0.08);
+	--shadow-window-4: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+	--wallpaper-base: #f0e8e4;
+	--wallpaper-gradient: linear-gradient(150deg, #e8ddd8 0%, #f0e8e4 20%, #f4eeea 40%, #efe6e0 60%, #e8ddd8 80%, #e4d8d2 100%);
+	--page-gradient: linear-gradient(150deg, #f0e8e4 0%, #e8ddd8 20%, #ddd0ca 40%, #e4d8d2 60%, #ece2dc 80%, #f0e8e4 100%);
+	--edit-gradient: linear-gradient(150deg, #ece2dc 0%, #e4d8d2 20%, #ddd0ca 40%, #e0d6d0 60%, #e8ddd8 80%, #ece2dc 100%);
 }
 
 /* ─── Reset & Base ─── */
@@ -90,12 +343,10 @@ a:hover {
 }
 
 /* ─── Shared window chrome base ─── */
-/* Used by the terminal window, fiji stack, maximize overlay, and inline mobile
-   windows. Keeps the visual language consistent across components. */
 .window {
 	border-radius: 10px;
 	overflow: hidden;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+	box-shadow: var(--shadow-xl);
 	border: 1px solid var(--border-subtle);
 	display: flex;
 	flex-direction: column;

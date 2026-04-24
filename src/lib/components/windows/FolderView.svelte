@@ -37,7 +37,7 @@
 		flex: 1;
 		overflow-y: auto;
 		padding: 8px 0;
-		background: #1e151a;
+		background: var(--bg-deep);
 		font-family: var(--font-mono);
 		font-size: 12px;
 		line-height: 1.5;
@@ -53,7 +53,7 @@
 	}
 
 	.entry:hover {
-		background: rgba(255, 255, 255, 0.04);
+		background: var(--glass-faint);
 	}
 
 	.entry-icon {

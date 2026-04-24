@@ -3,6 +3,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import TutorialCard from '$lib/components/TutorialCard.svelte';
 	import MatrixRain from '$lib/components/MatrixRain.svelte';
+	import Wallpaper from '$lib/components/Wallpaper.svelte';
 	import { t } from '$lib/stores/lang.svelte';
 	import { getAllTutorials } from '$lib/data/tutorial-loader';
 
@@ -70,7 +71,7 @@
 
 <!-- Hero Section -->
 <section class="hero">
-	<div class="hero__bg" aria-hidden="true"></div>
+	<div class="hero__bg" aria-hidden="true"><Wallpaper /></div>
 	<MatrixRain />
 	<div class="hero__inner">
 		<div class="hero__label">
@@ -129,22 +130,10 @@
 		overflow: hidden;
 	}
 
-	/* Mesh gradient wallpaper — ported from mock_desktop.html */
 	.hero__bg {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
-		background:
-			radial-gradient(ellipse 75% 60% at 10% 90%, rgba(233, 84, 32, 0.42) 0%, transparent 70%),
-			radial-gradient(ellipse 50% 45% at 35% 80%, rgba(240, 120, 40, 0.22) 0%, transparent 55%),
-			radial-gradient(ellipse 50% 60% at 30% 55%, rgba(180, 40, 100, 0.18) 0%, transparent 65%),
-			radial-gradient(ellipse 60% 50% at 88% 12%, rgba(140, 60, 160, 0.22) 0%, transparent 60%),
-			radial-gradient(ellipse 80% 30% at 65% 70%, rgba(240, 140, 40, 0.16) 0%, transparent 60%),
-			radial-gradient(ellipse 45% 55% at 80% 85%, rgba(100, 40, 120, 0.15) 0%, transparent 55%),
-			radial-gradient(ellipse 55% 50% at 85% 10%, rgba(233, 84, 32, 0.32) 0%, transparent 60%),
-			radial-gradient(ellipse 90% 70% at 50% 50%, rgba(60, 15, 42, 0.6) 0%, transparent 70%),
-			linear-gradient(150deg, #2C001E 0%, #380a28 20%, #42122e 40%, #3a0e26 60%, #30051f 80%, #2C001E 100%);
-		filter: blur(40px) saturate(1.35);
 	}
 
 	.hero__inner {
@@ -214,7 +203,7 @@
 		font-family: var(--font-display);
 		font-size: 0.9rem;
 		font-weight: 600;
-		color: #ffffff;
+		color: white;
 		background: var(--accent);
 		border: none;
 		padding: 13px 28px;

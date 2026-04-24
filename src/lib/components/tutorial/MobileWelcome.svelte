@@ -64,7 +64,7 @@
 		}
 
 		.mobile-welcome__card {
-			background: rgba(28, 16, 23, 0.7);
+			background: var(--glass-bg-soft);
 			backdrop-filter: blur(16px);
 			-webkit-backdrop-filter: blur(16px);
 			border: 1px solid var(--border-color);
@@ -139,13 +139,13 @@
 			font-family: var(--font-mono);
 			font-size: 0.85em;
 			padding: 0.05em 0.35em;
-			background: rgba(0, 0, 0, 0.3);
+			background: var(--overlay-light);
 			border-radius: 3px;
 			color: var(--peach);
 		}
 
 		.mobile-welcome__requirements {
-			background: rgba(0, 0, 0, 0.2);
+			background: var(--overlay-subtle);
 			border-radius: 10px;
 			padding: 10px 14px;
 			font-size: 0.82rem;

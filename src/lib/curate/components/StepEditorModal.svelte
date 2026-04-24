@@ -630,7 +630,7 @@
 		flex: 1;
 		padding: 1.25rem;
 		overflow-y: auto;
-		background: #241a20;
+		background: var(--bg-terminal);
 		font-family: var(--font-mono);
 		font-size: 13px;
 		line-height: 1.65;

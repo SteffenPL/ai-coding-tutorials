@@ -7,6 +7,7 @@
 	import TerminalTranscript from '$lib/components/tutorial/TerminalTranscript.svelte';
 	import DesktopStack from '$lib/components/tutorial/DesktopStack.svelte';
 	import MobileWelcome from '$lib/components/tutorial/MobileWelcome.svelte';
+	import Wallpaper from '$lib/components/Wallpaper.svelte';
 	import { base } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { onMount, tick } from 'svelte';
@@ -346,6 +347,7 @@
 <svelte:window onkeydown={handleKeydown} onpointerdown={() => showSettings = false} />
 
 <div class="desktop">
+	<Wallpaper />
 	<!-- Top Panel -->
 	<Nav showBack pageTitle={title} editHref="{base}/compose/{tutorial.meta.slug}" />
 
@@ -418,28 +420,9 @@
 		position: relative;
 		width: 100vw;
 		height: 100vh;
-		background: #2C001E;
+		background: var(--wallpaper-base);
 		display: flex;
 		flex-direction: column;
-	}
-
-	.desktop::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		background:
-			radial-gradient(ellipse 75% 60% at 10% 90%, rgba(233, 84, 32, 0.52) 0%, transparent 70%),
-			radial-gradient(ellipse 50% 45% at 35% 80%, rgba(245, 140, 55, 0.32) 0%, transparent 55%),
-			radial-gradient(ellipse 50% 60% at 30% 55%, rgba(200, 60, 115, 0.24) 0%, transparent 65%),
-			radial-gradient(ellipse 60% 50% at 88% 12%, rgba(210, 110, 170, 0.32) 0%, transparent 60%),
-			radial-gradient(ellipse 80% 30% at 65% 70%, rgba(250, 160, 60, 0.26) 0%, transparent 60%),
-			radial-gradient(ellipse 45% 55% at 80% 85%, rgba(150, 60, 140, 0.22) 0%, transparent 55%),
-			radial-gradient(ellipse 55% 50% at 85% 10%, rgba(255, 130, 60, 0.50) 0%, transparent 60%),
-			radial-gradient(ellipse 40% 35% at 95% 5%, rgba(255, 185, 110, 0.42) 0%, transparent 65%),
-			radial-gradient(ellipse 90% 70% at 50% 50%, rgba(78, 22, 54, 0.45) 0%, transparent 70%),
-			linear-gradient(150deg, #3a0626 0%, #461230 20%, #521a3a 40%, #481530 60%, #380a28 80%, #320822 100%);
-		filter: blur(40px) saturate(1.5);
 	}
 
 	.desktop::after {
@@ -455,7 +438,7 @@
 	.desktop :global(.nav) {
 		position: relative;
 		flex-shrink: 0;
-		background: rgba(28, 16, 23, 0.85);
+		background: var(--glass-bg-medium);
 	}
 
 	.desktop :global(.nav__inner) {

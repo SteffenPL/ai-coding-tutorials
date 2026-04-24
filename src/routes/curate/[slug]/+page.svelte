@@ -427,14 +427,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: -1;
-		background:
-			radial-gradient(ellipse 80% 60% at 70% 15%, rgba(140, 160, 200, 0.08) 0%, transparent 60%),
-			radial-gradient(ellipse 75% 60% at 10% 90%, rgba(233, 84, 32, 0.38) 0%, transparent 70%),
-			radial-gradient(ellipse 50% 45% at 35% 80%, rgba(240, 120, 40, 0.2) 0%, transparent 55%),
-			radial-gradient(ellipse 60% 50% at 88% 12%, rgba(140, 60, 160, 0.22) 0%, transparent 60%),
-			radial-gradient(ellipse 90% 70% at 50% 50%, rgba(60, 15, 42, 0.5) 0%, transparent 70%),
-			linear-gradient(150deg, #32061f 0%, #3c0e2a 20%, #481832 40%, #40122a 60%, #360a22 80%, #32061f 100%);
-		filter: blur(40px) saturate(1.3);
+		background: var(--edit-gradient);
 	}
 
 	.loading {
@@ -615,7 +608,7 @@
 		justify-content: center;
 	}
 	.dialog {
-		background: rgba(30, 16, 26, 0.98);
+		background: var(--glass-bg-strong);
 		border: 1px solid var(--border-subtle);
 		border-radius: 10px;
 		padding: 1.5rem;

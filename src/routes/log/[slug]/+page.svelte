@@ -412,25 +412,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: -1;
-		background:
-			radial-gradient(ellipse 75% 60% at 10% 90%, rgba(233, 84, 32, 0.38) 0%, transparent 70%),
-			radial-gradient(ellipse 50% 45% at 35% 80%, rgba(240, 120, 40, 0.2) 0%, transparent 55%),
-			radial-gradient(ellipse 50% 60% at 30% 55%, rgba(180, 40, 100, 0.16) 0%, transparent 65%),
-			radial-gradient(ellipse 60% 50% at 88% 12%, rgba(140, 60, 160, 0.2) 0%, transparent 60%),
-			radial-gradient(ellipse 80% 30% at 65% 70%, rgba(240, 140, 40, 0.14) 0%, transparent 60%),
-			radial-gradient(ellipse 45% 55% at 80% 85%, rgba(100, 40, 120, 0.14) 0%, transparent 55%),
-			radial-gradient(ellipse 55% 50% at 85% 10%, rgba(233, 84, 32, 0.28) 0%, transparent 60%),
-			radial-gradient(ellipse 90% 70% at 50% 50%, rgba(60, 15, 42, 0.6) 0%, transparent 70%),
-			linear-gradient(
-				150deg,
-				#2c001e 0%,
-				#380a28 20%,
-				#42122e 40%,
-				#3a0e26 60%,
-				#30051f 80%,
-				#2c001e 100%
-			);
-		filter: blur(40px) saturate(1.35);
+		background: var(--page-gradient);
 	}
 
 	/* Height of the site Nav component (fixed at top of viewport).
@@ -677,7 +659,7 @@
 	.terminal {
 		border: 1px solid rgba(0, 0, 0, 0.55);
 		border-radius: 12px;
-		background: #120810;
+		background: var(--bg-inset);
 		box-shadow:
 			0 8px 32px rgba(0, 0, 0, 0.45),
 			inset 0 0 0 1px rgba(255, 255, 255, 0.03);
