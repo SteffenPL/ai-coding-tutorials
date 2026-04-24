@@ -550,6 +550,15 @@
 
 		.terminal-window > :global(.window-header) { display: none; }
 
+		.round-block {
+			margin-bottom: 0;
+			margin-top: 48px;
+		}
+
+		.round-block:first-child {
+			margin-top: 0;
+		}
+
 		/* On mobile, prompts are regular flow (not sticky) */
 		.round-prompt-block {
 			position: static;
