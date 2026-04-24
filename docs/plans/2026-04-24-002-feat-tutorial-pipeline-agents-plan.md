@@ -114,7 +114,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ## Implementation Units
 
-- [ ] U1. **Session Creator agent**
+- [x] U1. **Session Creator agent**
 
 **Goal:** Create the agent file that designs prompts, runs real Claude Code sessions, and imports the resulting JSONL to `src/sessions/<slug>/`.
 
@@ -131,7 +131,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 - Embed the JSONL discovery procedure: snapshot existing files before `claude` invocation, diff after completion to find the new JSONL. Fallback: `ls -t ~/.claude/projects/*/*.jsonl | head -1` with content verification
 - Include model selection heuristics: Sonnet default, Opus for complex reasoning
 - Include MCP tool selection guidance: reference available MCP servers, match tools to topic
-- Instruct agent to read `scripts/TUTORIAL-WORKFLOW.md` and `CLAUDE.md` for full pipeline context before starting
+- Instruct agent to read `CLAUDE.md` for pipeline context. Note: `scripts/TUTORIAL-WORKFLOW.md` describes the legacy YAML spec path — agents use the JSON-direct path (trace.json + composition.json) instead. Reference TUTORIAL-WORKFLOW.md only for the `inspect` command and general session structure understanding, not for the generate/spec workflow
 
 **Patterns to follow:**
 - `.claude/agents/fiji-processing.md` for file structure and frontmatter format
@@ -146,7 +146,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ---
 
-- [ ] U2. **Tutorial Producer agent**
+- [x] U2. **Tutorial Producer agent**
 
 **Goal:** Create the agent file that takes an imported session and produces a curated trace + composition, making all editorial decisions about what to include, how to comment, and whether to split into multiple tutorials.
 
@@ -194,7 +194,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ---
 
-- [ ] U3. **Translator agent**
+- [x] U3. **Translator agent**
 
 **Goal:** Create the agent file that adds context-appropriate Japanese translations to tutorial compositions.
 
@@ -239,7 +239,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ---
 
-- [ ] U4. **Tutorial Orchestrator agent**
+- [x] U4. **Tutorial Orchestrator agent**
 
 **Goal:** Create the agent file that coordinates the full pipeline: topic → session → trace → composition → translation → verification.
 
@@ -269,7 +269,8 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
      - Report tutorial URL(s) for human review in dev server
   3. **Coordination conventions**: All handoff is slug-based. No file paths passed between agents — each agent knows the directory conventions. The orchestrator only passes the slug.
   4. **Error handling**: If any stage fails, report which stage failed and what was produced. Do not clean up partial output — the user may want to resume from the last successful stage.
-  5. **Verification checklist**: Type-check passes, tutorial appears in dev server, both EN and JA content present.
+  5. **Slug discovery on splits**: After tutorial-producer completes, scan `src/tutorials/` for recently modified `composition.json` files to discover all produced slugs (including splits). Do not assume the original slug is the only output.
+  6. **Verification checklist**: Type-check passes, tutorial appears in dev server, both EN and JA content present. Present editorial summary to user as "ready for review" — automated pipeline does not declare editorial completeness.
 
 **Patterns to follow:**
 - `.claude/agents/fiji-processing.md` for structure
@@ -299,7 +300,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 | Risk | Mitigation |
 |------|------------|
-| `claude` CLI session JSONL discovery is fragile (newest file heuristic) | Agent verifies content matches topic; instructions note this is best-effort and may need manual correction |
+| `claude` CLI session JSONL discovery requires snapshot-diff approach | Agent snapshots files before invocation, diffs after; falls back to newest-file with content verification |
 | Generated sessions may be low quality (hallucinations, wrong tools) | Tutorial-producer curates regardless; orchestrator can re-run session-creator |
 | Agent instructions may drift as pipeline evolves | R14 requires agents to read current docs; embed only conventions unlikely to change |
 | Translation quality hard to verify programmatically | Translator includes a self-review checklist; final quality is a manual check |
