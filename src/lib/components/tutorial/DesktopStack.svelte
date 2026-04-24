@@ -17,64 +17,109 @@
 	that step (same behavior as the taskbar item).
 -->
 <script lang="ts">
-	import { getWindowIcon, isChromeless, type WindowStep } from '$lib/data/tutorials';
+	import { base } from '$app/paths';
+	import { getWindowIcon, isChromeless, type WindowStep, type TutorialMeta, type TutorialWelcome } from '$lib/data/tutorials';
+	import { getTutorialTitle } from '$lib/data/tutorials';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
 	import { renderMarkdown } from '$lib/utils/markdown';
-	import { t } from '$lib/stores/lang.svelte';
+	import { t, langStore } from '$lib/stores/lang.svelte';
 
 	let {
 		windowSteps,
 		currentStep,
 		focusedWindow,
+		meta,
+		welcome,
 		briefing,
+		hasFullLog,
+		logMode,
 		getStackClass,
 		onFocus,
 		onRestore,
-		onJump
+		onJump,
+		onSetLogMode
 	}: {
 		windowSteps: { step: WindowStep; index: number }[];
 		currentStep: number;
 		focusedWindow: WindowStep | null;
+		meta: TutorialMeta;
+		welcome?: TutorialWelcome;
 		briefing?: { en: string; ja?: string };
+		hasFullLog: boolean;
+		logMode: 'simplified' | 'full';
 		getStackClass: (winIndex: number) => string;
 		onFocus: (step: WindowStep) => void;
 		onRestore: () => void;
 		onJump: (stepIndex: number) => void;
+		onSetLogMode: (mode: 'simplified' | 'full') => void;
 	} = $props();
 
 	let hasVisibleWindows = $derived(windowSteps.some(w => w.index <= currentStep));
-	let showBriefing = $derived(!!briefing && !hasVisibleWindows);
 
-	let briefingHtml = $state<string | null>(null);
+	let descriptionHtml = $state<string | null>(null);
 	$effect(() => {
-		if (!briefing) { briefingHtml = null; return; }
-		const text = t(briefing);
+		const text = welcome ? t(welcome.description) : briefing ? t(briefing) : null;
+		if (!text) { descriptionHtml = null; return; }
 		let cancelled = false;
-		renderMarkdown(text).then(html => { if (!cancelled) briefingHtml = html; });
+		renderMarkdown(text).then(html => { if (!cancelled) descriptionHtml = html; });
 		return () => { cancelled = true; };
 	});
+
+	let title = $derived(getTutorialTitle(meta, langStore.current));
+	let thumbnailUrl = $derived(meta.thumbnail ? `${base}/${meta.thumbnail}` : undefined);
+	let isVideoThumb = $derived(!!meta.thumbnail && /\.(mp4|mov|webm)$/i.test(meta.thumbnail));
 </script>
 
 <div class="fiji-area">
 	{#if !hasVisibleWindows}
-		{#if showBriefing && briefingHtml}
-			<div class="briefing">
-				<div class="briefing-inner md">{@html briefingHtml}</div>
+		<div class="welcome-card-wrap">
+			<div class="welcome-card">
+				{#if thumbnailUrl}
+					<div class="welcome-thumb">
+						{#if isVideoThumb}
+							<video src={thumbnailUrl} autoplay loop muted playsinline></video>
+						{:else}
+							<img src={thumbnailUrl} alt={title} />
+						{/if}
+					</div>
+				{/if}
+				<div class="welcome-tags">
+					{#each meta.tags as tag}
+						<span class="welcome-tag">{tag}</span>
+					{/each}
+				</div>
+				<h2 class="welcome-heading">{title}</h2>
+				{#if meta.author}
+					<p class="welcome-author">by {meta.author}</p>
+				{/if}
+				{#if welcome}
+					<p class="welcome-description">{t(welcome.description)}</p>
+					{#if welcome.learnings.length > 0}
+						<div class="welcome-learnings">
+							<span class="welcome-learnings-label">{t({ en: 'What you’ll see', ja: '学べること' })}</span>
+							<ul>
+								{#each welcome.learnings as item}
+									<li>{t(item)}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				{:else if descriptionHtml}
+					<div class="welcome-description md">{@html descriptionHtml}</div>
+				{/if}
+				{#if hasFullLog}
+					<div class="welcome-modes">
+						<button class="mode-pill" class:active={logMode === 'simplified'} onclick={() => onSetLogMode('simplified')}>
+							{t({ en: 'Tutorial', ja: 'チュートリアル' })}
+						</button>
+						<button class="mode-pill" class:active={logMode === 'full'} onclick={() => onSetLogMode('full')}>
+							{t({ en: 'Full Log', ja: '完全ログ' })}
+						</button>
+					</div>
+				{/if}
 			</div>
-		{:else}
-			<div class="empty-state">
-				<svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-					<rect x="6" y="10" width="36" height="28" rx="3" />
-					<line x1="6" y1="17" x2="42" y2="17" />
-					<circle cx="11" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="15.5" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="20" cy="13.5" r="1.2" fill="currentColor" stroke="none" />
-				</svg>
-				<span class="empty-label">Content area</span>
-				<span class="empty-sub">Windows appear here as the session progresses</span>
-			</div>
-		{/if}
+		</div>
 	{/if}
 	{#each windowSteps as win, idx}
 		{@const isFocused = focusedWindow === win.step}
@@ -135,106 +180,169 @@
 		justify-content: center;
 	}
 
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 10px;
-		opacity: 0.35;
-		transition: opacity 0.4s ease-out;
-		pointer-events: none;
-		user-select: none;
-	}
-
-	.empty-icon {
-		width: 56px;
-		height: 56px;
-		color: var(--aubergine-300);
-	}
-
-	.empty-label {
-		font-family: var(--font-display);
-		font-size: 13px;
-		font-weight: 600;
-		letter-spacing: 0.5px;
-		text-transform: uppercase;
-		color: var(--aubergine-300);
-	}
-
-	.empty-sub {
-		font-family: var(--font-display);
-		font-size: 11px;
-		color: var(--aubergine-400);
-		text-align: center;
-		max-width: 200px;
-		line-height: 1.4;
-	}
-
-	/* ─── Briefing (empty-state markdown) ─── */
-	.briefing {
+	/* ─── Welcome card (shown until first window appears) ─── */
+	.welcome-card-wrap {
 		position: absolute;
-		inset: 20px;
+		inset: 12px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		pointer-events: none;
-		animation: briefingFadeIn 0.4s ease-out;
+		animation: welcomeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+		overflow-y: auto;
 	}
 
-	@keyframes briefingFadeIn {
-		from { opacity: 0; transform: translateY(8px); }
+	@keyframes welcomeIn {
+		from { opacity: 0; transform: translateY(12px); }
 		to { opacity: 1; transform: translateY(0); }
 	}
 
-	.briefing-inner {
-		max-width: 520px;
-		padding: 32px 36px;
+	.welcome-card {
+		max-width: 480px;
+		width: 100%;
 		background: rgba(28, 16, 23, 0.7);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
 		border: 1px solid var(--border-color);
-		border-radius: 12px;
-		font-family: var(--font-display);
-		font-size: 14px;
-		line-height: 1.7;
-		color: var(--text-secondary);
-		pointer-events: auto;
-		overflow-y: auto;
-		max-height: 100%;
+		border-radius: 14px;
+		padding: 28px 28px 24px;
+		text-align: center;
 	}
 
-	.briefing-inner :global(h1),
-	.briefing-inner :global(h2),
-	.briefing-inner :global(h3) {
-		color: var(--text-primary);
-		font-family: var(--font-display);
-		font-weight: 600;
-		margin: 1em 0 0.5em;
-		line-height: 1.3;
+	.welcome-thumb {
+		width: 100%;
+		border-radius: 8px;
+		overflow: hidden;
+		margin-bottom: 16px;
+		max-height: 200px;
 	}
-	.briefing-inner :global(h1:first-child),
-	.briefing-inner :global(h2:first-child),
-	.briefing-inner :global(h3:first-child) { margin-top: 0; }
-	.briefing-inner :global(h1) { font-size: 1.4rem; }
-	.briefing-inner :global(h2) { font-size: 1.15rem; }
-	.briefing-inner :global(h3) { font-size: 1rem; color: var(--peach); }
 
-	.briefing-inner :global(p) { margin: 0 0 0.8em; }
-	.briefing-inner :global(strong) { color: var(--text-primary); }
-	.briefing-inner :global(code) {
+	.welcome-thumb img,
+	.welcome-thumb video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.welcome-tags {
+		display: flex;
+		gap: 6px;
+		justify-content: center;
+		margin-bottom: 12px;
+		flex-wrap: wrap;
+	}
+
+	.welcome-tag {
 		font-family: var(--font-mono);
-		font-size: 0.9em;
-		padding: 0.08em 0.4em;
-		background: rgba(0, 0, 0, 0.3);
-		border: 1px solid var(--border-color);
-		border-radius: 4px;
-		color: var(--peach);
+		font-size: 0.6rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--accent);
+		background: var(--accent-soft);
+		padding: 2px 8px;
+		border-radius: 20px;
 	}
 
-	.briefing-inner :global(ul),
-	.briefing-inner :global(ol) {
-		margin: 0 0 0.8em;
-		padding-left: 1.4em;
+	.welcome-heading {
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		letter-spacing: -0.02em;
+		margin-bottom: 8px;
+		line-height: 1.25;
+	}
+
+	.welcome-author {
+		font-size: 0.75rem;
+		color: var(--text-tertiary);
+		margin-bottom: 8px;
+		font-family: var(--font-display);
+	}
+
+	.welcome-description {
+		font-size: 0.85rem;
+		line-height: 1.6;
+		color: var(--text-secondary);
+		margin-bottom: 16px;
+	}
+
+	.welcome-description.md :global(p) { margin: 0 0 0.6em; }
+	.welcome-description.md :global(p:last-child) { margin-bottom: 0; }
+
+	.welcome-learnings {
+		text-align: left;
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 10px;
+		padding: 12px 16px;
+		margin-bottom: 16px;
+	}
+
+	.welcome-learnings-label {
+		font-family: var(--font-display);
+		font-size: 0.65rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--orange-300);
+		display: block;
+		margin-bottom: 6px;
+	}
+
+	.welcome-learnings ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.welcome-learnings li {
+		font-size: 0.8rem;
+		color: var(--text-secondary);
+		padding-left: 16px;
+		position: relative;
+		line-height: 1.5;
+	}
+
+	.welcome-learnings li::before {
+		content: '\25B8';
+		position: absolute;
+		left: 0;
+		color: var(--accent);
+		font-size: 0.7rem;
+	}
+
+	.welcome-modes {
+		display: flex;
+		gap: 8px;
+		justify-content: center;
+	}
+
+	.mode-pill {
+		font-family: var(--font-display);
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 6px 16px;
+		border-radius: 8px;
+		border: 1px solid var(--border-color);
+		background: transparent;
+		color: var(--text-secondary);
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.mode-pill:hover {
+		border-color: var(--text-tertiary);
+		color: var(--text-primary);
+	}
+
+	.mode-pill.active {
+		background: var(--accent-soft);
+		border-color: var(--orange-500);
+		color: var(--orange-300);
 	}
 
 	.fiji-window {

@@ -2,7 +2,6 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import { langStore } from '$lib/stores/lang.svelte';
 	import { getTutorialTitle, type Tutorial, type WindowStep } from '$lib/data/tutorials';
-	import WelcomeOverlay from '$lib/components/tutorial/WelcomeOverlay.svelte';
 	import Taskbar from '$lib/components/tutorial/Taskbar.svelte';
 	import ControlsPanel from '$lib/components/tutorial/ControlsPanel.svelte';
 	import TerminalTranscript from '$lib/components/tutorial/TerminalTranscript.svelte';
@@ -264,7 +263,6 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (showWelcome) return;
 		if (e.key === 'Escape' && focusedWindow !== null) {
 			e.preventDefault();
 			restoreFocus();
@@ -286,29 +284,9 @@
 
 	let displayRoundIdx = $derived(currentStep >= 0 ? getRoundIdx(currentStep) : 0);
 
-	/* ─── Welcome overlay ────────────────────── */
-	let showWelcome = $state(true);
-	$effect(() => { if (!tutorial.welcome) showWelcome = false; });
-
-	function dismissWelcome() {
-		showWelcome = false;
-	}
-
 	onMount(() => {
 		document.body.classList.add('tutorial-active');
 		return () => document.body.classList.remove('tutorial-active');
-	});
-
-	onMount(() => {
-		if (!showWelcome) return;
-		const dismiss = () => { dismissWelcome(); cleanup(); };
-		const cleanup = () => {
-			window.removeEventListener('wheel', dismiss);
-			window.removeEventListener('scroll', dismiss);
-		};
-		window.addEventListener('wheel', dismiss, { passive: true });
-		window.addEventListener('scroll', dismiss, { passive: true });
-		return cleanup;
 	});
 
 	/* ─── Scroll-driven timeline ─────────────── */
@@ -329,7 +307,7 @@
 		const isMobileQuery = window.matchMedia('(max-width: 900px)');
 
 		const handleScroll = () => {
-			if (!terminalBody || showWelcome || playing || !scrollDriven) return;
+			if (!terminalBody || playing || !scrollDriven) return;
 
 			if (isMobileQuery.matches) {
 				const positionLine = (rightColumn?.getBoundingClientRect().top ?? window.innerHeight) - 20;
@@ -382,18 +360,6 @@
 	<!-- Top Panel -->
 	<Nav showBack pageTitle={title} editHref="{base}/compose/{tutorial.meta.slug}" />
 
-	<!-- Welcome Overlay -->
-	{#if showWelcome && tutorial.welcome}
-		<WelcomeOverlay
-			welcome={tutorial.welcome}
-			tags={tutorial.meta.tags}
-			author={tutorial.meta.author}
-			{hasFullLog}
-			onStart={(mode) => { logMode = mode; dismissWelcome(); }}
-			onDismiss={dismissWelcome}
-		/>
-	{/if}
-
 	<!-- Workspace -->
 	<div class="workspace">
 		<!-- Terminal Window -->
@@ -414,11 +380,16 @@
 				{windowSteps}
 				{currentStep}
 				{focusedWindow}
+				meta={tutorial.meta}
+				welcome={tutorial.welcome}
 				briefing={tutorial.briefing}
+				{hasFullLog}
+				{logMode}
 				{getStackClass}
 				onFocus={focusWindow}
 				onRestore={restoreFocus}
 				onJump={jumpToStep}
+				onSetLogMode={setLogMode}
 			/>
 
 			<!-- Bottom Panel: Comment + Controls -->
