@@ -57,7 +57,7 @@
 	} = $props();
 
 	let showExcluded = $state(true);
-	let combineCompact = $state(false);
+	let combineCompact = $state(true);
 	let expandedCompactId: string | null = $state(null);
 	let editingCommentId: string | null = $state(null);
 	let commentEditValue = $state('');

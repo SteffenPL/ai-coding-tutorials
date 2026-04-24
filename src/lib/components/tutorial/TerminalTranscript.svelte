@@ -21,6 +21,7 @@
 	import type { TutorialRound, Step, WindowStep } from '$lib/data/tutorials';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import StepRenderer from './StepRenderer.svelte';
+	import CompactChipFlow from './CompactChipFlow.svelte';
 	import { langStore } from '$lib/stores/lang.svelte';
 	let {
 		activeRounds,
@@ -42,26 +43,43 @@
 
 	type StepEntry = { kind: 'step'; step: Step; si: number; globalIndex: number };
 	type CommentEntry = { kind: 'comment'; text: string };
-	type Segment = { kind: 'steps'; entries: StepEntry[] } | CommentEntry;
-
-	function groupSteps(steps: Step[], roundStart: number): StepEntry[] {
-		return steps.map((step, si) => ({ kind: 'step' as const, step, si, globalIndex: roundStart + si }));
-	}
+	type CompactGroup = { kind: 'compact-group'; steps: Step[]; globalStart: number };
+	type RenderItem = StepEntry | CompactGroup;
+	type Segment = { kind: 'steps'; entries: RenderItem[] } | CommentEntry;
 
 	function segmentSteps(steps: Step[], roundStart: number): Segment[] {
 		const segments: Segment[] = [];
-		let currentBatch: StepEntry[] = [];
+		let currentBatch: RenderItem[] = [];
+
+		function flushCompactRun(run: StepEntry[]) {
+			if (run.length > 0) {
+				currentBatch.push({ kind: 'compact-group', steps: run.map(e => e.step), globalStart: run[0].globalIndex });
+			}
+		}
+
+		let compactRun: StepEntry[] = [];
 		for (let si = 0; si < steps.length; si++) {
 			const step = steps[si];
 			const entry: StepEntry = { kind: 'step', step, si, globalIndex: roundStart + si };
-			currentBatch.push(entry);
+
+			if (step.compact) {
+				compactRun.push(entry);
+			} else {
+				flushCompactRun(compactRun);
+				compactRun = [];
+				currentBatch.push(entry);
+			}
+
 			const comment = resolveComment(step.comment);
 			if (comment) {
+				flushCompactRun(compactRun);
+				compactRun = [];
 				segments.push({ kind: 'steps', entries: currentBatch });
 				segments.push({ kind: 'comment', text: comment });
 				currentBatch = [];
 			}
 		}
+		flushCompactRun(compactRun);
 		if (currentBatch.length > 0) {
 			segments.push({ kind: 'steps', entries: currentBatch });
 		}
@@ -148,18 +166,30 @@
 											{/if}
 										</div>
 									{/if}
-									{#each segment.entries as group}
-										<div
-											data-step={group.globalIndex}
-											class="step-block"
-										>
-											<StepRenderer
-												step={group.step}
-												showClaudeLabel={group.step.type === 'assistant' && group.si === 0}
-												isLast={group.globalIndex === allSteps.length - 1}
-												{onFocusWindow}
-											/>
-										</div>
+									{#each segment.entries as item}
+										{#if item.kind === 'compact-group'}
+											<div
+												data-step={item.globalStart}
+												class="step-block"
+											>
+												<CompactChipFlow
+													steps={item.steps}
+													{onFocusWindow}
+												/>
+											</div>
+										{:else}
+											<div
+												data-step={item.globalIndex}
+												class="step-block"
+											>
+												<StepRenderer
+													step={item.step}
+													showClaudeLabel={item.step.type === 'assistant' && item.si === 0}
+													isLast={item.globalIndex === allSteps.length - 1}
+													{onFocusWindow}
+												/>
+											</div>
+										{/if}
 									{/each}
 								</div>
 							{:else}

@@ -160,8 +160,17 @@ export function sessionViewToTraceState(view: SessionView): TraceState {
 }
 
 export function traceStepToTutorialStep(step: TraceStep): Step | null {
+	const isCompact = step.displayMode === 'compact';
+
+	function applyBase(s: Step): Step {
+		if (step.comment) s.comment = step.comment;
+		if (isCompact) s.compact = true;
+		if (step.hidden) s.hidden = true;
+		return s;
+	}
+
 	if (step.inserted) {
-		return step.inserted;
+		return applyBase({ ...step.inserted });
 	}
 	if (!step.overrides) return null;
 
@@ -170,51 +179,41 @@ export function traceStepToTutorialStep(step: TraceStep): Step | null {
 
 	switch (type) {
 		case 'assistant': {
-			const s: AssistantStep = {
+			return applyBase({
 				type: 'assistant',
 				html: (step.shortenedText ?? o.html) as string,
 				...(o.final ? { final: true } : {})
-			};
-			if (step.comment) s.comment = step.comment;
-			return s;
+			});
 		}
 		case 'thinking': {
-			const s: ThinkingStep = {
+			return applyBase({
 				type: 'thinking',
 				text: (step.shortenedText ?? o.text) as string
-			};
-			if (step.comment) s.comment = step.comment;
-			return s;
+			});
 		}
 		case 'tool_call': {
-			const s: ToolCallStep = {
+			return applyBase({
 				type: 'tool_call',
 				toolName: o.toolName as string,
 				code: (step.shortenedText ?? o.code) as string
-			};
-			if (step.comment) s.comment = step.comment;
-			return s;
+			});
 		}
 		case 'tool_result': {
-			const s: ToolResultStep = {
+			return applyBase({
 				type: 'tool_result',
 				text: (step.shortenedText ?? o.text) as string
-			};
-			if (step.comment) s.comment = step.comment;
-			return s;
+			});
 		}
 		case 'window': {
-			const s: WindowStep = {
+			return applyBase({
 				type: 'window',
 				windowTitle: o.windowTitle as string,
 				...(o.subtitle ? { subtitle: o.subtitle as string } : {}),
 				content: o.content as WindowStep['content']
-			};
-			if (step.comment) s.comment = step.comment;
-			return s;
+			});
 		}
 		default:
-			return o as unknown as Step;
+			return applyBase(o as unknown as Step);
 	}
 }
 

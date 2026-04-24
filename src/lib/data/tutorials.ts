@@ -60,6 +60,10 @@ export interface StepBase {
 	 * that content and can be translated.
 	 */
 	comment?: string | { en: string; ja?: string };
+	/** Render as a compact chip instead of full content */
+	compact?: boolean;
+	/** Collapse into a "N steps hidden" placeholder in simplified view */
+	hidden?: boolean;
 }
 
 /* ─── Chat Steps ──────────────────────────── */

@@ -25,7 +25,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 - R1. Session-creator runs real Claude Code CLI sessions (not synthetic)
 - R2. Session-creator designs progressive prompt sequences with model/tool selection
 - R3. Session-creator imports JSONL to `src/sessions/<slug>/` and reports the path
-- R4. Tutorial-producer handles full import → trace → composition pipeline
+- R4. Tutorial-producer handles trace → composition pipeline (assumes session already imported)
 - R5. Editorial focus: key learning points, prompt design, outcomes — not intermediate steps
 - R6. Include links to relevant external resources in comments
 - R7. Tutorial-producer has scope authority (split/combine sessions)
@@ -76,11 +76,11 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ## Key Technical Decisions
 
-- **Session JSONL discovery**: After running `claude` CLI, the session-creator finds the JSONL by listing `~/.claude/projects/` sorted by modification time and taking the most recent `.jsonl` file. This is fragile but the only available mechanism — the agent should verify the found file contains content related to the intended topic.
+- **Session JSONL discovery**: Before running `claude` CLI, the session-creator snapshots existing JSONL files (`find ~/.claude/projects -name '*.jsonl'`). After the session completes, it diffs against the snapshot to identify the new file. This avoids the self-referential problem (the agent's own session produces JSONL in the same directory). Falls back to newest-file heuristic with content verification if the diff approach fails.
 - **Model selection heuristics**: Embed in session-creator instructions: Opus for complex multi-step reasoning showcases, Sonnet for quick/focused demos. Default to Sonnet unless the topic requires extended reasoning.
 - **Shared assets when splitting**: When tutorial-producer splits a session into multiple tutorials, assets are copied to each tutorial's `static/tutorials/<slug>/assets/` directory. Only assets referenced by that tutorial's trace are copied.
 - **Embed vs reference pipeline knowledge**: Hybrid approach — embed critical conventions (file paths, format version, key type shapes, displayMode defaults) directly in each agent file, and add a "read `scripts/TUTORIAL-WORKFLOW.md` and `CLAUDE.md` before starting" instruction for full pipeline context. This ensures agents work even if they can't read referenced files, but can deepen their knowledge when they can.
-- **Tutorial-producer creates trace.json programmatically**: The agent reads the imported session JSONL, analyzes rounds/steps, makes editorial decisions, and writes `TraceState` JSON directly to `src/traces/<slug>/trace.json`. It then writes a minimal `composition.json` referencing that trace. This follows the UI pipeline path (not the legacy YAML spec path).
+- **Tutorial-producer bootstraps trace via existing conversion pipeline**: The agent uses the dev-server API endpoints (or `session-to-tutorial.ts inspect`) to bootstrap an initial `TraceState` from the session, then edits it to apply editorial decisions (inclusion, displayMode, comments). This avoids hand-writing `sourceRef` mappings and HTML escaping. The agent then writes a minimal `composition.json` referencing that trace. This follows the UI pipeline path (not the legacy YAML spec path).
 
 ---
 
@@ -88,7 +88,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 
 ### Resolved During Planning
 
-- **How to locate JSONL after `claude` CLI**: List `~/.claude/projects/` by modification time, take newest `.jsonl`. Verify content matches intended topic.
+- **How to locate JSONL after `claude` CLI**: Snapshot existing JSONL files before invocation, diff after to find the new file. Avoids picking agent's own session JSONL.
 - **Model selection**: Default Sonnet, use Opus for complex reasoning topics. Embedded as heuristic in agent instructions.
 - **Asset handling on split**: Copy relevant assets to each tutorial's asset directory.
 - **Embed vs reference**: Hybrid — embed critical conventions, reference docs for depth.
@@ -128,7 +128,7 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
 **Approach:**
 - Frontmatter follows fiji-processing.md pattern: `name: session-creator`, description with 2-3 example triggers, `model: inherit`, `memory: project`
 - Body sections: role definition, prompt design guidelines (progressive teaching, model selection heuristics), session execution procedure (run `claude` CLI, locate JSONL, import via `scripts/import-session.ts`), output verification checklist
-- Embed the JSONL discovery procedure: `ls -t ~/.claude/projects/*/*.jsonl | head -1` as a starting point, with verification that the session content matches the topic
+- Embed the JSONL discovery procedure: snapshot existing files before `claude` invocation, diff after completion to find the new JSONL. Fallback: `ls -t ~/.claude/projects/*/*.jsonl | head -1` with content verification
 - Include model selection heuristics: Sonnet default, Opus for complex reasoning
 - Include MCP tool selection guidance: reference available MCP servers, match tools to topic
 - Instruct agent to read `scripts/TUTORIAL-WORKFLOW.md` and `CLAUDE.md` for full pipeline context before starting
@@ -163,14 +163,16 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
   1. **Role**: Editorial agent for the tutorial pipeline. Understands the three-layer data model.
   2. **Editorial philosophy**: Learner's time is the primary constraint. Focus on prompt design rationale and outcomes. Include intermediate steps only when they teach something. Link to external resources. Comments should help the reader learn *how to prompt effectively*.
   3. **Pipeline procedure**:
-     - Read the session JSONL from `src/sessions/<slug>/`
+     - Inspect the session structure using `tsx scripts/session-to-tutorial.ts inspect --session src/sessions/<slug>/<uuid>.jsonl`
      - Analyze round structure: identify the narrative arc (setup → action → results)
      - Make scope decisions: if session covers >1 distinct topic, split into separate tutorials
-     - Create `TraceState` JSON: set `included`, `displayMode`, `hidden`, `comment` for each step
+     - Bootstrap initial `TraceState` via dev-server API (`POST /api/traces/<slug>`) or by running the existing conversion pipeline — do NOT hand-write TraceState JSON from raw JSONL (sourceRef mappings and HTML escaping require the existing conversion functions)
+     - Edit the bootstrapped trace: set `included`, `displayMode`, `hidden`, `comment` for each step
      - Write to `src/traces/<slug>/trace.json`
-     - Create `TutorialComposition` JSON with `formatVersion: "1.0.0"`, meta, and blocks referencing the trace
-     - Write to `src/tutorials/<slug>/composition.json`
+     - Create `TutorialComposition` JSON with `formatVersion: "1.0.0"`, meta, and blocks referencing the trace (only `kind: 'trace'` blocks — `round` blocks are not supported in the current type system)
+     - Write to `src/tutorials/<slug>/composition.json` (auto-discovered by build system, no manual registration needed)
      - Extract/copy image assets to `static/tutorials/<slug>/assets/`
+     - If splitting: output all created slugs so orchestrator can discover them
   4. **TraceState conventions**: Embed the `TraceStep` shape, `DisplayMode` values, and category defaults (tool_call→compact, assistant→full, window→normal). Only override displayMode for pedagogical reasons.
   5. **Comment writing guidelines**: Use `{ en: "..." }` format (translator adds `ja` later). Focus on: why this prompt works, what the outcome teaches, links to docs. Avoid narrating what's visible.
   6. **Scope splitting procedure**: When splitting, create separate slugs, separate trace.json files, separate composition.json files. Copy only relevant assets to each.
@@ -258,12 +260,13 @@ Creating tutorials is a multi-step manual process requiring prompt design expert
      - Invoke session-creator agent (via `Agent` tool with `subagent_type: "session-creator"`) with topic + slug + any constraints
      - Verify session was created at `src/sessions/<slug>/`
      - Invoke tutorial-producer agent with session slug
-     - Verify trace at `src/traces/<slug>/trace.json` and composition at `src/tutorials/<slug>/composition.json`
-     - If tutorial-producer split into multiple tutorials, handle each slug separately for translation
-     - Invoke translator agent with composition path(s)
+     - Discover produced slugs: scan `src/tutorials/` for recently modified `composition.json` files (tutorial-producer may have split into multiple tutorials with different slugs)
+     - Verify trace and composition exist for each discovered slug
+     - Invoke translator agent for each composition
      - Verify translations present
      - Run `npx svelte-check --threshold error` to verify compilation
-     - Report success with the tutorial URL(s)
+     - Present editorial summary to user: what was included/excluded, what was commented, any splits — flag as **"ready for review"**, not "complete"
+     - Report tutorial URL(s) for human review in dev server
   3. **Coordination conventions**: All handoff is slug-based. No file paths passed between agents — each agent knows the directory conventions. The orchestrator only passes the slug.
   4. **Error handling**: If any stage fails, report which stage failed and what was produced. Do not clean up partial output — the user may want to resume from the last successful stage.
   5. **Verification checklist**: Type-check passes, tutorial appears in dev server, both EN and JA content present.
