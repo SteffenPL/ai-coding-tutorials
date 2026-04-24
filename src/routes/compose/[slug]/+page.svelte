@@ -235,11 +235,12 @@
 					<span>Thumbnail</span>
 					<div class="thumbnail-field">
 						{#if composition.meta.thumbnail}
-							<img
-								src={thumbnailPreviewUrl(composition.meta.thumbnail)}
-								alt="Thumbnail preview"
-								class="thumbnail-preview"
-							/>
+							{@const url = thumbnailPreviewUrl(composition.meta.thumbnail)}
+							{#if /\.(mp4|mov|webm)$/i.test(composition.meta.thumbnail)}
+								<video src={url} autoplay loop muted playsinline class="thumbnail-preview"></video>
+							{:else}
+								<img src={url} alt="Thumbnail preview" class="thumbnail-preview" />
+							{/if}
 						{/if}
 						<div class="thumbnail-controls">
 							<span class="thumbnail-ref">{composition.meta.thumbnail || '(none)'}</span>
