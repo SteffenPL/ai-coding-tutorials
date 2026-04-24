@@ -14,7 +14,10 @@
           "displayMode": "normal",
           "inserted": {
             "type": "output",
-            "text": "Downloading Claude Code installer…\nDetected: darwin arm64\nFetching latest release metadata from claude.ai…\n✓ claude v2.0 (darwin-arm64, 18.2 MB)\nVerifying checksum (sha256)…\n✓ checksum OK\nInstalling to /Users/steffen/.local/bin/claude\n✓ installed\nEnsuring ~/.local/bin is on PATH…\n✓ added export to ~/.zshrc\n\nclaude v2.0 installed. Restart your shell or run:\n  source ~/.zshrc"
+            "text": "Downloading Claude Code installer…\nDetected: darwin arm64\nFetching latest release metadata from claude.ai…\n✓ claude v2.0 (darwin-arm64, 18.2 MB)\nVerifying checksum (sha256)…\n✓ checksum OK\nInstalling to /Users/steffen/.local/bin/claude\n✓ installed\nEnsuring ~/.local/bin is on PATH…\n✓ added export to ~/.zshrc\n\nclaude v2.0 installed. Restart your shell or run:\n  source ~/.zshrc",
+            "comment": {
+              "en": "One command installs everything. The script auto-detects your OS and architecture, downloads the right binary, verifies its checksum, and adds it to your <code>PATH</code>. See the <a href=\"https://docs.anthropic.com/en/docs/claude-code/getting-started\">Claude Code getting started guide</a> for other installation methods."
+            }
           }
         },
         {
@@ -51,7 +54,10 @@
           "displayMode": "normal",
           "inserted": {
             "type": "output",
-            "text": "$ mkdir ping-pong\n$ cd ping-pong\n$ pwd\n/Users/steffen/ping-pong\n$ ls\n(empty)"
+            "text": "$ mkdir ping-pong\n$ cd ping-pong\n$ pwd\n/Users/steffen/ping-pong\n$ ls\n(empty)",
+            "comment": {
+              "en": "Claude Code works best when launched from a project folder. Starting in an empty directory keeps things clean and lets us see exactly what Claude creates."
+            }
           }
         }
       ]
@@ -70,7 +76,7 @@
             "type": "output",
             "text": "┌  Claude Code v2.0\n│  First launch — let's get you signed in.\n└",
             "comment": {
-              "en": "On the very first run, Claude Code detects it has no credentials and walks you through authentication before dropping you into a prompt.",
+              "en": "Just type <code>claude</code> to launch. On the very first run, it detects there are no saved credentials and walks you through authentication before dropping you into the prompt. Subsequent launches skip straight to the prompt.",
               "ja": "初回起動時、Claude Code は認証情報がないことを検出し、プロンプトに入る前に 認証フローを案内します。"
             }
           }
@@ -84,7 +90,7 @@
             "html": "<p>How would you like to authenticate?</p> <ol>\n  <li>Claude subscription (Pro / Max)</li>\n  <li>API billing via Anthropic Console</li>\n</ol>",
             "answer": "1",
             "comment": {
-              "en": "Pick option 1 if you already pay for Claude (Pro or Max) — it reuses your subscription quota. Option 2 is per-token billing via the Anthropic Console, useful for teams and heavier workloads.",
+              "en": "Two billing paths: <strong>Option 1</strong> (Claude subscription) is the easiest if you already have a Pro or Max plan -- your CLI usage draws from the same quota. <strong>Option 2</strong> (API billing) charges per token via the <a href=\"https://console.anthropic.com/\">Anthropic Console</a> and is better suited for teams or heavy workloads. You can switch later in <code>claude config</code>.",
               "ja": "すでに Claude（Pro または Max）を契約している場合は 1 を選びます — サブスクリプションのクォータをそのまま利用できます。2 は Anthropic Console 経由の トークン単位の課金で、チーム利用や負荷の高いワークロードに向いています。"
             }
           }
@@ -97,7 +103,7 @@
             "type": "output",
             "text": "Opening browser for sign-in…\n✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp",
             "comment": {
-              "en": "A browser window pops open for OAuth. Sign in, approve the device, and the terminal picks the token back up automatically.",
+              "en": "Your default browser opens for OAuth sign-in. Once you approve the device, the terminal picks up the token automatically -- no copy-pasting keys. The credential is stored locally so you only do this once per machine.",
               "ja": "OAuth 用にブラウザウィンドウが開きます。サインインしてデバイスを承認すると、 ターミナル側が自動的にトークンを受け取ります。"
             }
           }

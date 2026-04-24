@@ -175,7 +175,7 @@
 		font-size: 12px;
 		color: var(--text-secondary);
 		cursor: pointer;
-		transition: background 0.15s, opacity 0.3s;
+		transition: background 0.15s, opacity 0.4s ease-out, color 0.3s ease-out;
 		white-space: nowrap;
 		opacity: 0.35;
 		flex-shrink: 0;

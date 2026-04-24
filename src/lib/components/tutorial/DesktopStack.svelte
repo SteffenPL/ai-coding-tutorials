@@ -54,9 +54,9 @@
 		if (depth < 0) return '';
 		const tx = chromeless ? 0 : depth * 50;
 		const ty = chromeless ? 0 : depth * -22;
-		const scale = Math.max(0.7, 1 - depth * 0.04);
-		const opacity = Math.max(0.1, 1 - depth * 0.18);
-		const brightness = Math.max(0.35, 1 - depth * 0.12);
+		const scale = chromeless ? 1 : Math.max(0.7, 1 - depth * 0.04);
+		const opacity = chromeless ? 1 : Math.max(0.1, 1 - depth * 0.18);
+		const brightness = chromeless ? 1 : Math.max(0.35, 1 - depth * 0.12);
 		const z = Math.max(1, 30 - depth * 5);
 		return `--stack-opacity:${opacity};--stack-tx:${tx}px;--stack-ty:${ty}px;--stack-scale:${scale};--stack-brightness:${brightness};--stack-z:${z}`;
 	}
@@ -295,13 +295,13 @@
 		--stack-scale: 1;
 		--stack-brightness: 1;
 		--stack-z: 1;
-		transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay),
-		            opacity 0.7s ease-out var(--enter-delay),
-		            filter 0.6s ease-out var(--enter-delay),
-		            box-shadow 0.5s ease-out var(--enter-delay);
+		transition: transform 50ms ease-out var(--enter-delay),
+		            opacity 50ms ease-out var(--enter-delay),
+		            filter 50ms ease-out var(--enter-delay),
+		            box-shadow 50ms ease-out var(--enter-delay);
 		transform-origin: center left;
 		opacity: 0;
-		transform: translateX(-40px) translateY(20px) scale(0.92);
+		transform: translateY(6px) scale(0.98);
 		pointer-events: none;
 	}
 

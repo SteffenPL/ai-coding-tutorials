@@ -360,12 +360,12 @@
 	}
 
 	.comment-fade {
-		animation: commentFadeIn 0.35s ease-out;
+		animation: commentFadeIn 50ms ease-out 0.15s both;
 	}
 
 	@keyframes commentFadeIn {
-		from { opacity: 0; transform: translateY(4px); }
-		to { opacity: 1; transform: translateY(0); }
+		from { opacity: 0; }
+		to { opacity: 1; }
 	}
 
 	.comment-text :global(strong) {

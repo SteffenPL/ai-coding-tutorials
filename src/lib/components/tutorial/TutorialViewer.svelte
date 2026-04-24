@@ -284,6 +284,8 @@
 	let windowEnterDelays = $state<Map<number, number>>(new Map());
 	let prevVisibleSet = new Set<number>();
 
+	const ENTER_DELAY_MS = 150;
+
 	$effect(() => {
 		const nowVisible = new Set(windowSteps.filter(w => w.index <= currentStep).map(w => w.index));
 		const newlyVisible: number[] = [];
@@ -292,16 +294,15 @@
 		}
 		if (newlyVisible.length > 0) {
 			const updated = new Map(windowEnterDelays);
-			newlyVisible.sort((a, b) => a - b);
-			for (let i = 0; i < newlyVisible.length; i++) {
-				updated.set(newlyVisible[i], i * 80);
+			for (const idx of newlyVisible) {
+				updated.set(idx, ENTER_DELAY_MS);
 			}
 			windowEnterDelays = updated;
 			setTimeout(() => {
 				const cleared = new Map(windowEnterDelays);
 				for (const idx of newlyVisible) cleared.set(idx, 0);
 				windowEnterDelays = cleared;
-			}, 600);
+			}, ENTER_DELAY_MS + 200);
 		}
 		prevVisibleSet = nowVisible;
 	});

@@ -89,6 +89,9 @@
             "type": "tool_result",
             "text": "File created successfully at: /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html",
             "_isError": false
+          },
+          "comment": {
+            "en": "From a single sentence prompt, Claude wrote a complete, self-contained HTML file with CSS, a canvas-based renderer, and interactive controls. Notice we did not specify any implementation details -- Claude chose double-buffering, toroidal wrapping, and <code>requestAnimationFrame</code> on its own."
           }
         },
         {
@@ -118,6 +121,9 @@
             "type": "assistant",
             "html": "<p>`★ Insight ─────────────────────────────────────`\n- **Toroidal topology**: `(x + dx + cols) % cols` wraps coordinates so the grid edges connect — a glider crossing the right edge reappears on the left. Without this, patterns \"die\" at the boundary.\n- **Decoupling simulation from rendering**: the `loop` uses `requestAnimationFrame` (ties to ~60fps screen refresh) but gates the actual `step()` behind a custom interval (`1000/fps`). This lets the speed slider control simulation rate independently of the render loop, and keeps the UI responsive.\n- **Toggle-on-click drawing**: on `mousedown` we read the cell's current state and invert it, then `mousemove` paints that same value. This is a common UX pattern (used by iOS toggle rows too) — start a drag on a dead cell and everything you touch becomes alive, start on a live cell and you erase.\n`─────────────────────────────────────────────────`\n\nOpen `game-of-life.html` in a browser. A glider is pre-seeded in the corner — hit **Start** to watch it travel diagonally, or click **Random** to fill the board and observe emergent patterns (still lifes, oscillators, occasional gliders).</p>",
             "final": true
+          },
+          "comment": {
+            "en": "Claude explains the design decisions it made and tells us how to run the result. This is typical of Claude Code's workflow: it writes the code, explains key choices, and suggests next steps -- all in one turn."
           }
         }
       ]
@@ -140,6 +146,9 @@
             "type": "tool_call",
             "toolName": "Bash",
             "code": "open /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html"
+          },
+          "comment": {
+            "en": "Claude can run shell commands on your machine via its Bash tool. Here it uses macOS's <code>open</code> command to launch the HTML file in your default browser. You will be asked for permission before any command runs."
           }
         },
         {
@@ -169,7 +178,7 @@
               "src": "movie.mov"
             },
             "comment": {
-              "en": "The page loads straight from the filesystem over <code>file://</code> — no server, no build. A glider drifts across the grid, and the controls let you seed a random board or tune the frame rate.",
+              "en": "And here is the result -- a fully working Game of Life, built and opened in under a minute. The page runs entirely from the local filesystem with no server or build step. From installation to a running application in three prompts: that is the Claude Code experience.",
               "ja": "ページは <code>file://</code> でファイルシステムから直接読み込まれます — サーバーもビルドも不要です。グライダーがグリッド上を進み、コントロールで ランダムな盤面の初期化やフレームレートの調整ができます。"
             }
           }
