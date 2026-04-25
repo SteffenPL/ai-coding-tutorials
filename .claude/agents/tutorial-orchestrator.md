@@ -28,12 +28,14 @@ Topic + Learning Goals (from user)
 
 ## Pipeline steps
 
-### Step 1: Receive and validate input
+### Step 1: Receive, validate, and confirm scope
 
 From the user, get:
 - **Topic**: what the tutorial is about
 - **Learning goals** (optional): what the reader should learn
 - **Constraints** (optional): model preference, MCP tools needed, target audience
+
+**If the user references external code, files, or projects, read them before proceeding.** Then present a Tutorial Spec card (see tutorial-producer Step 0 for format) and wait for explicit confirmation. Do not start session creation or tutorial production until the user approves the spec. This prevents wasted effort from misinterpreted scope.
 
 ### Step 2: Determine the slug
 

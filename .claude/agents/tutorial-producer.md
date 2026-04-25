@@ -34,6 +34,33 @@ If unclear, check whether `src/tutorials/<slug>/composition.json` already exists
 
 ## Create pipeline
 
+### Step 0: Tutorial Spec (mandatory checkpoint)
+
+**Before any trace, composition, or asset work**, present a Tutorial Spec card to the user and **wait for explicit confirmation**. Do not proceed until the user approves or corrects the spec.
+
+```
+## Tutorial Spec
+
+| Field | Value |
+|-------|-------|
+| **Title** | <working title> |
+| **Scope** | <single/multi-part, estimated rounds> |
+| **Source** | <session JSONL path, or "hand-authored", or "generate new session"> |
+| **Content to fetch** | <paths to code/assets/data the tutorial showcases> |
+| **Key moments** | <2-3 bullet narrative arc> |
+| **Audience** | <who is this for> |
+
+Proceed?
+```
+
+**Why this exists**: Tutorial creation is expensive. A misunderstood topic wastes significant effort. The spec forces alignment on *what* is being showcased before *how* it's presented. If the user references external code, files, or projects, read them first and confirm the scope matches what the user intends.
+
+**Rules**:
+- If the user references a path or project, **read it** before writing the spec (to avoid misinterpreting the content)
+- If the source is ambiguous (multiple possible sessions or directories), list the candidates and ask
+- Keep the spec concise — it's an alignment tool, not a planning document
+- If the user corrects the spec, update and re-present before proceeding
+
 ### Step 1: Inspect the session
 
 ```bash
