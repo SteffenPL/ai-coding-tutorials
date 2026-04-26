@@ -446,7 +446,7 @@
 <div class="desktop">
 	<Wallpaper />
 	<!-- Top Panel -->
-	<Nav pageTitle={title} editHref="{base}/compose/{tutorial.meta.slug}" />
+	<Nav pageTitle={title} editHref="{base}/compose/{tutorial.meta.slug}" slidesHref="{base}/slides/{tutorial.meta.slug}" />
 
 	<!-- Workspace -->
 	<div class="workspace">

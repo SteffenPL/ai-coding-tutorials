@@ -6,9 +6,10 @@
 	interface Props {
 		pageTitle?: string;
 		editHref?: string;
+		slidesHref?: string;
 	}
 
-	let { pageTitle, editHref }: Props = $props();
+	let { pageTitle, editHref, slidesHref }: Props = $props();
 	let showTheme = $state(false);
 </script>
 
@@ -29,6 +30,15 @@
 			{/if}
 		</div>
 		<div class="nav__controls">
+			{#if slidesHref}
+				<a href={slidesHref} class="nav__slides-btn" title={t({ en: 'View as slides', ja: 'スライド表示' })}>
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="2" y="3" width="20" height="14" rx="2" />
+						<path d="M8 21h8m-4-4v4" />
+					</svg>
+					<span class="nav__slides-label">{t({ en: 'Slides', ja: 'スライド' })}</span>
+				</a>
+			{/if}
 			{#if import.meta.env.DEV}
 				{#if editHref}
 					<a href={editHref} class="nav__link nav__link--dev">Edit</a>
@@ -202,6 +212,35 @@
 		box-shadow: var(--shadow-sm);
 	}
 
+	/* ─── Slides button ─── */
+	.nav__slides-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 4px 10px;
+		border-radius: 6px;
+		background: var(--overlay-subtle);
+		border: 1px solid var(--border-subtle);
+		color: var(--text-secondary);
+		font-family: var(--font-display);
+		font-size: 0.78rem;
+		font-weight: 500;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		cursor: pointer;
+	}
+
+	.nav__slides-btn:hover {
+		background: var(--accent-soft);
+		border-color: var(--orange-400);
+		color: var(--orange-300);
+		text-decoration: none;
+	}
+
+	.nav__slides-label {
+		line-height: 1;
+	}
+
 	/* ─── Theme picker ─── */
 	.theme-wrap {
 		position: relative;
@@ -257,6 +296,10 @@
 		.lang-switch__btn {
 			padding: 4px 10px;
 			font-size: 0.7rem;
+		}
+
+		.nav__slides-label {
+			display: none;
 		}
 	}
 </style>
