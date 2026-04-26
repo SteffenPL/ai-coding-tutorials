@@ -20,12 +20,16 @@
  */
 
 import type { LoadedSession, LoadedSubagent } from './loader';
-import type { SessionEvent, ToolResultBlockT, UserEvent } from './schema';
+import type {
+	NormalizedSessionEvent,
+	ToolResultContent,
+	UserMessageEvent
+} from './normalized-schema';
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 
 export interface ToolInvocationResult {
-	content: ToolResultBlockT['content'];
+	content: ToolResultContent;
 	isError: boolean;
 }
 
@@ -129,53 +133,31 @@ export interface SessionView {
 interface ToolResultIndex {
 	/** tool_use_id → result content (paired from subsequent user event). */
 	byId: Map<string, ToolInvocationResult>;
-	/** tool_use_id → agentId (for Agent calls). */
-	agentByToolId: Map<string, string>;
 }
 
-function indexToolResults(allEventStreams: SessionEvent[][]): ToolResultIndex {
+function indexToolResults(allEventStreams: NormalizedSessionEvent[][]): ToolResultIndex {
 	const byId = new Map<string, ToolInvocationResult>();
-	const agentByToolId = new Map<string, string>();
 	for (const stream of allEventStreams) {
 		for (const e of stream) {
-			if (e.type !== 'user') continue;
-			if (!Array.isArray(e.message.content)) continue;
-			const agentId = e.toolUseResult?.agentId;
-			for (const block of e.message.content) {
-				if (block.type !== 'tool_result') continue;
-				byId.set(block.tool_use_id, {
-					content: block.content,
-					isError: block.is_error ?? false
-				});
-				if (agentId) agentByToolId.set(block.tool_use_id, agentId);
-			}
+			if (e.type !== 'tool-result') continue;
+			byId.set(e.toolCallId, {
+				content: e.content,
+				isError: e.isError ?? false
+			});
 		}
 	}
-	return { byId, agentByToolId };
+	return { byId };
 }
 
 /* ─── Event → node(s) ───────────────────────────────────────────────────── */
 
-function renderUserEvent(e: UserEvent): DisplayNode[] {
-	const out: DisplayNode[] = [];
-	const content = e.message.content;
-	// String-content user events are round prompts — handled by the round
-	// splitter, not here. This function is only called for array-content users.
-	if (typeof content === 'string') return out;
-	for (const block of content) {
-		if (block.type === 'tool_result') {
-			// Absorbed into the paired ToolInvocation node, skip.
-			continue;
-		}
-		if (block.type === 'text') {
-			out.push({ kind: 'user-text', uuid: e.uuid, text: block.text });
-		}
-	}
-	return out;
+function renderUserEvent(e: UserMessageEvent): DisplayNode[] {
+	if (e.startsRound) return [];
+	return [{ kind: 'user-text', uuid: e.uuid, text: e.text }];
 }
 
 function eventsToNodes(
-	events: SessionEvent[],
+	events: NormalizedSessionEvent[],
 	index: ToolResultIndex,
 	subagents: Record<string, LoadedSubagent>,
 	visitedAgents: Set<string>
@@ -183,52 +165,34 @@ function eventsToNodes(
 	const nodes: DisplayNode[] = [];
 	for (const e of events) {
 		switch (e.type) {
-			case 'user':
-				// String-content is a round boundary and handled above us;
-				// array-content gets its text/tool_result blocks processed.
-				if (typeof e.message.content !== 'string') {
-					nodes.push(...renderUserEvent(e));
-				}
+			case 'user-message':
+				nodes.push(...renderUserEvent(e));
 				break;
-			case 'assistant': {
-				const model = e.message.model;
-				for (const block of e.message.content) {
-					if (block.type === 'text') {
-						nodes.push({ kind: 'assistant-text', uuid: e.uuid, text: block.text, model });
-					} else if (block.type === 'thinking') {
-						nodes.push({ kind: 'thinking', uuid: e.uuid, text: block.thinking });
-					} else if (block.type === 'tool_use') {
-						const result = index.byId.get(block.id);
-						const agentId = index.agentByToolId.get(block.id);
-						let subagentView: SubagentView | undefined;
-						if (agentId && subagents[agentId] && !visitedAgents.has(agentId)) {
-							visitedAgents.add(agentId);
-							subagentView = buildSubagentView(
-								subagents[agentId],
-								index,
-								subagents,
-								visitedAgents
-							);
-						}
-						nodes.push({
-							kind: 'tool-invocation',
-							uuid: e.uuid,
-							toolUseId: block.id,
-							name: block.name,
-							input: block.input,
-							result,
-							subagent: subagentView
-						});
-					}
-				}
+			case 'assistant-message':
+				nodes.push({ kind: 'assistant-text', uuid: e.uuid, text: e.text, model: e.model });
 				break;
-			}
-			case 'system':
+			case 'thinking':
+				nodes.push({ kind: 'thinking', uuid: e.uuid, text: e.text });
+				break;
+			case 'tool-call':
+				nodes.push({
+					kind: 'tool-invocation',
+					uuid: e.uuid,
+					toolUseId: e.toolCallId,
+					name: e.name,
+					input: e.input,
+					result: index.byId.get(e.toolCallId)
+				});
+				break;
+			case 'tool-result':
+				// Absorbed into the paired ToolInvocation node.
+				break;
+			case 'compact-boundary':
 				nodes.push({
 					kind: 'compact',
 					uuid: e.uuid,
-					trigger: e.compactMetadata?.trigger,
-					preTokens: e.compactMetadata?.preTokens
+					trigger: e.trigger,
+					preTokens: e.preTokens
 				});
 				break;
 			case 'custom-title':
@@ -260,24 +224,22 @@ function buildSubagentView(
  * it's not a meta wrapper (<local-command-caveat>, etc). Meta entries
  * annotate the round they appear in rather than starting a new one.
  */
-function isRoundBoundary(e: SessionEvent): boolean {
-	if (e.type !== 'user') return false;
-	if (e.isMeta) return false;
-	return typeof e.message.content === 'string';
+function isRoundBoundary(e: NormalizedSessionEvent): e is UserMessageEvent {
+	return e.type === 'user-message' && !e.isMeta && !!e.startsRound;
 }
 
 function splitIntoRounds(
-	events: SessionEvent[],
+	events: NormalizedSessionEvent[],
 	index: ToolResultIndex,
 	subagents: Record<string, LoadedSubagent>,
 	visitedAgents: Set<string>
 ): { preamble: DisplayNode[]; rounds: Round[] } {
-	const preambleEvents: SessionEvent[] = [];
-	const roundGroups: { promptEvent: UserEvent; events: SessionEvent[] }[] = [];
-	let current: { promptEvent: UserEvent; events: SessionEvent[] } | null = null;
+	const preambleEvents: NormalizedSessionEvent[] = [];
+	const roundGroups: { promptEvent: UserMessageEvent; events: NormalizedSessionEvent[] }[] = [];
+	let current: { promptEvent: UserMessageEvent; events: NormalizedSessionEvent[] } | null = null;
 
 	for (const e of events) {
-		if (isRoundBoundary(e) && e.type === 'user') {
+		if (isRoundBoundary(e)) {
 			current = { promptEvent: e, events: [] };
 			roundGroups.push(current);
 		} else if (current) {
@@ -289,10 +251,7 @@ function splitIntoRounds(
 
 	const preamble = eventsToNodes(preambleEvents, index, subagents, visitedAgents);
 	const rounds: Round[] = roundGroups.map((group, i) => {
-		const text =
-			typeof group.promptEvent.message.content === 'string'
-				? group.promptEvent.message.content
-				: '';
+		const text = group.promptEvent.text;
 		const rawIsMeta = group.promptEvent.isMeta ?? false;
 		const kind = classifyPromptKind(text, rawIsMeta);
 		return {
@@ -356,7 +315,7 @@ function computeStats(rounds: Round[], orphans: SubagentView[]): SessionStats {
 /* ─── Public ────────────────────────────────────────────────────────────── */
 
 export function toSessionView(session: LoadedSession): SessionView {
-	const allStreams: SessionEvent[][] = [
+	const allStreams: NormalizedSessionEvent[][] = [
 		session.events,
 		...Object.values(session.subagents).map((s) => s.events)
 	];

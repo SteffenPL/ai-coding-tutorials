@@ -8,8 +8,16 @@ export interface TutorialComposition {
 	meta: TutorialMeta;
 	description?: string;
 	requirements?: string;
+	welcome?: TutorialWelcome;
+	briefing?: { en: string; ja?: string };
 	blocks: CompositionBlock[];
 	devOnly?: boolean;
+}
+
+export interface TutorialWelcome {
+	heading?: { en: string; ja?: string };
+	description?: { en: string; ja?: string };
+	learnings?: Array<{ en: string; ja?: string }>;
 }
 
 export type CompositionBlock = TraceBlock | HandAuthoredBlock;
