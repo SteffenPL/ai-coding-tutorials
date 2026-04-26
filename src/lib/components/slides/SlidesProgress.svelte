@@ -2,12 +2,12 @@
 	let { progress }: { progress: number } = $props();
 </script>
 
-<div class="promo-progress">
-	<div class="promo-progress__fill" style="width: {progress * 100}%"></div>
+<div class="slides-progress">
+	<div class="slides-progress__fill" style="width: {progress * 100}%"></div>
 </div>
 
 <style>
-	.promo-progress {
+	.slides-progress {
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -17,7 +17,7 @@
 		background: rgba(255, 255, 255, 0.06);
 	}
 
-	.promo-progress__fill {
+	.slides-progress__fill {
 		height: 100%;
 		background: var(--orange-400, #E95420);
 		box-shadow: 0 0 8px rgba(233, 84, 32, 0.5);

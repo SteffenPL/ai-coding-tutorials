@@ -7,24 +7,24 @@
 	} = $props();
 </script>
 
-<div class="promo-step promo-step--{kind}">
+<div class="slides-step slides-step--{kind}">
 	{@render children()}
 </div>
 
 <style>
-	.promo-step {
-		animation: promoFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+	.slides-step {
+		animation: slidesFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	.promo-step--window {
-		animation: promoScaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+	.slides-step--window {
+		animation: slidesScaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	.promo-step--final {
-		animation: promoFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+	.slides-step--final {
+		animation: slidesFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	@keyframes promoFadeUp {
+	@keyframes slidesFadeUp {
 		from {
 			opacity: 0;
 			transform: translateY(16px);
@@ -35,7 +35,7 @@
 		}
 	}
 
-	@keyframes promoScaleIn {
+	@keyframes slidesScaleIn {
 		from {
 			opacity: 0;
 			transform: scale(0.96) translateY(8px);

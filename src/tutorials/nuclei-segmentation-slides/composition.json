@@ -1,12 +1,12 @@
 {
   "formatVersion": "1.0.0",
-  "slug": "nuclei-segmentation-promo",
+  "slug": "nuclei-segmentation-slides",
   "meta": {
-    "slug": "nuclei-segmentation-promo",
+    "slug": "nuclei-segmentation-slides",
     "title": {
       "en": "Nuclei Segmentation with Fiji"
     },
-    "tags": ["fiji", "segmentation", "promo"],
+    "tags": ["fiji", "segmentation", "slides"],
     "thumbnail": "tutorials/nuclei-segmentation/assets/step_001.png",
     "author": "Steffen Plunder",
     "visibility": "draft"
@@ -34,7 +34,7 @@
             "type": "assistant",
             "html": "<p>The image is open in Fiji — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
             "final": true,
-            "promoDuration": 4000,
+            "slideDuration": 4000,
             "comment": "The agent inspects the image metadata and reports back with a structured summary."
           }
         ]
@@ -62,7 +62,7 @@
               ]
             },
             "subtitle": "Basic thresholding methods",
-            "promoDuration": 2500,
+            "slideDuration": 2500,
             "comment": "Five basic approaches tested — from raw thresholding (Otsu, Triangle, Li) to Gaussian-smoothed variants with Watershed splitting."
           },
           {
@@ -81,7 +81,7 @@
               ]
             },
             "subtitle": "Advanced methods",
-            "promoDuration": 2500,
+            "slideDuration": 2500,
             "comment": "Five advanced approaches — including local thresholding and morphological cleanup. The agent visually inspects each result to judge quality."
           },
           {
@@ -99,7 +99,7 @@
             "type": "assistant",
             "html": "<p><strong>103 nuclei</strong> segmented using <strong>Approach #9</strong> — Gaussian blur + Otsu threshold + Morphological Open + Watershed.</p><p>#9's morphological Open step removed debris and thin bridges before Watershed, producing the cleanest nucleus shapes out of all 10 approaches.</p>",
             "final": true,
-            "promoDuration": 7000,
+            "slideDuration": 7000,
             "comment": "Complete — from a single natural-language prompt to a quantitative result with 103 individually measured nuclei."
           }
         ]

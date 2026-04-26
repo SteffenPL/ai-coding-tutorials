@@ -10,8 +10,6 @@
 	document-level pointerdown dismisses it; that listener lives on the page.
 -->
 <script lang="ts">
-	import ThemePicker from '$lib/components/ThemePicker.svelte';
-
 	let {
 		commentHtml,
 		currentStep,
@@ -79,8 +77,6 @@
 								</button>
 							{/each}
 						</div>
-						<div class="settings-divider"></div>
-						<ThemePicker />
 					</div>
 				{/if}
 			</div>
@@ -208,12 +204,6 @@
 		letter-spacing: 0.8px;
 		color: var(--text-tertiary);
 		margin-bottom: 8px;
-	}
-
-	.settings-divider {
-		height: 1px;
-		background: var(--border-subtle);
-		margin: 10px 0;
 	}
 
 	/* ─── Nav buttons ─── */

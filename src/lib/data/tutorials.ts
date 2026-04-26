@@ -68,8 +68,8 @@ export interface StepBase {
 	compact?: boolean;
 	/** Collapse into a "N steps hidden" placeholder in simplified view */
 	hidden?: boolean;
-	/** Promo view: milliseconds before auto-advancing to the next step */
-	promoDuration?: number;
+	/** Slides view: milliseconds before auto-advancing to the next step */
+	slideDuration?: number;
 }
 
 /* ─── Chat Steps ──────────────────────────── */

@@ -2,21 +2,22 @@
 	import type { Tutorial, Step, WindowStep, AssistantStep, TutorialRound } from '$lib/data/tutorials';
 	import { getTutorialTitle, getWindowIcon, isChromeless } from '$lib/data/tutorials';
 	import { langStore } from '$lib/stores/lang.svelte';
-	import { onMount, onDestroy, tick } from 'svelte';
+	import { themeStore, THEMES } from '$lib/stores/theme.svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import Wallpaper from '$lib/components/Wallpaper.svelte';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
-	import PromoProgress from './PromoProgress.svelte';
-	import PromoPrompt from './PromoPrompt.svelte';
-	import PromoStep from './PromoStep.svelte';
+	import SlidesProgress from './SlidesProgress.svelte';
+	import SlidesPrompt from './SlidesPrompt.svelte';
+	import SlidesStep from './SlidesStep.svelte';
 
 	let { tutorial }: { tutorial: Tutorial } = $props();
 
-	const PROMPT_DURATION = 3500;
-	const WINDOW_DURATION = 5000;
-	const ANSWER_DURATION = 6000;
+	const PROMPT_DURATION = 1500;
+	const WINDOW_DURATION = 2000;
+	const ANSWER_DURATION = 5000;
 	const TITLE_DURATION = 3000;
-	const SCENE_GAP = 800;
+	const SCENE_GAP = 1200;
 
 	/* ─── Scene model ────────────────────────── */
 
@@ -43,14 +44,14 @@
 						kind: 'window',
 						round,
 						step,
-						duration: step.promoDuration ?? WINDOW_DURATION
+						duration: step.slideDuration ?? WINDOW_DURATION
 					});
 				} else if (step.type === 'assistant' && (step as AssistantStep).final) {
 					items.push({
 						kind: 'answer',
 						round,
 						step,
-						duration: step.promoDuration ?? ANSWER_DURATION
+						duration: step.slideDuration ?? ANSWER_DURATION
 					});
 				}
 			}
@@ -105,6 +106,20 @@
 		return null;
 	});
 
+	let activeComment = $derived.by(() => {
+		if (phase !== 'playing' || currentScene >= scenes.length) return null;
+		const items = scenes[currentScene];
+		for (let i = currentItemInScene; i >= 0 && i < items.length; i--) {
+			const step = items[i].step;
+			if (step?.comment) {
+				const c = step.comment;
+				if (typeof c === 'string') return c;
+				return langStore.current === 'ja' && c.ja ? c.ja : c.en;
+			}
+		}
+		return null;
+	});
+
 	function windowStackStyle(index: number, total: number): string {
 		const depth = total - 1 - index;
 		if (depth === 0) {
@@ -121,21 +136,23 @@
 
 	/* ─── Playback engine ────────────────────── */
 
+	function clearTimer() {
+		if (timerId) { clearTimeout(timerId); timerId = null; }
+	}
+
 	function advance() {
 		if (paused) return;
 		const items = scenes[currentScene];
-		if (!items) { phase = 'done'; if (recording) setTimeout(stopRecording, 1500); return; }
+		if (!items) { phase = 'done'; return; }
 
 		currentItemInScene++;
 		itemsShown++;
 
 		if (currentItemInScene >= items.length) {
-			// Scene done — move to next
 			currentScene++;
 			currentItemInScene = -1;
 			if (currentScene >= scenes.length) {
 				phase = 'done';
-				if (recording) setTimeout(stopRecording, 1500);
 				return;
 			}
 			timerId = setTimeout(advance, SCENE_GAP);
@@ -144,6 +161,66 @@
 
 		const item = items[currentItemInScene];
 		timerId = setTimeout(advance, item.duration);
+	}
+
+	function stepForward() {
+		clearTimer();
+		if (phase === 'title') { startPlayback(); return; }
+		if (phase === 'done') return;
+
+		const items = scenes[currentScene];
+		if (currentItemInScene + 1 >= items.length) {
+			currentScene++;
+			currentItemInScene = -1;
+			itemsShown++;
+			if (currentScene >= scenes.length) { phase = 'done'; return; }
+			currentItemInScene = 0;
+			itemsShown++;
+		} else {
+			currentItemInScene++;
+			itemsShown++;
+		}
+
+		if (!paused) {
+			const item = scenes[currentScene]?.[currentItemInScene];
+			if (item) timerId = setTimeout(advance, item.duration);
+		}
+	}
+
+	function stepBack() {
+		clearTimer();
+		if (phase === 'done') {
+			phase = 'playing';
+			currentScene = scenes.length - 1;
+			currentItemInScene = scenes[currentScene].length - 1;
+			itemsShown = Math.max(0, itemsShown - 1);
+			return;
+		}
+		if (phase === 'title') return;
+
+		if (currentItemInScene > 0) {
+			currentItemInScene--;
+			itemsShown = Math.max(0, itemsShown - 1);
+		} else if (currentScene > 0) {
+			currentScene--;
+			currentItemInScene = scenes[currentScene].length - 1;
+			itemsShown = Math.max(0, itemsShown - 1);
+		}
+
+		if (!paused) {
+			const item = scenes[currentScene]?.[currentItemInScene];
+			if (item) timerId = setTimeout(advance, item.duration);
+		}
+	}
+
+	function resetPlayback() {
+		clearTimer();
+		phase = 'title';
+		currentScene = 0;
+		currentItemInScene = -1;
+		itemsShown = 0;
+		paused = false;
+		timerId = setTimeout(startPlayback, TITLE_DURATION);
 	}
 
 	function startPlayback() {
@@ -159,127 +236,92 @@
 		if (phase === 'done') return;
 		paused = !paused;
 		if (paused) {
-			if (timerId) { clearTimeout(timerId); timerId = null; }
+			clearTimer();
 		} else {
 			advance();
 		}
 	}
 
-	/* ─── Recording ──────────────────────────── */
-
-	let recording = $state(false);
-	let mediaRecorder: MediaRecorder | null = null;
-	let recordedChunks: Blob[] = [];
-	let displayStream: MediaStream | null = null;
-
-	async function startRecording() {
-		try {
-			displayStream = await navigator.mediaDevices.getDisplayMedia({
-				video: { displaySurface: 'browser' } as any,
-				audio: false
-			});
-		} catch { return; }
-
-		recordedChunks = [];
-		const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-			? 'video/webm;codecs=vp9' : 'video/webm';
-		mediaRecorder = new MediaRecorder(displayStream, { mimeType });
-		mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-		mediaRecorder.onstop = () => {
-			const blob = new Blob(recordedChunks, { type: mimeType });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${tutorial.meta.slug}-promo.webm`;
-			a.click();
-			URL.revokeObjectURL(url);
-			displayStream?.getTracks().forEach(t => t.stop());
-			displayStream = null;
-			recording = false;
-		};
-		displayStream.getVideoTracks()[0].onended = () => stopRecording();
-		mediaRecorder.start();
-		recording = true;
-	}
-
-	function stopRecording() {
-		if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+	function cycleTheme() {
+		const idx = THEMES.findIndex(t => t.id === themeStore.theme);
+		themeStore.theme = THEMES[(idx + 1) % THEMES.length].id;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.code === 'Space') { e.preventDefault(); togglePause(); }
-		if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey) {
-			recording ? stopRecording() : startRecording();
-		}
+		if (e.code === 'ArrowRight') { e.preventDefault(); stepForward(); }
+		if (e.code === 'ArrowLeft') { e.preventDefault(); stepBack(); }
+		if (e.code === 'KeyT' && !e.metaKey && !e.ctrlKey) cycleTheme();
+		if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey) resetPlayback();
 	}
 
 	onMount(() => { timerId = setTimeout(startPlayback, TITLE_DURATION); });
-	onDestroy(() => {
-		if (timerId) clearTimeout(timerId);
-		stopRecording();
-		displayStream?.getTracks().forEach(t => t.stop());
-	});
+	onDestroy(() => { clearTimer(); });
 
 	let title = $derived(getTutorialTitle(tutorial.meta, langStore.current));
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="promo-root">
+<div class="slides-root">
 	<Wallpaper />
-	<PromoProgress {progress} />
+	<SlidesProgress {progress} />
 
 	<!-- Title card -->
 	{#if phase === 'title'}
-		<div class="promo-title-card">
-			<h1 class="promo-title">{title}</h1>
+		<div class="slides-title-card">
+			<h1 class="slides-title">{title}</h1>
 			{#if tutorial.description}
-				<p class="promo-subtitle">{tutorial.description}</p>
+				<p class="slides-subtitle">{tutorial.description}</p>
 			{/if}
 		</div>
 	{/if}
 
 	<!-- Split layout -->
 	{#if phase === 'playing' || phase === 'done'}
-		<div class="promo-layout">
+		<div class="slides-layout">
 			<!-- Left: prompt + answer -->
-			<div class="promo-left">
+			<div class="slides-left">
 				{#if activePrompt}
 					{#key `${currentScene}-prompt`}
-						<div class="promo-left__prompt">
-							<PromoStep kind="prompt">
-								<PromoPrompt
+						<div class="slides-left__section">
+							<span class="slides-label">User Prompt</span>
+							<SlidesStep kind="prompt">
+								<SlidesPrompt
 									text={activePrompt.round.prompt}
 									kind={activePrompt.round.kind ?? 'claude'}
 								/>
-							</PromoStep>
+							</SlidesStep>
 						</div>
 					{/key}
 				{/if}
 
 				{#if activeAnswer}
 					{#key `${currentScene}-answer`}
-						<div class="promo-left__answer">
-							<PromoStep kind="final">
-								<div class="promo-answer">
+						<div class="slides-left__section">
+							<span class="slides-label slides-label--teal">AI Agent Response</span>
+							<SlidesStep kind="final">
+								<div class="slides-answer">
 									{@html activeAnswer.html}
 								</div>
-							</PromoStep>
+							</SlidesStep>
 						</div>
 					{/key}
 				{/if}
 			</div>
 
-			<!-- Right: window stack -->
-			<div class="promo-right">
-				{#if activeWindows.length > 0}
-					<div class="promo-desktop">
+			<!-- Right: label + window stack + comment -->
+			<div class="slides-right">
+				<span class="slides-label slides-label--green">AI Agent — Autonomous Actions</span>
+
+				<div class="slides-desktop">
+					{#if activeWindows.length > 0}
 						{#each activeWindows as win, wi (wi + '-' + currentScene)}
 							<div
-								class="promo-stack-window"
+								class="slides-stack-window"
 								style={windowStackStyle(wi, activeWindows.length)}
 							>
-								<div class="promo-window">
+								<div class="slides-window">
 									{#if !isChromeless(win.content)}
 										<WindowChrome
 											title={win.windowTitle}
@@ -287,34 +329,36 @@
 											icon={win.icon ?? getWindowIcon(win.content)}
 										/>
 									{/if}
-									<div class="promo-window__content">
+									<div class="slides-window__content">
 										<WindowContent content={win.content} />
 									</div>
 								</div>
 							</div>
 						{/each}
-					</div>
+					{/if}
+				</div>
+
+				{#if activeComment}
+					{#key activeComment}
+						<div class="slides-comment">
+							<div class="slides-comment__bubble">
+								{@html activeComment}
+							</div>
+						</div>
+					{/key}
 				{/if}
 			</div>
 		</div>
 	{/if}
 
-	<!-- Controls -->
-	<div class="promo-controls">
-		{#if paused}<span class="promo-badge">PAUSED</span>{/if}
-		<button
-			class="promo-rec-btn"
-			class:active={recording}
-			onclick={() => recording ? stopRecording() : startRecording()}
-		>
-			<span class="rec-dot"></span>
-			{recording ? 'Stop' : 'Rec'}
-		</button>
-	</div>
+	<!-- Pause indicator -->
+	{#if paused}
+		<div class="slides-badge">PAUSED</div>
+	{/if}
 </div>
 
 <style>
-	.promo-root {
+	.slides-root {
 		position: fixed;
 		inset: 0;
 		overflow: hidden;
@@ -322,7 +366,7 @@
 	}
 
 	/* ─── Title card ─── */
-	.promo-title-card {
+	.slides-title-card {
 		position: relative;
 		z-index: 1;
 		display: flex;
@@ -332,10 +376,10 @@
 		height: 100vh;
 		text-align: center;
 		padding: 0 48px;
-		animation: promoTitleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+		animation: slidesTitleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
-	.promo-title {
+	.slides-title {
 		font-size: 2.8rem;
 		font-weight: 700;
 		color: var(--text-primary);
@@ -344,7 +388,7 @@
 		line-height: 1.2;
 	}
 
-	.promo-subtitle {
+	.slides-subtitle {
 		font-size: 1.2rem;
 		color: var(--text-secondary);
 		margin-top: 16px;
@@ -352,40 +396,54 @@
 		line-height: 1.5;
 	}
 
-	@keyframes promoTitleIn {
+	@keyframes slidesTitleIn {
 		from { opacity: 0; transform: translateY(24px); }
 		to { opacity: 1; transform: translateY(0); }
 	}
 
 	/* ─── Split layout ─── */
-	.promo-layout {
+	.slides-layout {
 		position: relative;
 		z-index: 1;
 		display: flex;
 		height: 100vh;
 	}
 
-	/* ─── Left column: prompt + answer ─── */
-	.promo-left {
+	/* ─── Left column: prompt + answer stacked ─── */
+	.slides-left {
 		width: 38%;
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		gap: 24px;
 		padding: 48px 32px 48px 48px;
 		overflow: hidden;
 	}
 
-	.promo-left__prompt {
+	.slides-left__section {
 		flex-shrink: 0;
 	}
 
-	.promo-left__answer {
-		flex-shrink: 0;
-		margin-top: auto;
+	.slides-label {
+		display: block;
+		font-size: 0.7rem;
+		font-family: var(--font-mono);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--orange-400, #E95420);
+		margin-bottom: 8px;
+		opacity: 0.8;
 	}
 
-	.promo-answer {
+	.slides-label--teal {
+		color: var(--teal, #2AA198);
+	}
+
+	.slides-label--green {
+		color: var(--green, #4DAF7C);
+	}
+
+	.slides-answer {
 		padding: 24px 28px;
 		border-left: 4px solid var(--teal, #2AA198);
 		border-radius: 10px;
@@ -395,29 +453,33 @@
 		color: var(--text-primary);
 	}
 
-	.promo-answer :global(p) {
+	.slides-answer :global(p) {
 		margin: 0 0 12px;
 	}
-	.promo-answer :global(p:last-child) {
+	.slides-answer :global(p:last-child) {
 		margin-bottom: 0;
 	}
-	.promo-answer :global(strong) {
+	.slides-answer :global(strong) {
 		color: var(--text-primary);
 	}
 
-	/* ─── Right column: window desktop ─── */
-	.promo-right {
+	/* ─── Right column: window desktop + comment ─── */
+	.slides-right {
 		width: 62%;
 		height: 100vh;
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		padding: 48px 32px 24px 0;
 	}
 
-	.promo-desktop {
-		position: absolute;
-		inset: 24px;
+	.slides-desktop {
+		position: relative;
+		flex: 1;
+		min-height: 0;
 	}
 
-	.promo-stack-window {
+	.slides-stack-window {
 		position: absolute;
 		left: 50%;
 		top: 50%;
@@ -428,7 +490,7 @@
 		            filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
-	.promo-window {
+	.slides-window {
 		border-radius: 10px;
 		overflow: hidden;
 		background: var(--bg-primary);
@@ -437,23 +499,40 @@
 			0 2px 8px rgba(0, 0, 0, 0.2);
 	}
 
-	.promo-window__content {
-		max-height: 65vh;
+	.slides-window__content {
+		max-height: 60vh;
 		overflow: hidden;
 	}
 
-	/* ─── Controls overlay ─── */
-	.promo-controls {
+	/* ─── Comment bubble ─── */
+	.slides-comment {
+		flex-shrink: 0;
+		padding-top: 16px;
+		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.slides-comment__bubble {
+		padding: 14px 20px;
+		border-radius: 12px 12px 12px 4px;
+		background: rgba(255, 255, 255, 0.07);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--text-secondary);
+		max-width: 600px;
+	}
+
+	@keyframes commentIn {
+		from { opacity: 0; transform: translateY(8px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	/* ─── Pause indicator ─── */
+	.slides-badge {
 		position: fixed;
 		bottom: 24px;
 		right: 24px;
 		z-index: 100;
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.promo-badge {
 		padding: 6px 14px;
 		border-radius: 8px;
 		background: rgba(0, 0, 0, 0.6);
@@ -462,42 +541,5 @@
 		font-family: var(--font-mono);
 		letter-spacing: 0.15em;
 		backdrop-filter: blur(8px);
-	}
-
-	.promo-rec-btn {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		padding: 6px 14px;
-		border: none;
-		border-radius: 8px;
-		background: rgba(0, 0, 0, 0.6);
-		color: var(--text-secondary);
-		font-size: 0.7rem;
-		font-family: var(--font-mono);
-		letter-spacing: 0.08em;
-		cursor: pointer;
-		backdrop-filter: blur(8px);
-		transition: background 0.15s;
-	}
-
-	.promo-rec-btn:hover { background: rgba(0, 0, 0, 0.75); }
-	.promo-rec-btn.active { background: rgba(180, 30, 30, 0.7); color: #fff; }
-
-	.rec-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: #e53e3e;
-		flex-shrink: 0;
-	}
-
-	.promo-rec-btn.active .rec-dot {
-		animation: recBlink 1s ease-in-out infinite;
-	}
-
-	@keyframes recBlink {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.3; }
 	}
 </style>
