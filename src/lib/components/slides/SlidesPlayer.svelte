@@ -302,8 +302,6 @@
 						{/key}
 					{/if}
 
-					<div class="chat-frame__spacer"></div>
-
 					{#if activeAnswer}
 						{#key `${currentScene}-answer`}
 							<SlidesStep kind="final">
@@ -487,7 +485,7 @@
 
 	/* ─── Left: chat frame ─── */
 	.chat-frame {
-		width: 400px;
+		width: 40%;
 		flex-shrink: 0;
 		height: 100vh;
 		display: flex;
@@ -498,9 +496,11 @@
 
 	.chat-frame__inner {
 		width: 100%;
+		max-width: 480px;
 		height: 520px;
 		display: flex;
 		flex-direction: column;
+		justify-content: flex-end;
 		gap: 12px;
 		padding: 24px;
 		border-radius: 16px;
@@ -508,11 +508,6 @@
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		backdrop-filter: blur(10px);
 		overflow-y: auto;
-	}
-
-	.chat-frame__spacer {
-		flex: 1;
-		min-height: 16px;
 	}
 
 	/* ─── Bubbles ─── */
@@ -549,6 +544,7 @@
 
 	.bubble--user {
 		align-self: flex-end;
+		margin-left: 32px;
 		background: rgba(233, 84, 32, 0.25);
 		border: 1px solid rgba(233, 84, 32, 0.35);
 		border-radius: 14px 14px 4px 14px;
@@ -558,6 +554,7 @@
 
 	.bubble--ai {
 		align-self: flex-start;
+		margin-right: 32px;
 		background: rgba(42, 161, 152, 0.22);
 		border: 1px solid rgba(42, 161, 152, 0.3);
 		border-radius: 14px 14px 14px 4px;
