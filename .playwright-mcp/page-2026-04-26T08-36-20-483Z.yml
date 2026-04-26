@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - generic [ref=e15]:
+    - generic [ref=e19]:
+      - generic [ref=e20]: ›
+      - generic [ref=e21]: Open @tests/examples/Osteosarcoma_01.tif with Fiji
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: Fj
+          - generic [ref=e29]: Osteosarcoma_01.tif
+          - generic [ref=e30]: 1376×1104 · RGB · fluorescence
+        - button "Maximize window" [disabled] [ref=e33]:
+          - img [ref=e34]
+      - generic [ref=e37]:
+        - generic [ref=e40]:
+          - button "Zoom out" [ref=e41] [cursor=pointer]: −
+          - button "Reset zoom" [disabled] [ref=e42]: 100%
+          - button "Zoom in" [ref=e43] [cursor=pointer]: +
+        - generic [ref=e44]: 1376×1104 pixels; RGB
+  - button "Rec" [ref=e11] [cursor=pointer]: Rec

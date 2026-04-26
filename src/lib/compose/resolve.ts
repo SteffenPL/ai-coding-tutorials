@@ -56,6 +56,10 @@ function resolveBlocks(
 ): TutorialRound[] {
 	const allRounds: TutorialRound[] = [];
 	for (const block of blocks) {
+		if (block.kind === 'round') {
+			allRounds.push(block.round);
+			continue;
+		}
 		const trace = loadTrace(block.sourceSlug);
 		if (!trace) continue;
 		let rounds = traceStateToTutorialRounds(trace);

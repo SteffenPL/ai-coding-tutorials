@@ -1,0 +1,5 @@
+- generic [ref=e3]:
+  - generic [ref=e7]:
+    - heading "Nuclei Segmentation with Fiji" [level=1] [ref=e8]
+    - paragraph [ref=e9]: "AI-driven nuclei segmentation: two prompts, ten approaches, 103 nuclei detected."
+  - button "Rec" [ref=e11] [cursor=pointer]: Rec

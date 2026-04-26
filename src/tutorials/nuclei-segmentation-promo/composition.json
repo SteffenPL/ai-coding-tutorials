@@ -1,0 +1,105 @@
+{
+  "formatVersion": "1.0.0",
+  "slug": "nuclei-segmentation-promo",
+  "meta": {
+    "slug": "nuclei-segmentation-promo",
+    "title": {
+      "en": "Nuclei Segmentation with Fiji"
+    },
+    "tags": ["fiji", "segmentation", "promo"],
+    "thumbnail": "tutorials/nuclei-segmentation/assets/step_001.png",
+    "author": "Steffen Plunder",
+    "visibility": "hidden"
+  },
+  "description": "AI-driven nuclei segmentation: two prompts, ten approaches, 103 nuclei detected.",
+  "blocks": [
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Open @tests/examples/Osteosarcoma_01.tif with Fiji",
+        "steps": [
+          {
+            "type": "window",
+            "windowTitle": "Osteosarcoma_01.tif",
+            "content": {
+              "kind": "fiji-image",
+              "src": "tutorials/nuclei-segmentation/assets/step_001.png",
+              "statusBar": "1376×1104 pixels; RGB"
+            },
+            "subtitle": "1376×1104 · RGB · fluorescence",
+            "promoDuration": 5000
+          },
+          {
+            "type": "assistant",
+            "html": "<p>The image is open in Fiji — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
+            "final": true,
+            "promoDuration": 5000
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "claude",
+        "prompt": "Segment the nuclei. Try 10 different approaches, compare them, and pick the best.",
+        "steps": [
+          {
+            "type": "window",
+            "windowTitle": "Approaches 1–5",
+            "content": {
+              "kind": "window-collection",
+              "rows": 2,
+              "cols": 3,
+              "windows": [
+                { "title": "#1 Otsu (raw)", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_003.png" } },
+                { "title": "#2 Triangle", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_004.png" } },
+                { "title": "#3 Li", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_005.png" } },
+                { "title": "#4 Gaussian + Otsu", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_006.png" } },
+                { "title": "#5 Gauss + Otsu + WS", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_007.png" } }
+              ]
+            },
+            "subtitle": "Basic thresholding methods",
+            "promoDuration": 5000
+          },
+          {
+            "type": "window",
+            "windowTitle": "Approaches 6–10",
+            "content": {
+              "kind": "window-collection",
+              "rows": 2,
+              "cols": 3,
+              "windows": [
+                { "title": "#6 Median + Otsu + WS", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_008.png" } },
+                { "title": "#7 Gauss + Triangle + WS", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_009.png" } },
+                { "title": "#8 Phansalkar (local)", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_010.png" } },
+                { "title": "#9 Gauss + Otsu + Open + WS ★", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_011.png" } },
+                { "title": "#10 Huang + WS", "content": { "kind": "fiji-image", "src": "tutorials/nuclei-segmentation/assets/step_012.png" } }
+              ]
+            },
+            "subtitle": "Advanced methods",
+            "promoDuration": 5000
+          },
+          {
+            "type": "window",
+            "windowTitle": "Nuclei Segmentation Result",
+            "content": {
+              "kind": "fiji-image",
+              "src": "tutorials/nuclei-segmentation/assets/step_014.png",
+              "statusBar": "103 nuclei detected · Approach #9"
+            },
+            "subtitle": "103 nuclei — Osteosarcoma_01.tif",
+            "promoDuration": 6000
+          },
+          {
+            "type": "assistant",
+            "html": "<p><strong>103 nuclei</strong> segmented using <strong>Approach #9</strong> — Gaussian blur + Otsu threshold + Morphological Open + Watershed.</p><p>#9's morphological Open step removed debris and thin bridges before Watershed, producing the cleanest nucleus shapes out of all 10 approaches.</p>",
+            "final": true,
+            "promoDuration": 8000
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+- generic [ref=e3]:
+  - generic [ref=e15]:
+    - generic [ref=e19]:
+      - generic [ref=e20]: ›
+      - generic [ref=e21]: Open @tests/examples/Osteosarcoma_01.tif with Fiji
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]: Fj
+          - generic [ref=e28]: Osteosarcoma_01.tif
+          - generic [ref=e29]: 1376×1104 · RGB · fluorescence
+        - button "Maximize window" [disabled] [ref=e32]:
+          - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e39]:
+          - button "Zoom out" [ref=e40] [cursor=pointer]: −
+          - button "Reset zoom" [disabled] [ref=e41]: 100%
+          - button "Zoom in" [ref=e42] [cursor=pointer]: +
+        - generic [ref=e43]: 1376×1104 pixels; RGB
+    - generic [ref=e47]:
+      - generic [ref=e48]: ●
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: "The image is open in Fiji. Here's what we're looking at:"
+        - list [ref=e52]:
+          - listitem [ref=e53]:
+            - strong [ref=e54]: Title
+            - text: ": Osteosarcoma_01.tif"
+          - listitem [ref=e55]:
+            - strong [ref=e56]: Dimensions
+            - text: ": 1376 × 1104 pixels, single slice"
+          - listitem [ref=e57]:
+            - strong [ref=e58]: Type
+            - text: ": RGB color"
+          - listitem [ref=e59]:
+            - strong [ref=e60]: Content
+            - text: ": Fluorescence microscopy of osteosarcoma cells — blue (DAPI) marks nuclei, green marks cytoskeleton/actin."
+    - generic [ref=e63]:
+      - generic [ref=e64]: ›
+      - generic [ref=e65]: Please segment the nuclei. Try 10 different approaches, visually compare them all, and pick the best.
+    - generic [ref=e69]:
+      - generic [ref=e70]: ●
+      - paragraph [ref=e73]: I'll systematically try 10 different nuclei segmentation approaches, visually compare them, and select the best one.
+    - generic [ref=e77]:
+      - generic [ref=e78]: ✱
+      - text: Running 10 segmentation pipelines...
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]: Fj
+            - generic [ref=e88]: "#1 Otsu (raw)"
+          - button "Maximize window" [ref=e91] [cursor=pointer]:
+            - img [ref=e92]
+        - generic [ref=e98]:
+          - button "Zoom out" [ref=e99] [cursor=pointer]: −
+          - button "Zoom in" [ref=e100] [cursor=pointer]: +
+      - generic [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]: Fj
+            - generic [ref=e105]: "#2 Triangle"
+          - button "Maximize window" [ref=e108] [cursor=pointer]:
+            - img [ref=e109]
+        - generic [ref=e115]:
+          - button "Zoom out" [ref=e116] [cursor=pointer]: −
+          - button "Zoom in" [ref=e117] [cursor=pointer]: +
+      - generic [ref=e118]:
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - generic [ref=e121]: Fj
+            - generic [ref=e122]: "#3 Li"
+          - button "Maximize window" [ref=e125] [cursor=pointer]:
+            - img [ref=e126]
+        - generic [ref=e132]:
+          - button "Zoom out" [ref=e133] [cursor=pointer]: −
+          - button "Zoom in" [ref=e134] [cursor=pointer]: +
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - generic [ref=e138]: Fj
+            - generic [ref=e139]: "#4 Gaussian + Otsu"
+          - button "Maximize window" [ref=e142] [cursor=pointer]:
+            - img [ref=e143]
+        - generic [ref=e149]:
+          - button "Zoom out" [ref=e150] [cursor=pointer]: −
+          - button "Zoom in" [ref=e151] [cursor=pointer]: +
+      - generic [ref=e152]:
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - generic [ref=e155]: Fj
+            - generic [ref=e156]: "#5 Gauss + Otsu + WS"
+          - button "Maximize window" [ref=e159] [cursor=pointer]:
+            - img [ref=e160]
+        - generic [ref=e166]:
+          - button "Zoom out" [ref=e167] [cursor=pointer]: −
+          - button "Zoom in" [ref=e168] [cursor=pointer]: +
+    - generic [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]:
+            - generic [ref=e177]: Fj
+            - generic [ref=e178]: "#6 Median + Otsu + WS"
+          - button "Maximize window" [ref=e181] [cursor=pointer]:
+            - img [ref=e182]
+        - generic [ref=e188]:
+          - button "Zoom out" [ref=e189] [cursor=pointer]: −
+          - button "Zoom in" [ref=e190] [cursor=pointer]: +
+      - generic [ref=e191]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e194]: Fj
+            - generic [ref=e195]: "#7 Gauss + Triangle + WS"
+          - button "Maximize window" [ref=e198] [cursor=pointer]:
+            - img [ref=e199]
+        - generic [ref=e205]:
+          - button "Zoom out" [ref=e206] [cursor=pointer]: −
+          - button "Zoom in" [ref=e207] [cursor=pointer]: +
+      - generic [ref=e208]:
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]: Fj
+            - generic [ref=e212]: "#8 Phansalkar (local)"
+          - button "Maximize window" [ref=e215] [cursor=pointer]:
+            - img [ref=e216]
+        - generic [ref=e222]:
+          - button "Zoom out" [ref=e223] [cursor=pointer]: −
+          - button "Zoom in" [ref=e224] [cursor=pointer]: +
+      - generic [ref=e225]:
+        - generic [ref=e226]:
+          - generic [ref=e227]:
+            - generic [ref=e228]: Fj
+            - generic [ref=e229]: "#9 Gauss + Otsu + Open + WS ★"
+          - button "Maximize window" [ref=e232] [cursor=pointer]:
+            - img [ref=e233]
+        - generic [ref=e239]:
+          - button "Zoom out" [ref=e240] [cursor=pointer]: −
+          - button "Zoom in" [ref=e241] [cursor=pointer]: +
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e245]: Fj
+            - generic [ref=e246]: "#10 Huang + WS"
+          - button "Maximize window" [ref=e249] [cursor=pointer]:
+            - img [ref=e250]
+        - generic [ref=e256]:
+          - button "Zoom out" [ref=e257] [cursor=pointer]: −
+          - button "Zoom in" [ref=e258] [cursor=pointer]: +
+    - generic [ref=e261]:
+      - generic [ref=e262]:
+        - generic [ref=e263]:
+          - generic [ref=e264]: Fj
+          - generic [ref=e265]: Nuclei Segmentation Result
+          - generic [ref=e266]: 103 nuclei — Osteosarcoma_01.tif
+        - button "Maximize window" [disabled] [ref=e269]:
+          - img [ref=e270]
+      - generic [ref=e273]:
+        - generic [ref=e276]:
+          - button "Zoom out" [ref=e277] [cursor=pointer]: −
+          - button "Reset zoom" [disabled] [ref=e278]: 100%
+          - button "Zoom in" [ref=e279] [cursor=pointer]: +
+        - generic [ref=e280]: "103 nuclei detected · Approach #9"
+  - button "Rec" [ref=e12] [cursor=pointer]: Rec

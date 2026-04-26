@@ -19,6 +19,8 @@ export interface SessionRef {
 	imported?: boolean;
 }
 
+export type TutorialVisibility = 'public' | 'draft' | 'hidden';
+
 export interface TutorialMeta {
 	slug: string;
 	title: { en: string; ja?: string };
@@ -26,6 +28,8 @@ export interface TutorialMeta {
 	thumbnail?: string;
 	sessions?: SessionRef[];
 	author?: string;
+	/** Controls listing visibility: 'public' (default), 'draft' (dev only), 'hidden' (never listed, accessible by slug) */
+	visibility?: TutorialVisibility;
 }
 
 /**
@@ -64,6 +68,8 @@ export interface StepBase {
 	compact?: boolean;
 	/** Collapse into a "N steps hidden" placeholder in simplified view */
 	hidden?: boolean;
+	/** Promo view: milliseconds before auto-advancing to the next step */
+	promoDuration?: number;
 }
 
 /* ─── Chat Steps ──────────────────────────── */

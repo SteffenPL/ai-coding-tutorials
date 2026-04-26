@@ -1,0 +1,43 @@
+- generic [ref=e3]:
+  - generic [ref=e15]:
+    - generic [ref=e19]:
+      - generic [ref=e20]: ›
+      - generic [ref=e21]: Open @tests/examples/Osteosarcoma_01.tif with Fiji
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]: Fj
+          - generic [ref=e28]: Osteosarcoma_01.tif
+          - generic [ref=e29]: 1376×1104 · RGB · fluorescence
+        - button "Maximize window" [disabled] [ref=e32]:
+          - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e39]:
+          - button "Zoom out" [ref=e40] [cursor=pointer]: −
+          - button "Reset zoom" [disabled] [ref=e41]: 100%
+          - button "Zoom in" [ref=e42] [cursor=pointer]: +
+        - generic [ref=e43]: 1376×1104 pixels; RGB
+    - generic [ref=e47]:
+      - generic [ref=e48]: ●
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: "The image is open in Fiji. Here's what we're looking at:"
+        - list [ref=e52]:
+          - listitem [ref=e53]:
+            - strong [ref=e54]: Title
+            - text: ": Osteosarcoma_01.tif"
+          - listitem [ref=e55]:
+            - strong [ref=e56]: Dimensions
+            - text: ": 1376 × 1104 pixels, single slice"
+          - listitem [ref=e57]:
+            - strong [ref=e58]: Type
+            - text: ": RGB color"
+          - listitem [ref=e59]:
+            - strong [ref=e60]: Content
+            - text: ": Fluorescence microscopy of osteosarcoma cells — blue (DAPI) marks nuclei, green marks cytoskeleton/actin."
+    - generic [ref=e63]:
+      - generic [ref=e64]: ›
+      - generic [ref=e65]: Please segment the nuclei. Try 10 different approaches, visually compare them all, and pick the best.
+    - generic [ref=e69]:
+      - generic [ref=e70]: ●
+      - paragraph [ref=e73]: I'll systematically try 10 different nuclei segmentation approaches, visually compare them, and select the best one.
+  - button "Rec" [ref=e12] [cursor=pointer]: Rec

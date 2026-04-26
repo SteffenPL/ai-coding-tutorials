@@ -83,7 +83,9 @@ function buildTutorial(path: string, raw: string): Tutorial | null {
 		);
 	}
 
+	const vis = composition.meta?.visibility ?? 'public';
 	if (composition.devOnly && !import.meta.env.DEV) return null;
+	if (vis === 'draft' && !import.meta.env.DEV) return null;
 
 	const tutorial = resolveComposition(composition, loadTrace);
 
@@ -102,7 +104,7 @@ const allTutorials: Tutorial[] = Object.entries(compositionRaw)
 /* ─── Public API ────────────────────────────── */
 
 export function getAllTutorials(): Tutorial[] {
-	return allTutorials;
+	return allTutorials.filter((t) => t.meta.visibility !== 'hidden');
 }
 
 export function getTutorialBySlug(slug: string): Tutorial | undefined {
