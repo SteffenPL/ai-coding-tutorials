@@ -31,3 +31,5 @@ fiji-output/
 
 # Tutorial creation scratch space
 testevals/
+
+.playwright-mcp/
