@@ -19,30 +19,43 @@
  *   tsx scripts/import-session.ts --session <path.jsonl> --out <dir> [--dry-run]
  */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { copyFileSync, readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename, dirname, resolve } from 'node:path';
 import {
-	SessionEvent,
 	SubagentMeta,
+	SessionEvent,
 	KNOWN_DROPPED_TYPES,
 	KNOWN_DROPPED_SYSTEM_SUBTYPES
 } from '../src/lib/session/schema.ts';
-import { FORMAT_VERSION } from '../src/lib/compose/types.ts';
+import {
+	detectProviderFromJsonl,
+	normalizeSessionJsonl
+} from '../src/lib/session/providers.ts';
+import type { SessionProvider } from '../src/lib/session/normalized-schema.ts';
 
 /* ─── CLI ──────────────────────────────────────────────────────────────── */
 
 interface Args {
 	session: string;
 	out: string;
+	provider: SessionProvider | 'auto';
 	dryRun: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
-	const a: Partial<Args> = { dryRun: false };
+	const a: Partial<Args> = { dryRun: false, provider: 'auto' };
 	for (let i = 0; i < argv.length; i++) {
 		const x = argv[i];
 		if (x === '--session') a.session = argv[++i];
 		else if (x === '--out') a.out = argv[++i];
+		else if (x === '--provider') {
+			const provider = argv[++i];
+			if (!['auto', 'claude', 'codex'].includes(provider)) {
+				console.error(`Unknown provider '${provider}'`);
+				process.exit(1);
+			}
+			a.provider = provider as Args['provider'];
+		}
 		else if (x === '--dry-run') a.dryRun = true;
 		else if (x === '--help' || x === '-h') {
 			console.error(usage());
@@ -57,10 +70,10 @@ function parseArgs(argv: string[]): Args {
 }
 
 function usage(): string {
-	return `Usage: tsx scripts/import-session.ts --session <path.jsonl> --out <dir> [--dry-run]
+	return `Usage: tsx scripts/import-session.ts --session <path.jsonl> --out <dir> [--provider auto|claude|codex] [--dry-run]
 
 Reads the given session .jsonl and any sibling <uuid>/subagents/ folder.
-Writes a filtered copy to <out>/<sessionId>.jsonl (+ subagents/ if present).`;
+Copies the raw input to <out>/raw/ and writes a normalized <out>/session.jsonl.`;
 }
 
 /* ─── Stats ────────────────────────────────────────────────────────────── */
@@ -219,17 +232,6 @@ function sum(m: Map<string, number>): number {
 	return s;
 }
 
-/* ─── Header line ─────────────────────────────────────────────────────── */
-
-function makeHeaderLine(sourceSessionId: string): string {
-	return JSON.stringify({
-		type: 'header',
-		formatVersion: FORMAT_VERSION,
-		importDate: new Date().toISOString(),
-		sourceSessionId
-	});
-}
-
 /* ─── Main ─────────────────────────────────────────────────────────────── */
 
 function main() {
@@ -247,35 +249,62 @@ function main() {
 	console.error(`[import] out:     ${outDir}${args.dryRun ? '  (dry run)' : ''}`);
 
 	/* Main file */
-	const mainStats = blankStats();
-	const mainLines = filterJsonl(readFileSync(sessionPath, 'utf-8'), mainStats);
-	reportStats(`main ${sessionId}.jsonl`, mainStats);
+	const rawText = readFileSync(sessionPath, 'utf-8');
+	const provider = args.provider === 'auto' ? detectProviderFromJsonl(rawText) : args.provider;
+	const rawRelPath = `raw/${basename(sessionPath)}`;
+	const normalized = normalizeSessionJsonl(rawText, {
+		provider,
+		sourceSessionId: sessionId,
+		rawPath: rawRelPath
+	});
+	console.error(`[import] provider: ${normalized.provider}`);
+	console.error(`[import] normalized main: kept ${normalized.kept}, dropped ${normalized.dropped}`);
 
 	if (!args.dryRun) {
 		mkdirSync(outDir, { recursive: true });
-		const headerLine = makeHeaderLine(sessionId);
-		writeFileSync(join(outDir, `${sessionId}.jsonl`), headerLine + '\n' + mainLines.join('\n') + '\n');
+		const rawDir = join(outDir, 'raw');
+		mkdirSync(rawDir, { recursive: true });
+		copyFileSync(sessionPath, join(rawDir, basename(sessionPath)));
+		writeFileSync(
+			join(outDir, 'session.jsonl'),
+			normalized.events.map((e) => JSON.stringify(e)).join('\n') + '\n',
+			'utf-8'
+		);
 	}
 
 	/* Subagents */
 	const subFolder = findSubagentFolder(sessionPath);
-	if (subFolder) {
+	if (subFolder && normalized.provider === 'claude') {
 		const subs = listSubagents(subFolder);
 		console.error(`\n[import] found ${subs.length} subagent(s) in ${subFolder}`);
-		const outSubDir = join(outDir, sessionId, 'subagents');
-		if (!args.dryRun) mkdirSync(outSubDir, { recursive: true });
+		const outSubDir = join(outDir, 'session', 'subagents');
+		const rawSubDir = join(outDir, 'raw', sessionId, 'subagents');
+		if (!args.dryRun) {
+			mkdirSync(outSubDir, { recursive: true });
+			mkdirSync(rawSubDir, { recursive: true });
+		}
 
 		for (const s of subs) {
-			const subStats = blankStats();
-			const lines = filterJsonl(readFileSync(s.jsonlPath, 'utf-8'), subStats);
-			reportStats(`subagent ${s.agentId}`, subStats);
+			const subRawText = readFileSync(s.jsonlPath, 'utf-8');
+			const sub = normalizeSessionJsonl(subRawText, {
+				provider: 'claude',
+				sourceSessionId: s.agentId,
+				rawPath: `raw/${sessionId}/subagents/${basename(s.jsonlPath)}`
+			});
+			console.error(`[import] normalized subagent ${s.agentId}: kept ${sub.kept}, dropped ${sub.dropped}`);
 			if (!args.dryRun) {
-				const subHeader = makeHeaderLine(s.agentId);
-				writeFileSync(join(outSubDir, `agent-${s.agentId}.jsonl`), subHeader + '\n' + lines.join('\n') + '\n');
+				copyFileSync(s.jsonlPath, join(rawSubDir, basename(s.jsonlPath)));
+				writeFileSync(
+					join(outSubDir, `agent-${s.agentId}.jsonl`),
+					sub.events.map((e) => JSON.stringify(e)).join('\n') + '\n',
+					'utf-8'
+				);
 				if (s.metaPath) {
 					const meta = filterMeta(s.metaPath);
-					if (meta)
+					if (meta) {
+						copyFileSync(s.metaPath, join(rawSubDir, basename(s.metaPath)));
 						writeFileSync(join(outSubDir, `agent-${s.agentId}.meta.json`), meta + '\n');
+					}
 				}
 			}
 		}

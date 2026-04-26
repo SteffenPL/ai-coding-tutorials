@@ -17,14 +17,14 @@
  */
 
 import {
-	SessionEvent,
 	SubagentMeta,
-	type AssistantEvent,
-	type CustomTitleEvent,
-	type SessionEvent as TSessionEvent,
-	type SubagentMeta as TSubagentMeta,
-	type UserEvent
+	type SubagentMeta as TSubagentMeta
 } from './schema';
+import {
+	NormalizedSessionEvent,
+	type NormalizedSessionEvent as TSessionEvent
+} from './normalized-schema';
+import { normalizeClaudeJsonl } from './providers';
 
 /* ─── Vite globs ────────────────────────────────────────────────────────── */
 
@@ -90,7 +90,8 @@ function parseMainPath(path: string): { slug: string; sessionId: string } | null
 	const m = path.match(/\/src\/tutorials\/([^/]+)\/session\/([^/]+)\.jsonl$/) ??
 		path.match(/\/src\/sessions\/([^/]+)\/([^/]+)\.jsonl$/);
 	if (!m) return null;
-	return { slug: m[1], sessionId: m[2] };
+	const sessionId = m[2] === 'session' ? 'session' : m[2];
+	return { slug: m[1], sessionId };
 }
 
 function parseSubagentPath(
@@ -128,6 +129,7 @@ function parseJsonl(raw: string, source: string): ParsedJsonl {
 	const events: TSessionEvent[] = [];
 	let formatVersion: string | undefined;
 	const lines = raw.split('\n');
+	let sawHeader = false;
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i].trim();
 		if (!line) continue;
@@ -138,21 +140,37 @@ function parseJsonl(raw: string, source: string): ParsedJsonl {
 			console.warn(`[session loader] ${source}:${i + 1} — invalid JSON, skipped`);
 			continue;
 		}
-		const result = SessionEvent.safeParse(obj);
+		const result = NormalizedSessionEvent.safeParse(obj);
 		if (result.success) {
 			if (result.data.type === 'header') {
+				sawHeader = true;
 				formatVersion = result.data.formatVersion;
-				if (!formatVersion.startsWith('1.')) {
+				if (formatVersion.startsWith('1.')) {
+					return parseLegacyClaudeJsonl(raw, source);
+				}
+				if (!formatVersion.startsWith('2.')) {
 					console.warn(`[session loader] ${source} — unknown formatVersion "${formatVersion}"`);
 				}
 			} else {
 				events.push(result.data);
 			}
 		} else {
-			console.warn(`[session loader] ${source}:${i + 1} — ${result.error.issues[0]?.message}`);
+			break;
 		}
 	}
+	if (!sawHeader || events.length === 0) {
+		return parseLegacyClaudeJsonl(raw, source);
+	}
 	return { events, formatVersion };
+}
+
+function parseLegacyClaudeJsonl(raw: string, source: string): ParsedJsonl {
+	const normalized = normalizeClaudeJsonl(raw, { rawPath: source });
+	if (normalized.dropped > 0) {
+		console.warn(`[session loader] ${source} — migrated legacy Claude log, dropped ${normalized.dropped} lines`);
+	}
+	const events = normalized.events.filter((e) => e.type !== 'header');
+	return { events, formatVersion: '1.x-legacy' };
 }
 
 function parseMeta(raw: string, source: string): TSubagentMeta | null {
@@ -187,6 +205,17 @@ for (const [path, raw] of Object.entries(mainJsonlRaw)) {
 	// first one alphabetically wins and a warning is emitted.
 	const existing = buckets.get(parsed.slug);
 	if (existing) {
+		if (parsed.sessionId === 'session' && existing.sessionId !== 'session') {
+			buckets.set(parsed.slug, {
+				slug: parsed.slug,
+				sessionId: parsed.sessionId,
+				mainPath: path,
+				mainRaw: raw,
+				subagentJsonl: new Map(),
+				subagentMeta: new Map()
+			});
+			continue;
+		}
 		console.warn(
 			`[session loader] slug '${parsed.slug}' has multiple session .jsonl files; ` +
 				`using '${existing.sessionId}', ignoring '${parsed.sessionId}'`
@@ -224,9 +253,7 @@ for (const [path, raw] of Object.entries(subagentMetaRaw)) {
 function buildSession(bucket: SlugBucket): LoadedSession {
 	const { events } = parseJsonl(bucket.mainRaw, bucket.mainPath);
 
-	const customTitle = events.find(
-		(e): e is CustomTitleEvent => e.type === 'custom-title'
-	)?.customTitle;
+	const customTitle = events.find((e) => e.type === 'custom-title')?.customTitle;
 
 	const subagents: Record<string, LoadedSubagent> = {};
 	for (const [agentId, jsonlRaw] of bucket.subagentJsonl) {
@@ -257,13 +284,4 @@ export function getAllSessionSlugs(): string[] {
 export function getSessionBySlug(slug: string): LoadedSession | undefined {
 	const bucket = buckets.get(slug);
 	return bucket ? buildSession(bucket) : undefined;
-}
-
-/* ─── Helpers exposed for the view model ────────────────────────────────── */
-
-export function isUserEvent(e: TSessionEvent): e is UserEvent {
-	return e.type === 'user';
-}
-export function isAssistantEvent(e: TSessionEvent): e is AssistantEvent {
-	return e.type === 'assistant';
 }

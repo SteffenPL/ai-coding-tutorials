@@ -224,7 +224,7 @@
 		{:else}
 			<ul class="item-list">
 				{#each data.sessions as session}
-					{@const sessionTraces = data.traces.filter(t => t.sessionSlug === session.slug)}
+					{@const sessionTraces = data.traces.filter((t: { sessionSlug?: string }) => t.sessionSlug === session.slug)}
 					<li class="item item-col">
 						<div class="item-row">
 							<span class="item-slug">{session.slug}</span>

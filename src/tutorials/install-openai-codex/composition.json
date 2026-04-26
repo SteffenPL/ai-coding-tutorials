@@ -1,0 +1,102 @@
+{
+  "formatVersion": "1.0.0",
+  "slug": "install-openai-codex",
+  "meta": {
+    "slug": "install-openai-codex",
+    "title": {
+      "en": "Install OpenAI Codex",
+      "ja": "OpenAI Codex のインストール"
+    },
+    "tags": [
+      "codex",
+      "openai",
+      "getting-started",
+      "setup"
+    ],
+    "sessions": [
+      {
+        "id": "rollout-2026-04-27T06-07-36-019dcb9e-8258-7ca2-ac41-88559a80607f",
+        "source": "codex",
+        "raw": "src/sessions/install-openai-codex/raw/rollout-2026-04-27T06-07-36-019dcb9e-8258-7ca2-ac41-88559a80607f.jsonl",
+        "imported": true
+      }
+    ],
+    "author": "Steffen Plunder"
+  },
+  "description": "Install the OpenAI Codex CLI, sign in, start a first local coding session, and see how this site can import a real Codex session log as tutorial input. The final trace block is generated from a Codex session recorded in the local `demo2` folder.",
+  "requirements": "- macOS or Linux terminal\n- Node.js/npm available on your machine\n- An OpenAI account for authentication\n- A project folder where you want Codex to work",
+  "blocks": [
+    {
+      "kind": "round",
+      "round": {
+        "kind": "terminal",
+        "prompt": "Install the Codex CLI",
+        "steps": [
+          {
+            "type": "assistant",
+            "html": "<p>Codex CLI is OpenAI's local coding agent for the terminal. Install it globally with npm, then run it from the root of the project you want Codex to inspect or edit.</p>",
+            "comment": {
+              "en": "OpenAI's current CLI getting-started docs list <code>npm install -g @openai/codex</code> as the zero-setup install path."
+            }
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Terminal",
+            "code": "npm install -g @openai/codex",
+            "comment": {
+              "en": "This installs the <code>codex</code> command globally so it is available from any project folder."
+            }
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Terminal",
+            "code": "codex --version\ncodex --help",
+            "comment": {
+              "en": "Verify that the command is on your PATH and inspect the available subcommands and flags."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "round",
+      "round": {
+        "kind": "terminal",
+        "prompt": "Sign in and start a first session",
+        "steps": [
+          {
+            "type": "assistant",
+            "html": "<p>Authenticate once, then start Codex from a real project directory. Newer Codex CLI versions expose authentication as the <code>codex login</code> subcommand.</p>",
+            "comment": {
+              "en": "The installed CLI in this workspace uses <code>codex login</code>. Some OpenAI help articles mention older login spellings, so checking <code>codex --help</code> is useful."
+            }
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Terminal",
+            "code": "codex login",
+            "comment": {
+              "en": "Follow the browser-based sign-in flow and let Codex store credentials locally."
+            }
+          },
+          {
+            "type": "tool_call",
+            "toolName": "Terminal",
+            "code": "cd path/to/your/project\ncodex",
+            "comment": {
+              "en": "Starting Codex inside a project gives it the local files and instructions it needs for a useful coding session."
+            }
+          },
+          {
+            "type": "assistant",
+            "html": "<p>For this tutorial's imported demo, Codex was started in a small folder named <code>demo2</code> and asked to build a Brownian motion webpage. The next section is the actual imported Codex session trace.</p>"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "trace",
+      "sourceSlug": "install-openai-codex"
+    }
+  ]
+}
