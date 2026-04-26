@@ -34,27 +34,13 @@
 		const result: SceneItem[][] = [];
 		for (const round of tutorial.rounds) {
 			const items: SceneItem[] = [];
-			items.push({
-				kind: 'prompt',
-				round,
-				duration: PROMPT_DURATION
-			});
+			items.push({ kind: 'prompt', round, duration: PROMPT_DURATION });
 			for (const step of round.steps) {
 				if (step.hidden) continue;
 				if (step.type === 'window') {
-					items.push({
-						kind: 'window',
-						round,
-						step,
-						duration: step.slideDuration ?? WINDOW_DURATION
-					});
+					items.push({ kind: 'window', round, step, duration: step.slideDuration ?? WINDOW_DURATION });
 				} else if (step.type === 'assistant' && (step as AssistantStep).final) {
-					items.push({
-						kind: 'answer',
-						round,
-						step,
-						duration: step.slideDuration ?? ANSWER_DURATION
-					});
+					items.push({ kind: 'answer', round, step, duration: step.slideDuration ?? ANSWER_DURATION });
 				}
 			}
 			result.push(items);
@@ -72,7 +58,6 @@
 	let paused = $state(false);
 	let itemsShown = $state(0);
 	let showHotkeys = $state(false);
-
 	let timerId: ReturnType<typeof setTimeout> | null = null;
 
 	let progress = $derived(
@@ -83,9 +68,8 @@
 
 	let activePrompt = $derived.by(() => {
 		if (phase !== 'playing' || currentScene >= scenes.length) return null;
-		const items = scenes[currentScene];
 		if (currentItemInScene < 0) return null;
-		return items[0]?.kind === 'prompt' ? items[0] : null;
+		return scenes[currentScene][0]?.kind === 'prompt' ? scenes[currentScene][0] : null;
 	});
 
 	let activeWindows = $derived.by(() => {
@@ -93,9 +77,7 @@
 		const items = scenes[currentScene];
 		const wins: WindowStep[] = [];
 		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
-			if (items[i].kind === 'window' && items[i].step) {
-				wins.push(items[i].step as WindowStep);
-			}
+			if (items[i].kind === 'window' && items[i].step) wins.push(items[i].step as WindowStep);
 		}
 		return wins;
 	});
@@ -109,30 +91,9 @@
 		return null;
 	});
 
-	let activeComment = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return null;
-		const items = scenes[currentScene];
-		for (let i = currentItemInScene; i >= 0 && i < items.length; i--) {
-			const step = items[i].step;
-			if (step?.comment) {
-				const c = step.comment;
-				if (typeof c === 'string') return c;
-				return langStore.current === 'ja' && c.ja ? c.ja : c.en;
-			}
-		}
-		return null;
-	});
-
-	let sceneHasWindows = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return false;
-		return scenes[currentScene].some(item => item.kind === 'window');
-	});
-
 	function windowStackStyle(index: number, total: number): string {
 		const depth = total - 1 - index;
-		if (depth === 0) {
-			return 'opacity:1;transform:translate(-50%,-50%) scale(1);z-index:30;';
-		}
+		if (depth === 0) return 'opacity:1;transform:translate(-50%,-50%) scale(1);z-index:30;';
 		const tx = depth * 40;
 		const ty = depth * -18;
 		const scale = Math.max(0.75, 1 - depth * 0.04);
@@ -144,38 +105,28 @@
 
 	/* ─── Playback engine ────────────────────── */
 
-	function clearTimer() {
-		if (timerId) { clearTimeout(timerId); timerId = null; }
-	}
+	function clearTimer() { if (timerId) { clearTimeout(timerId); timerId = null; } }
 
 	function advance() {
 		if (paused) return;
 		const items = scenes[currentScene];
 		if (!items) { phase = 'done'; return; }
-
 		currentItemInScene++;
 		itemsShown++;
-
 		if (currentItemInScene >= items.length) {
 			currentScene++;
 			currentItemInScene = -1;
-			if (currentScene >= scenes.length) {
-				phase = 'done';
-				return;
-			}
+			if (currentScene >= scenes.length) { phase = 'done'; return; }
 			timerId = setTimeout(advance, SCENE_GAP);
 			return;
 		}
-
-		const item = items[currentItemInScene];
-		timerId = setTimeout(advance, item.duration);
+		timerId = setTimeout(advance, items[currentItemInScene].duration);
 	}
 
 	function stepForward() {
 		clearTimer();
 		if (phase === 'title') { startPlayback(); return; }
 		if (phase === 'done') return;
-
 		const items = scenes[currentScene];
 		if (currentItemInScene + 1 >= items.length) {
 			currentScene++;
@@ -188,7 +139,6 @@
 			currentItemInScene++;
 			itemsShown++;
 		}
-
 		if (!paused) {
 			const item = scenes[currentScene]?.[currentItemInScene];
 			if (item) timerId = setTimeout(advance, item.duration);
@@ -205,7 +155,6 @@
 			return;
 		}
 		if (phase === 'title') return;
-
 		if (currentItemInScene > 0) {
 			currentItemInScene--;
 			itemsShown = Math.max(0, itemsShown - 1);
@@ -214,7 +163,6 @@
 			currentItemInScene = scenes[currentScene].length - 1;
 			itemsShown = Math.max(0, itemsShown - 1);
 		}
-
 		if (!paused) {
 			const item = scenes[currentScene]?.[currentItemInScene];
 			if (item) timerId = setTimeout(advance, item.duration);
@@ -243,17 +191,11 @@
 		if (phase === 'title') { startPlayback(); return; }
 		if (phase === 'done') return;
 		paused = !paused;
-		if (paused) {
-			clearTimer();
-		} else {
-			advance();
-		}
+		if (paused) clearTimer();
+		else advance();
 	}
 
-	function exitSlides() {
-		clearTimer();
-		goto(`${base}/tutorials/${tutorial.meta.slug}`);
-	}
+	function exitSlides() { clearTimer(); goto(`${base}/tutorials/${tutorial.meta.slug}`); }
 
 	function cycleTheme() {
 		const idx = THEMES.findIndex(t => t.id === themeStore.theme);
@@ -275,18 +217,12 @@
 
 	let touchStartX = 0;
 	let touchStartY = 0;
-
-	function handleTouchStart(e: TouchEvent) {
-		touchStartX = e.touches[0].clientX;
-		touchStartY = e.touches[0].clientY;
-	}
-
+	function handleTouchStart(e: TouchEvent) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }
 	function handleTouchEnd(e: TouchEvent) {
 		const dx = e.changedTouches[0].clientX - touchStartX;
 		const dy = e.changedTouches[0].clientY - touchStartY;
 		if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dy) > Math.abs(dx)) return;
-		if (dx < 0) stepForward();
-		else stepBack();
+		if (dx < 0) stepForward(); else stepBack();
 	}
 
 	onMount(() => { timerId = setTimeout(startPlayback, TITLE_DURATION); });
@@ -302,7 +238,7 @@
 	<Wallpaper />
 	<SlidesProgress {progress} />
 
-	<!-- Top-right controls (visible on hover / touch) -->
+	<!-- Top-right controls -->
 	<div class="slides-controls">
 		<button class="slides-ctrl-btn" title="Keyboard shortcuts" onclick={() => (showHotkeys = !showHotkeys)}>
 			<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -320,9 +256,9 @@
 	<!-- Hotkeys overlay -->
 	{#if showHotkeys}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="slides-hotkeys-overlay" onclick={() => (showHotkeys = false)}>
+		<div class="hotkeys-overlay" onclick={() => (showHotkeys = false)}>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="slides-hotkeys" onclick={(e) => e.stopPropagation()}>
+			<div class="hotkeys" onclick={(e) => e.stopPropagation()}>
 				<h3>Keyboard Shortcuts</h3>
 				<dl>
 					<dt><kbd>Space</kbd> / <kbd>P</kbd></dt><dd>Play / Pause</dd>
@@ -333,123 +269,80 @@
 					<dt><kbd>Esc</kbd></dt><dd>Exit slides</dd>
 					<dt><kbd>/</kbd></dt><dd>Toggle this help</dd>
 				</dl>
-				<p class="slides-hotkeys__swipe">On touch devices: swipe left/right to navigate</p>
-				<button class="slides-hotkeys__close" onclick={() => (showHotkeys = false)}>Got it</button>
+				<p class="hotkeys__hint">Swipe left/right on touch devices</p>
+				<button class="hotkeys__close" onclick={() => (showHotkeys = false)}>Got it</button>
 			</div>
 		</div>
 	{/if}
 
 	<!-- Title card -->
 	{#if phase === 'title'}
-		<div class="slides-title-card">
-			<h1 class="slides-title">{title}</h1>
+		<div class="title-card">
+			<h1 class="title-card__heading">{title}</h1>
 			{#if tutorial.description}
-				<p class="slides-subtitle">{tutorial.description}</p>
+				<p class="title-card__sub">{tutorial.description}</p>
 			{/if}
 		</div>
 	{/if}
 
-	<!-- Playing / done -->
+	<!-- Main layout: left chat + right content -->
 	{#if phase === 'playing' || phase === 'done'}
-		{#if sceneHasWindows}
-			<!-- ═══ ACTION LAYOUT: windows take center stage ═══ -->
-			<div class="action-layout">
-				<div class="action-top">
+		<div class="layout">
+			<!-- Left: chat frame -->
+			<div class="chat-frame">
+				<div class="chat-frame__inner">
 					{#if activePrompt}
 						{#key `${currentScene}-prompt`}
 							<SlidesStep kind="prompt">
-								<div class="bubble bubble--user bubble--compact">
-									<span class="bubble__sender">You</span>
+								<div class="bubble bubble--user">
+									<span class="bubble__tag">You</span>
 									<span class="bubble__text">{activePrompt.round.prompt}</span>
 								</div>
 							</SlidesStep>
 						{/key}
 					{/if}
-				</div>
 
-				<div class="action-center">
-					{#if activeWindows.length > 0}
-						{#each activeWindows as win, wi (wi + '-' + currentScene)}
-							<div
-								class="slides-stack-window"
-								style={windowStackStyle(wi, activeWindows.length)}
-							>
-								<div class="slides-window">
-									{#if !isChromeless(win.content)}
-										<WindowChrome
-											title={win.windowTitle}
-											subtitle={win.subtitle}
-											icon={win.icon ?? getWindowIcon(win.content)}
-										/>
-									{/if}
-									<div class="slides-window__content">
-										<WindowContent content={win.content} />
-									</div>
+					<div class="chat-frame__spacer"></div>
+
+					{#if activeAnswer}
+						{#key `${currentScene}-answer`}
+							<SlidesStep kind="final">
+								<div class="bubble bubble--ai">
+									<span class="bubble__tag">AI Agent</span>
+									<div class="bubble__html">{@html activeAnswer.html}</div>
+								</div>
+							</SlidesStep>
+						{/key}
+					{/if}
+				</div>
+			</div>
+
+			<!-- Right: window content -->
+			<div class="content-area">
+				{#if activeWindows.length > 0}
+					{#each activeWindows as win, wi (wi + '-' + currentScene)}
+						<div class="stack-window" style={windowStackStyle(wi, activeWindows.length)}>
+							<div class="window">
+								{#if !isChromeless(win.content)}
+									<WindowChrome
+										title={win.windowTitle}
+										subtitle={win.subtitle}
+										icon={win.icon ?? getWindowIcon(win.content)}
+									/>
+								{/if}
+								<div class="window__content">
+									<WindowContent content={win.content} />
 								</div>
 							</div>
-						{/each}
-					{/if}
-				</div>
-
-				<div class="action-bottom">
-					{#if activeAnswer}
-						{#key `${currentScene}-answer`}
-							<SlidesStep kind="final">
-								<div class="bubble bubble--ai">
-									<span class="bubble__sender">AI</span>
-									<div class="bubble__html">{@html activeAnswer.html}</div>
-								</div>
-							</SlidesStep>
-						{/key}
-					{/if}
-					{#if activeComment && !activeAnswer}
-						{#key activeComment}
-							<div class="action-comment">{@html activeComment}</div>
-						{/key}
-					{/if}
-				</div>
-			</div>
-		{:else}
-			<!-- ═══ CHAT LAYOUT: prompt + answer conversation ═══ -->
-			<div class="chat-layout">
-				<div class="chat-thread">
-					{#if activePrompt}
-						{#key `${currentScene}-prompt`}
-							<SlidesStep kind="prompt">
-								<div class="bubble bubble--user">
-									<span class="bubble__sender">You</span>
-									<div class="bubble__text">{activePrompt.round.prompt}</div>
-								</div>
-							</SlidesStep>
-						{/key}
-					{/if}
-
-					{#if activeAnswer}
-						{#key `${currentScene}-answer`}
-							<SlidesStep kind="final">
-								<div class="bubble bubble--ai">
-									<span class="bubble__sender">AI Agent</span>
-									<div class="bubble__html">{@html activeAnswer.html}</div>
-								</div>
-							</SlidesStep>
-						{/key}
-					{/if}
-				</div>
-
-				{#if activeComment}
-					{#key activeComment}
-						<div class="chat-comment">
-							<div class="chat-comment__bubble">{@html activeComment}</div>
 						</div>
-					{/key}
+					{/each}
 				{/if}
 			</div>
-		{/if}
+		</div>
 	{/if}
 
-	<!-- Pause indicator -->
 	{#if paused}
-		<div class="slides-badge">PAUSED</div>
+		<div class="pause-badge">PAUSED</div>
 	{/if}
 </div>
 
@@ -462,7 +355,7 @@
 		touch-action: pan-y;
 	}
 
-	/* ─── Top-right controls ─── */
+	/* ─── Controls ─── */
 	.slides-controls {
 		position: fixed;
 		top: 12px;
@@ -471,17 +364,11 @@
 		display: flex;
 		gap: 6px;
 		opacity: 0;
-		transition: opacity 0.25s ease;
+		transition: opacity 0.25s;
 	}
-
 	.slides-root:hover .slides-controls,
-	.slides-controls:focus-within {
-		opacity: 1;
-	}
-
-	@media (pointer: coarse) {
-		.slides-controls { opacity: 0.6; }
-	}
+	.slides-controls:focus-within { opacity: 1; }
+	@media (pointer: coarse) { .slides-controls { opacity: 0.6; } }
 
 	.slides-ctrl-btn {
 		width: 36px;
@@ -495,17 +382,15 @@
 		color: rgba(255, 255, 255, 0.7);
 		cursor: pointer;
 		backdrop-filter: blur(8px);
-		transition: background 0.15s, color 0.15s, border-color 0.15s;
+		transition: background 0.15s, color 0.15s;
 	}
-
 	.slides-ctrl-btn:hover {
 		background: rgba(0, 0, 0, 0.65);
 		color: white;
-		border-color: rgba(255, 255, 255, 0.25);
 	}
 
-	/* ─── Hotkeys overlay ─── */
-	.slides-hotkeys-overlay {
+	/* ─── Hotkeys ─── */
+	.hotkeys-overlay {
 		position: fixed;
 		inset: 0;
 		z-index: 300;
@@ -516,8 +401,7 @@
 		backdrop-filter: blur(4px);
 		animation: fadeIn 0.15s ease-out;
 	}
-
-	.slides-hotkeys {
+	.hotkeys {
 		background: var(--bg-secondary, #1a1020);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 14px;
@@ -525,35 +409,12 @@
 		max-width: 380px;
 		width: 90%;
 		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-		animation: scaleIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 	}
-
-	.slides-hotkeys h3 {
-		margin: 0 0 16px;
-		font-family: var(--font-display);
-		font-size: 1rem;
-		font-weight: 700;
-		color: var(--text-primary);
-	}
-
-	.slides-hotkeys dl {
-		margin: 0;
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 6px 16px;
-		align-items: baseline;
-	}
-
-	.slides-hotkeys dt { text-align: right; white-space: nowrap; }
-
-	.slides-hotkeys dd {
-		margin: 0;
-		font-family: var(--font-display);
-		font-size: 0.85rem;
-		color: var(--text-secondary);
-	}
-
-	.slides-hotkeys kbd {
+	.hotkeys h3 { margin: 0 0 16px; font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+	.hotkeys dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: baseline; }
+	.hotkeys dt { text-align: right; white-space: nowrap; }
+	.hotkeys dd { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+	.hotkeys kbd {
 		display: inline-block;
 		padding: 2px 7px;
 		border-radius: 4px;
@@ -562,17 +423,9 @@
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 		color: var(--text-primary);
-		line-height: 1.4;
 	}
-
-	.slides-hotkeys__swipe {
-		margin: 14px 0 0;
-		font-size: 0.78rem;
-		color: var(--text-tertiary);
-		font-style: italic;
-	}
-
-	.slides-hotkeys__close {
+	.hotkeys__hint { margin: 14px 0 0; font-size: 0.78rem; color: var(--text-tertiary); font-style: italic; }
+	.hotkeys__close {
 		display: block;
 		margin: 16px auto 0;
 		padding: 6px 20px;
@@ -580,29 +433,16 @@
 		border-radius: 6px;
 		background: rgba(255, 255, 255, 0.06);
 		color: var(--text-secondary);
-		font-family: var(--font-display);
 		font-size: 0.82rem;
 		cursor: pointer;
 		transition: all 0.15s;
 	}
+	.hotkeys__close:hover { background: rgba(255, 255, 255, 0.12); color: var(--text-primary); }
 
-	.slides-hotkeys__close:hover {
-		background: rgba(255, 255, 255, 0.12);
-		color: var(--text-primary);
-	}
-
-	@keyframes fadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
-	}
-
-	@keyframes scaleIn {
-		from { opacity: 0; transform: scale(0.95); }
-		to { opacity: 1; transform: scale(1); }
-	}
+	@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 	/* ─── Title card ─── */
-	.slides-title-card {
+	.title-card {
 		position: relative;
 		z-index: 1;
 		display: flex;
@@ -612,10 +452,9 @@
 		height: 100vh;
 		text-align: center;
 		padding: 0 48px;
-		animation: slidesTitleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+		animation: titleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
-
-	.slides-title {
+	.title-card__heading {
 		font-size: 2.8rem;
 		font-weight: 700;
 		color: var(--text-primary);
@@ -623,215 +462,140 @@
 		letter-spacing: -0.02em;
 		line-height: 1.2;
 	}
-
-	.slides-subtitle {
+	.title-card__sub {
 		font-size: 1.2rem;
 		color: var(--text-secondary);
 		margin-top: 16px;
 		max-width: 600px;
 		line-height: 1.5;
 	}
-
-	@keyframes slidesTitleIn {
+	@keyframes titleIn {
 		from { opacity: 0; transform: translateY(24px); }
 		to { opacity: 1; transform: translateY(0); }
 	}
 
 	/* ════════════════════════════════════════════
-	   Chat bubbles (shared by both layouts)
+	   Main layout: left chat + right content
 	   ════════════════════════════════════════════ */
 
-	.bubble {
-		max-width: 620px;
-		padding: 20px 24px;
+	.layout {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		height: 100vh;
+	}
+
+	/* ─── Left: chat frame ─── */
+	.chat-frame {
+		width: 36%;
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 32px 24px 32px 40px;
+	}
+
+	.chat-frame__inner {
+		width: 100%;
+		max-width: 420px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 24px;
 		border-radius: 16px;
-		font-size: 1.1rem;
-		line-height: 1.6;
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		backdrop-filter: blur(6px);
+		max-height: calc(100vh - 80px);
+		overflow-y: auto;
+	}
+
+	.chat-frame__spacer {
+		flex: 1;
+		min-height: 16px;
+	}
+
+	/* ─── Bubbles ─── */
+
+	.bubble {
+		padding: 14px 18px;
+		border-radius: 14px;
+		font-size: 0.95rem;
+		line-height: 1.55;
 		color: var(--text-primary);
 	}
 
-	.bubble__sender {
+	.bubble__tag {
 		display: block;
 		font-family: var(--font-mono);
-		font-size: 0.65rem;
+		font-size: 0.6rem;
 		font-weight: 700;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
-		margin-bottom: 6px;
+		margin-bottom: 4px;
 		opacity: 0.7;
 	}
 
 	.bubble__text {
 		font-family: var(--font-mono);
+		font-size: 0.9rem;
 		white-space: pre-wrap;
 		word-break: break-word;
 	}
 
-	.bubble__html :global(p) { margin: 0 0 10px; }
+	.bubble__html :global(p) { margin: 0 0 8px; }
 	.bubble__html :global(p:last-child) { margin-bottom: 0; }
 	.bubble__html :global(strong) { color: var(--text-primary); }
 
-	/* User bubble — right-aligned, orange */
 	.bubble--user {
-		margin-left: auto;
+		align-self: flex-end;
 		background: rgba(233, 84, 32, 0.12);
 		border: 1px solid rgba(233, 84, 32, 0.2);
-		border-radius: 16px 16px 4px 16px;
+		border-radius: 14px 14px 4px 14px;
 		text-align: right;
 	}
+	.bubble--user .bubble__tag { color: var(--orange-400, #E95420); }
 
-	.bubble--user .bubble__sender {
-		color: var(--orange-400, #E95420);
-	}
-
-	/* AI bubble — left-aligned, teal */
 	.bubble--ai {
-		margin-right: auto;
+		align-self: flex-start;
 		background: rgba(42, 161, 152, 0.1);
 		border: 1px solid rgba(42, 161, 152, 0.18);
-		border-radius: 16px 16px 16px 4px;
+		border-radius: 14px 14px 14px 4px;
 	}
+	.bubble--ai .bubble__tag { color: var(--teal, #2AA198); }
 
-	.bubble--ai .bubble__sender {
-		color: var(--teal, #2AA198);
-	}
-
-	/* Compact bubble (action layout top bar) */
-	.bubble--compact {
-		max-width: none;
-		padding: 12px 18px;
-		font-size: 0.95rem;
-	}
-
-	.bubble--compact .bubble__sender {
-		display: inline;
-		margin-right: 8px;
-		margin-bottom: 0;
-	}
-
-	.bubble--compact .bubble__text {
-		display: inline;
-	}
-
-	/* ════════════════════════════════════════════
-	   CHAT LAYOUT — prompt right, answer left
-	   ════════════════════════════════════════════ */
-
-	.chat-layout {
-		position: relative;
-		z-index: 1;
+	/* ─── Right: content area ─── */
+	.content-area {
+		width: 64%;
 		height: 100vh;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 48px;
-	}
-
-	.chat-thread {
-		display: flex;
-		flex-direction: column;
-		gap: 24px;
-		width: 100%;
-		max-width: 720px;
-	}
-
-	.chat-comment {
-		position: absolute;
-		bottom: 32px;
-		left: 50%;
-		transform: translateX(-50%);
-		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-	}
-
-	.chat-comment__bubble {
-		padding: 12px 20px;
-		border-radius: 10px;
-		background: rgba(255, 255, 255, 0.06);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		font-size: 0.85rem;
-		line-height: 1.5;
-		color: var(--text-tertiary);
-		max-width: 600px;
-		text-align: center;
-	}
-
-	/* ════════════════════════════════════════════
-	   ACTION LAYOUT — windows center stage
-	   ════════════════════════════════════════════ */
-
-	.action-layout {
 		position: relative;
-		z-index: 1;
-		height: 100vh;
-		display: flex;
-		flex-direction: column;
 	}
 
-	.action-top {
-		flex-shrink: 0;
-		padding: 20px 32px 0 32px;
-	}
-
-	.action-center {
-		position: relative;
-		flex: 1;
-		min-height: 0;
-	}
-
-	.action-bottom {
-		flex-shrink: 0;
-		padding: 0 32px 24px;
-		display: flex;
-		justify-content: flex-start;
-	}
-
-	.action-bottom .bubble--ai {
-		max-width: 560px;
-	}
-
-	.action-comment {
-		padding: 10px 18px;
-		font-size: 0.85rem;
-		line-height: 1.5;
-		color: var(--text-tertiary);
-		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-	}
-
-	/* ─── Window stack (shared) ─── */
-
-	.slides-stack-window {
+	.stack-window {
 		position: absolute;
 		left: 50%;
 		top: 50%;
-		width: 85%;
-		max-width: 750px;
+		width: 88%;
+		max-width: 780px;
 		transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
 		            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
 		            filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
-	.slides-window {
+	.window {
 		border-radius: 10px;
 		overflow: hidden;
 		background: var(--bg-primary);
-		box-shadow:
-			0 8px 40px rgba(0, 0, 0, 0.35),
-			0 2px 8px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
 	}
 
-	.slides-window__content {
-		max-height: 55vh;
+	.window__content {
+		max-height: 65vh;
 		overflow: hidden;
 	}
 
-	@keyframes commentIn {
-		from { opacity: 0; transform: translateY(8px); }
-		to { opacity: 1; transform: translateY(0); }
-	}
-
-	/* ─── Pause indicator ─── */
-	.slides-badge {
+	/* ─── Pause ─── */
+	.pause-badge {
 		position: fixed;
 		bottom: 24px;
 		right: 24px;
@@ -844,54 +608,5 @@
 		font-family: var(--font-mono);
 		letter-spacing: 0.15em;
 		backdrop-filter: blur(8px);
-	}
-
-	/* ─── Mobile ─── */
-	@media (max-width: 900px) {
-		.slides-title-card { padding: 0 24px; }
-		.slides-title { font-size: 1.8rem; }
-		.slides-subtitle { font-size: 1rem; }
-
-		.bubble {
-			max-width: none;
-			padding: 14px 18px;
-			font-size: 0.95rem;
-		}
-
-		.chat-layout {
-			padding: 24px 16px;
-			justify-content: flex-start;
-			padding-top: 48px;
-		}
-
-		.chat-thread { gap: 16px; }
-
-		.chat-comment {
-			position: relative;
-			bottom: auto;
-			left: auto;
-			transform: none;
-			margin-top: 24px;
-		}
-
-		.action-layout {
-			height: auto;
-			min-height: 100vh;
-			overflow-y: auto;
-		}
-
-		.action-top { padding: 16px 16px 0; }
-		.action-bottom { padding: 0 16px 16px; }
-
-		.action-center {
-			min-height: 220px;
-			aspect-ratio: 4 / 3;
-		}
-
-		.slides-stack-window { width: 95%; }
-		.slides-window__content { max-height: none; }
-
-		.slides-badge { bottom: 12px; right: 12px; }
-		.slides-controls { opacity: 0.6; }
 	}
 </style>
