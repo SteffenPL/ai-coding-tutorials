@@ -10,7 +10,6 @@
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
 	import SlidesProgress from './SlidesProgress.svelte';
-	import SlidesPrompt from './SlidesPrompt.svelte';
 	import SlidesStep from './SlidesStep.svelte';
 
 	let { tutorial }: { tutorial: Tutorial } = $props();
@@ -122,6 +121,11 @@
 			}
 		}
 		return null;
+	});
+
+	let sceneHasWindows = $derived.by(() => {
+		if (phase !== 'playing' || currentScene >= scenes.length) return false;
+		return scenes[currentScene].some(item => item.kind === 'window');
 	});
 
 	function windowStackStyle(index: number, total: number): string {
@@ -345,44 +349,25 @@
 		</div>
 	{/if}
 
-	<!-- Split layout -->
+	<!-- Playing / done -->
 	{#if phase === 'playing' || phase === 'done'}
-		<div class="slides-layout">
-			<!-- Left: prompt + answer -->
-			<div class="slides-left">
-				{#if activePrompt}
-					{#key `${currentScene}-prompt`}
-						<div class="slides-left__section">
-							<span class="slides-label">User Prompt</span>
+		{#if sceneHasWindows}
+			<!-- ═══ ACTION LAYOUT: windows take center stage ═══ -->
+			<div class="action-layout">
+				<div class="action-top">
+					{#if activePrompt}
+						{#key `${currentScene}-prompt`}
 							<SlidesStep kind="prompt">
-								<SlidesPrompt
-									text={activePrompt.round.prompt}
-									kind={activePrompt.round.kind ?? 'claude'}
-								/>
-							</SlidesStep>
-						</div>
-					{/key}
-				{/if}
-
-				{#if activeAnswer}
-					{#key `${currentScene}-answer`}
-						<div class="slides-left__section">
-							<span class="slides-label slides-label--teal">AI Agent Response</span>
-							<SlidesStep kind="final">
-								<div class="slides-answer">
-									{@html activeAnswer.html}
+								<div class="bubble bubble--user bubble--compact">
+									<span class="bubble__sender">You</span>
+									<span class="bubble__text">{activePrompt.round.prompt}</span>
 								</div>
 							</SlidesStep>
-						</div>
-					{/key}
-				{/if}
-			</div>
+						{/key}
+					{/if}
+				</div>
 
-			<!-- Right: label + window stack + comment -->
-			<div class="slides-right">
-				<span class="slides-label slides-label--green">AI Agent — Autonomous Actions</span>
-
-				<div class="slides-desktop">
+				<div class="action-center">
 					{#if activeWindows.length > 0}
 						{#each activeWindows as win, wi (wi + '-' + currentScene)}
 							<div
@@ -406,17 +391,60 @@
 					{/if}
 				</div>
 
+				<div class="action-bottom">
+					{#if activeAnswer}
+						{#key `${currentScene}-answer`}
+							<SlidesStep kind="final">
+								<div class="bubble bubble--ai">
+									<span class="bubble__sender">AI</span>
+									<div class="bubble__html">{@html activeAnswer.html}</div>
+								</div>
+							</SlidesStep>
+						{/key}
+					{/if}
+					{#if activeComment && !activeAnswer}
+						{#key activeComment}
+							<div class="action-comment">{@html activeComment}</div>
+						{/key}
+					{/if}
+				</div>
+			</div>
+		{:else}
+			<!-- ═══ CHAT LAYOUT: prompt + answer conversation ═══ -->
+			<div class="chat-layout">
+				<div class="chat-thread">
+					{#if activePrompt}
+						{#key `${currentScene}-prompt`}
+							<SlidesStep kind="prompt">
+								<div class="bubble bubble--user">
+									<span class="bubble__sender">You</span>
+									<div class="bubble__text">{activePrompt.round.prompt}</div>
+								</div>
+							</SlidesStep>
+						{/key}
+					{/if}
+
+					{#if activeAnswer}
+						{#key `${currentScene}-answer`}
+							<SlidesStep kind="final">
+								<div class="bubble bubble--ai">
+									<span class="bubble__sender">AI Agent</span>
+									<div class="bubble__html">{@html activeAnswer.html}</div>
+								</div>
+							</SlidesStep>
+						{/key}
+					{/if}
+				</div>
+
 				{#if activeComment}
 					{#key activeComment}
-						<div class="slides-comment">
-							<div class="slides-comment__bubble">
-								{@html activeComment}
-							</div>
+						<div class="chat-comment">
+							<div class="chat-comment__bubble">{@html activeComment}</div>
 						</div>
 					{/key}
 				{/if}
 			</div>
-		</div>
+		{/if}
 	{/if}
 
 	<!-- Pause indicator -->
@@ -452,9 +480,7 @@
 	}
 
 	@media (pointer: coarse) {
-		.slides-controls {
-			opacity: 0.6;
-		}
+		.slides-controls { opacity: 0.6; }
 	}
 
 	.slides-ctrl-btn {
@@ -518,10 +544,7 @@
 		align-items: baseline;
 	}
 
-	.slides-hotkeys dt {
-		text-align: right;
-		white-space: nowrap;
-	}
+	.slides-hotkeys dt { text-align: right; white-space: nowrap; }
 
 	.slides-hotkeys dd {
 		margin: 0;
@@ -614,89 +637,174 @@
 		to { opacity: 1; transform: translateY(0); }
 	}
 
-	/* ─── Split layout ─── */
-	.slides-layout {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		height: 100vh;
-	}
+	/* ════════════════════════════════════════════
+	   Chat bubbles (shared by both layouts)
+	   ════════════════════════════════════════════ */
 
-	/* ─── Left column: prompt + answer stacked ─── */
-	.slides-left {
-		width: 38%;
-		height: 100vh;
-		display: flex;
-		flex-direction: column;
-		gap: 24px;
-		padding: 48px 32px 48px 48px;
-		overflow: hidden;
-	}
-
-	.slides-left__section {
-		flex-shrink: 0;
-	}
-
-	.slides-label {
-		display: block;
-		font-size: 0.7rem;
-		font-family: var(--font-mono);
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: var(--orange-400, #E95420);
-		margin-bottom: 8px;
-		opacity: 0.8;
-	}
-
-	.slides-label--teal {
-		color: var(--teal, #2AA198);
-	}
-
-	.slides-label--green {
-		color: var(--green, #4DAF7C);
-	}
-
-	.slides-answer {
-		padding: 24px 28px;
-		border-left: 4px solid var(--teal, #2AA198);
-		border-radius: 10px;
-		background: rgba(42, 161, 152, 0.08);
+	.bubble {
+		max-width: 620px;
+		padding: 20px 24px;
+		border-radius: 16px;
 		font-size: 1.1rem;
 		line-height: 1.6;
 		color: var(--text-primary);
 	}
 
-	.slides-answer :global(p) {
-		margin: 0 0 12px;
+	.bubble__sender {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		margin-bottom: 6px;
+		opacity: 0.7;
 	}
-	.slides-answer :global(p:last-child) {
+
+	.bubble__text {
+		font-family: var(--font-mono);
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.bubble__html :global(p) { margin: 0 0 10px; }
+	.bubble__html :global(p:last-child) { margin-bottom: 0; }
+	.bubble__html :global(strong) { color: var(--text-primary); }
+
+	/* User bubble — right-aligned, orange */
+	.bubble--user {
+		margin-left: auto;
+		background: rgba(233, 84, 32, 0.12);
+		border: 1px solid rgba(233, 84, 32, 0.2);
+		border-radius: 16px 16px 4px 16px;
+		text-align: right;
+	}
+
+	.bubble--user .bubble__sender {
+		color: var(--orange-400, #E95420);
+	}
+
+	/* AI bubble — left-aligned, teal */
+	.bubble--ai {
+		margin-right: auto;
+		background: rgba(42, 161, 152, 0.1);
+		border: 1px solid rgba(42, 161, 152, 0.18);
+		border-radius: 16px 16px 16px 4px;
+	}
+
+	.bubble--ai .bubble__sender {
+		color: var(--teal, #2AA198);
+	}
+
+	/* Compact bubble (action layout top bar) */
+	.bubble--compact {
+		max-width: none;
+		padding: 12px 18px;
+		font-size: 0.95rem;
+	}
+
+	.bubble--compact .bubble__sender {
+		display: inline;
+		margin-right: 8px;
 		margin-bottom: 0;
 	}
-	.slides-answer :global(strong) {
-		color: var(--text-primary);
+
+	.bubble--compact .bubble__text {
+		display: inline;
 	}
 
-	/* ─── Right column: window desktop + comment ─── */
-	.slides-right {
-		width: 62%;
-		height: 100vh;
+	/* ════════════════════════════════════════════
+	   CHAT LAYOUT — prompt right, answer left
+	   ════════════════════════════════════════════ */
+
+	.chat-layout {
 		position: relative;
+		z-index: 1;
+		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		padding: 48px 32px 24px 0;
+		align-items: center;
+		justify-content: center;
+		padding: 48px;
 	}
 
-	.slides-desktop {
+	.chat-thread {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		width: 100%;
+		max-width: 720px;
+	}
+
+	.chat-comment {
+		position: absolute;
+		bottom: 32px;
+		left: 50%;
+		transform: translateX(-50%);
+		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.chat-comment__bubble {
+		padding: 12px 20px;
+		border-radius: 10px;
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		font-size: 0.85rem;
+		line-height: 1.5;
+		color: var(--text-tertiary);
+		max-width: 600px;
+		text-align: center;
+	}
+
+	/* ════════════════════════════════════════════
+	   ACTION LAYOUT — windows center stage
+	   ════════════════════════════════════════════ */
+
+	.action-layout {
+		position: relative;
+		z-index: 1;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.action-top {
+		flex-shrink: 0;
+		padding: 20px 32px 0 32px;
+	}
+
+	.action-center {
 		position: relative;
 		flex: 1;
 		min-height: 0;
 	}
 
+	.action-bottom {
+		flex-shrink: 0;
+		padding: 0 32px 24px;
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	.action-bottom .bubble--ai {
+		max-width: 560px;
+	}
+
+	.action-comment {
+		padding: 10px 18px;
+		font-size: 0.85rem;
+		line-height: 1.5;
+		color: var(--text-tertiary);
+		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	/* ─── Window stack (shared) ─── */
+
 	.slides-stack-window {
 		position: absolute;
 		left: 50%;
 		top: 50%;
-		width: 90%;
+		width: 85%;
 		max-width: 750px;
 		transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
 		            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
@@ -713,26 +821,8 @@
 	}
 
 	.slides-window__content {
-		max-height: 60vh;
+		max-height: 55vh;
 		overflow: hidden;
-	}
-
-	/* ─── Comment bubble ─── */
-	.slides-comment {
-		flex-shrink: 0;
-		padding-top: 16px;
-		animation: commentIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-	}
-
-	.slides-comment__bubble {
-		padding: 14px 20px;
-		border-radius: 12px 12px 12px 4px;
-		background: rgba(255, 255, 255, 0.07);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		font-size: 0.9rem;
-		line-height: 1.5;
-		color: var(--text-secondary);
-		max-width: 600px;
 	}
 
 	@keyframes commentIn {
@@ -756,79 +846,52 @@
 		backdrop-filter: blur(8px);
 	}
 
-	/* ─── Mobile layout ─── */
+	/* ─── Mobile ─── */
 	@media (max-width: 900px) {
-		.slides-title-card {
-			padding: 0 24px;
-		}
+		.slides-title-card { padding: 0 24px; }
+		.slides-title { font-size: 1.8rem; }
+		.slides-subtitle { font-size: 1rem; }
 
-		.slides-title {
-			font-size: 1.8rem;
-		}
-
-		.slides-subtitle {
-			font-size: 1rem;
-		}
-
-		.slides-layout {
-			flex-direction: column;
-			height: auto;
-			min-height: 100vh;
-			overflow-y: auto;
-			padding-top: 16px;
-			padding-bottom: 24px;
-		}
-
-		.slides-left {
-			width: 100%;
-			height: auto;
-			padding: 16px 20px;
-			gap: 16px;
-			overflow: visible;
-		}
-
-		.slides-right {
-			width: 100%;
-			height: auto;
-			padding: 0 20px 16px;
-		}
-
-		.slides-desktop {
-			position: relative;
-			min-height: 240px;
-			aspect-ratio: 4 / 3;
-		}
-
-		.slides-stack-window {
-			width: 95%;
-		}
-
-		.slides-window__content {
-			max-height: none;
-		}
-
-		.slides-answer {
-			padding: 16px 20px;
+		.bubble {
+			max-width: none;
+			padding: 14px 18px;
 			font-size: 0.95rem;
 		}
 
-		.slides-comment__bubble {
-			font-size: 0.82rem;
-			padding: 10px 14px;
+		.chat-layout {
+			padding: 24px 16px;
+			justify-content: flex-start;
+			padding-top: 48px;
 		}
 
-		.slides-label {
-			font-size: 0.6rem;
-			margin-bottom: 6px;
+		.chat-thread { gap: 16px; }
+
+		.chat-comment {
+			position: relative;
+			bottom: auto;
+			left: auto;
+			transform: none;
+			margin-top: 24px;
 		}
 
-		.slides-badge {
-			bottom: 12px;
-			right: 12px;
+		.action-layout {
+			height: auto;
+			min-height: 100vh;
+			overflow-y: auto;
 		}
 
-		.slides-controls {
-			opacity: 0.6;
+		.action-top { padding: 16px 16px 0; }
+		.action-bottom { padding: 0 16px 16px; }
+
+		.action-center {
+			min-height: 220px;
+			aspect-ratio: 4 / 3;
 		}
+
+		.slides-stack-window { width: 95%; }
+		.slides-window__content { max-height: none; }
+
+		.slides-badge { bottom: 12px; right: 12px; }
+		.slides-controls { opacity: 0.6; }
 	}
 </style>
