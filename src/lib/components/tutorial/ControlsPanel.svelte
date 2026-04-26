@@ -433,7 +433,8 @@
 			gap: 6px;
 			border: none;
 			border-radius: 0;
-			border-top: 1px solid var(--border-subtle);
+			border-image: linear-gradient(90deg, var(--orange-300), transparent) 1;
+			border-top: 1px solid;
 			background: transparent;
 			backdrop-filter: none;
 			-webkit-backdrop-filter: none;
