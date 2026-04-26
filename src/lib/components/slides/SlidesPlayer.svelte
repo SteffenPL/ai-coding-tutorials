@@ -15,6 +15,7 @@
 	let { tutorial }: { tutorial: Tutorial } = $props();
 
 	const PROMPT_DURATION = 1500;
+	const MESSAGE_DURATION = 2000;
 	const WINDOW_DURATION = 2000;
 	const ANSWER_DURATION = 5000;
 	const TITLE_DURATION = 3000;
@@ -24,7 +25,7 @@
 	/* ─── Scene model ────────────────────────── */
 
 	interface SceneItem {
-		kind: 'prompt' | 'window' | 'answer';
+		kind: 'prompt' | 'message' | 'window' | 'answer';
 		round: TutorialRound;
 		step?: Step;
 		duration: number;
@@ -37,7 +38,9 @@
 			items.push({ kind: 'prompt', round, duration: PROMPT_DURATION });
 			for (const step of round.steps) {
 				if (step.hidden) continue;
-				if (step.type === 'window') {
+				if (step.type === 'assistant' && !(step as AssistantStep).final) {
+					items.push({ kind: 'message', round, step, duration: step.slideDuration ?? MESSAGE_DURATION });
+				} else if (step.type === 'window') {
 					items.push({ kind: 'window', round, step, duration: step.slideDuration ?? WINDOW_DURATION });
 				} else if (step.type === 'assistant' && (step as AssistantStep).final) {
 					items.push({ kind: 'answer', round, step, duration: step.slideDuration ?? ANSWER_DURATION });
@@ -80,6 +83,16 @@
 			if (items[i].kind === 'window' && items[i].step) wins.push(items[i].step as WindowStep);
 		}
 		return wins;
+	});
+
+	let activeMessages = $derived.by(() => {
+		if (phase !== 'playing' || currentScene >= scenes.length) return [];
+		const items = scenes[currentScene];
+		const msgs: AssistantStep[] = [];
+		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
+			if (items[i].kind === 'message' && items[i].step) msgs.push(items[i].step as AssistantStep);
+		}
+		return msgs;
 	});
 
 	let activeAnswer = $derived.by(() => {
@@ -301,6 +314,14 @@
 							</SlidesStep>
 						{/key}
 					{/if}
+
+					{#each activeMessages as msg, mi (mi + '-' + currentScene)}
+						<SlidesStep kind="step">
+							<div class="bubble bubble--ai bubble--brief">
+								<div class="bubble__html">{@html msg.html}</div>
+							</div>
+						</SlidesStep>
+					{/each}
 
 					{#if activeAnswer}
 						{#key `${currentScene}-answer`}
@@ -560,6 +581,12 @@
 		border-radius: 14px 14px 14px 4px;
 	}
 	.bubble--ai .bubble__tag { color: var(--teal, #2AA198); }
+
+	.bubble--brief {
+		padding: 10px 14px;
+		font-size: 0.85rem;
+		opacity: 0.85;
+	}
 
 	/* ─── Right: content area ─── */
 	.content-area {

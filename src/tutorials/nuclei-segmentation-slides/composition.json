@@ -20,6 +20,10 @@
         "prompt": "Open @tests/examples/Osteosarcoma_01.tif with Fiji",
         "steps": [
           {
+            "type": "assistant",
+            "html": "<p>Opening the image in Fiji via MCP — let me take a look.</p>"
+          },
+          {
             "type": "window",
             "windowTitle": "Osteosarcoma_01.tif",
             "content": {
@@ -27,15 +31,13 @@
               "src": "tutorials/nuclei-segmentation/assets/step_001.png",
               "statusBar": "1376×1104 pixels; RGB"
             },
-            "subtitle": "1376×1104 · RGB · fluorescence",
-            "comment": "The AI agent opens the image in Fiji via MCP tool calls — writing and executing an ImageJ macro autonomously."
+            "subtitle": "1376×1104 · RGB · fluorescence"
           },
           {
             "type": "assistant",
-            "html": "<p>The image is open in Fiji — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
+            "html": "<p>The image is open — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
             "final": true,
-            "slideDuration": 4000,
-            "comment": "The agent inspects the image metadata and reports back with a structured summary."
+            "slideDuration": 4000
           }
         ]
       }
@@ -46,6 +48,10 @@
         "kind": "claude",
         "prompt": "Segment the nuclei. Try 10 different approaches, compare them, and pick the best.",
         "steps": [
+          {
+            "type": "assistant",
+            "html": "<p>I'll extract the blue channel and try 10 thresholding strategies — from simple Otsu to morphological cleanup with Watershed.</p>"
+          },
           {
             "type": "window",
             "windowTitle": "Approaches 1–5",
@@ -62,8 +68,7 @@
               ]
             },
             "subtitle": "Basic thresholding methods",
-            "slideDuration": 2500,
-            "comment": "Five basic approaches tested — from raw thresholding (Otsu, Triangle, Li) to Gaussian-smoothed variants with Watershed splitting."
+            "slideDuration": 2500
           },
           {
             "type": "window",
@@ -81,8 +86,11 @@
               ]
             },
             "subtitle": "Advanced methods",
-            "slideDuration": 2500,
-            "comment": "Five advanced approaches — including local thresholding and morphological cleanup. The agent visually inspects each result to judge quality."
+            "slideDuration": 2500
+          },
+          {
+            "type": "assistant",
+            "html": "<p>Approach #9 looks cleanest — running Analyze Particles to count nuclei.</p>"
           },
           {
             "type": "window",
@@ -92,15 +100,13 @@
               "src": "tutorials/nuclei-segmentation/assets/step_014.png",
               "statusBar": "103 nuclei detected · Approach #9"
             },
-            "subtitle": "103 nuclei — Osteosarcoma_01.tif",
-            "comment": "The agent selects Approach #9 as the winner, runs Analyze Particles, and overlays the detected nuclei on the original image."
+            "subtitle": "103 nuclei — Osteosarcoma_01.tif"
           },
           {
             "type": "assistant",
             "html": "<p><strong>103 nuclei</strong> segmented using <strong>Approach #9</strong> — Gaussian blur + Otsu threshold + Morphological Open + Watershed.</p><p>#9's morphological Open step removed debris and thin bridges before Watershed, producing the cleanest nucleus shapes out of all 10 approaches.</p>",
             "final": true,
-            "slideDuration": 7000,
-            "comment": "Complete — from a single natural-language prompt to a quantitative result with 103 individually measured nuclei."
+            "slideDuration": 7000
           }
         ]
       }
