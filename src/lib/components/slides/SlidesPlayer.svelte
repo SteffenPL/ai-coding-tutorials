@@ -2,8 +2,8 @@
 	import type { Tutorial, Step, WindowStep, AssistantStep, TutorialRound } from '$lib/data/tutorials';
 	import { getTutorialTitle, getWindowIcon, isChromeless } from '$lib/data/tutorials';
 	import { langStore, t } from '$lib/stores/lang.svelte';
-	import { themeStore, THEMES } from '$lib/stores/theme.svelte';
-	import { onMount, onDestroy } from 'svelte';
+	import { themeStore, THEMES, normalizeThemeId } from '$lib/stores/theme.svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import Wallpaper from '$lib/components/Wallpaper.svelte';
@@ -13,17 +13,18 @@
 	import SlidesProgress from './SlidesProgress.svelte';
 	import SlidesStep from './SlidesStep.svelte';
 
-	let { tutorial }: { tutorial: Tutorial } = $props();
+	let { tutorial, initialTheme = null }: { tutorial: Tutorial; initialTheme?: string | null } = $props();
 
-	const PROMPT_DURATION = 1500;
-	const MESSAGE_DURATION = 2000;
-	const WINDOW_DURATION = 2000;
-	const ANSWER_DURATION = 5000;
-	const TITLE_DURATION = 3000;
+	const TITLE_DURATION = 1000;
+	const PROMPT_DURATION = 1000;
+	const MESSAGE_DURATION = 500;
+	const WINDOW_DURATION = 1500;
+	const ANSWER_DURATION = 3000;
 	const SCENE_GAP = 1200;
 	const SWIPE_THRESHOLD = 50;
 
 	const slideTimings = $derived({
+		title: tutorial.slideTimings?.title ?? TITLE_DURATION,
 		prompt: tutorial.slideTimings?.prompt ?? PROMPT_DURATION,
 		message: tutorial.slideTimings?.message ?? MESSAGE_DURATION,
 		window: tutorial.slideTimings?.window ?? WINDOW_DURATION,
@@ -37,6 +38,19 @@
 		round: TutorialRound;
 		step?: Step;
 		duration: number;
+	}
+
+	interface ActiveChatItem {
+		key: string;
+		kind: 'prompt' | 'message' | 'answer';
+		round: TutorialRound;
+		step?: Step;
+		sceneIndex: number;
+	}
+
+	interface ActiveWindowItem {
+		key: string;
+		step: WindowStep;
 	}
 
 	let scenes: SceneItem[][] = $derived.by(() => {
@@ -81,39 +95,60 @@
 
 	let isActive = $derived(phase === 'playing' || phase === 'done');
 
-	let activePrompt = $derived.by(() => {
-		if (!isActive || currentScene >= scenes.length) return null;
-		if (currentItemInScene < 0) return null;
-		return scenes[currentScene][0]?.kind === 'prompt' ? scenes[currentScene][0] : null;
+	let activeChatItems = $derived.by(() => {
+		if (!isActive || currentScene >= scenes.length) return [];
+		const chatItems: ActiveChatItem[] = [];
+		for (let sceneIndex = 0; sceneIndex <= currentScene; sceneIndex++) {
+			const items = scenes[sceneIndex];
+			const endIndex = sceneIndex === currentScene ? currentItemInScene : items.length - 1;
+			for (let itemIndex = 0; itemIndex <= endIndex && itemIndex < items.length; itemIndex++) {
+				const item = items[itemIndex];
+				if (item.kind === 'prompt') {
+					chatItems.push({
+						key: `${sceneIndex}-${itemIndex}-prompt`,
+						kind: 'prompt',
+						round: item.round,
+						sceneIndex
+					});
+				} else if (item.kind === 'message' && item.step) {
+					chatItems.push({
+						key: `${sceneIndex}-${itemIndex}-message`,
+						kind: 'message',
+						round: item.round,
+						step: item.step,
+						sceneIndex
+					});
+				} else if (item.kind === 'answer' && item.step) {
+					chatItems.push({
+						key: `${sceneIndex}-${itemIndex}-answer`,
+						kind: 'answer',
+						round: item.round,
+						step: item.step,
+						sceneIndex
+					});
+				}
+			}
+		}
+		return chatItems;
 	});
 
 	let activeWindows = $derived.by(() => {
 		if (!isActive || currentScene >= scenes.length) return [];
-		const items = scenes[currentScene];
-		const wins: WindowStep[] = [];
-		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
-			if (items[i].kind === 'window' && items[i].step) wins.push(items[i].step as WindowStep);
+		const wins: ActiveWindowItem[] = [];
+		for (let sceneIndex = 0; sceneIndex <= currentScene; sceneIndex++) {
+			const items = scenes[sceneIndex];
+			const endIndex = sceneIndex === currentScene ? currentItemInScene : items.length - 1;
+			for (let itemIndex = 0; itemIndex <= endIndex && itemIndex < items.length; itemIndex++) {
+				const item = items[itemIndex];
+				if (item.kind === 'window' && item.step) {
+					wins.push({
+						key: `${sceneIndex}-${itemIndex}-window`,
+						step: item.step as WindowStep
+					});
+				}
+			}
 		}
 		return wins;
-	});
-
-	let activeMessages = $derived.by(() => {
-		if (!isActive || currentScene >= scenes.length) return [];
-		const items = scenes[currentScene];
-		const msgs: Step[] = [];
-		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
-			if (items[i].kind === 'message' && items[i].step) msgs.push(items[i].step!);
-		}
-		return msgs;
-	});
-
-	let activeAnswer = $derived.by(() => {
-		if (!isActive || currentScene >= scenes.length) return null;
-		const items = scenes[currentScene];
-		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
-			if (items[i].kind === 'answer' && items[i].step) return items[i].step as AssistantStep;
-		}
-		return null;
 	});
 
 	let activeComment = $derived.by(() => {
@@ -227,7 +262,7 @@
 		currentItemInScene = -1;
 		itemsShown = 0;
 		paused = false;
-		timerId = setTimeout(startPlayback, TITLE_DURATION);
+		timerId = setTimeout(startPlayback, slideTimings.title);
 	}
 
 	function startPlayback() {
@@ -253,6 +288,9 @@
 		themeStore.theme = THEMES[(idx + 1) % THEMES.length].id;
 	}
 
+	const requestedInitialTheme = untrack(() => normalizeThemeId(initialTheme));
+	if (requestedInitialTheme) themeStore.theme = requestedInitialTheme;
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.code === 'Escape') { e.preventDefault(); exitSlides(); return; }
 		if (e.code === 'Space') { e.preventDefault(); togglePause(); }
@@ -276,7 +314,11 @@
 		if (dx < 0) stepForward(); else stepBack();
 	}
 
-	onMount(() => { timerId = setTimeout(startPlayback, TITLE_DURATION); });
+	onMount(() => {
+		const requestedTheme = normalizeThemeId(initialTheme ?? new URLSearchParams(window.location.search).get('theme'));
+		if (requestedTheme) themeStore.theme = requestedTheme;
+		timerId = setTimeout(startPlayback, slideTimings.title);
+	});
 	onDestroy(() => { clearTimer(); });
 
 	let title = $derived(getTutorialTitle(tutorial.meta, langStore.current));
@@ -344,57 +386,51 @@
 				<div class="chat-frame">
 					<div class="chat-frame__inner">
 						<div class="chat-watermark">AI Agent Chat</div>
-						{#if activePrompt}
-							{#key `${currentScene}-prompt`}
+						{#each activeChatItems as item (item.key)}
+							{#if item.kind === 'prompt'}
 								<SlidesStep kind="prompt">
-									<div class="bubble bubble--user">
+									<div class="bubble bubble--user" class:bubble--round-start={item.sceneIndex > 0}>
 										<span class="bubble__tag">You</span>
-										<span class="bubble__text">{activePrompt.round.prompt}</span>
+										<span class="bubble__text">{item.round.prompt}</span>
 									</div>
 								</SlidesStep>
-							{/key}
-						{/if}
-
-						{#each activeMessages as msg, mi (mi + '-' + currentScene)}
-							<SlidesStep kind="step">
-								<div class="bubble bubble--ai bubble--brief">
-									<div class="bubble__html">{@html stepToHtml(msg)}</div>
-								</div>
-							</SlidesStep>
-						{/each}
-
-						{#if activeAnswer}
-							{#key `${currentScene}-answer`}
+							{:else if item.kind === 'message' && item.step}
+								<SlidesStep kind="step">
+									<div class="bubble bubble--ai bubble--brief">
+										<div class="bubble__html">{@html stepToHtml(item.step)}</div>
+									</div>
+								</SlidesStep>
+							{:else if item.kind === 'answer' && item.step}
 								<SlidesStep kind="final">
 									<div class="bubble bubble--ai">
 										<span class="bubble__tag">AI Agent</span>
-										<div class="bubble__html">{@html activeAnswer.html}</div>
+										<div class="bubble__html">{@html (item.step as AssistantStep).html}</div>
 									</div>
 								</SlidesStep>
-							{/key}
-						{/if}
+							{/if}
+						{/each}
 					</div>
 				</div>
 
 				<!-- Right: window content -->
 				<div class="content-area">
 					{#if activeWindows.length > 0}
-						{#each activeWindows as win, wi (wi + '-' + currentScene)}
+						{#each activeWindows as win, wi (win.key)}
 							<div class="stack-window" style={windowStackStyle(wi, activeWindows.length)}>
 								<div
 									class="window"
-									class:window--collection={win.content.kind === 'window-collection'}
-									class:window--chromeless={isChromeless(win.content)}
+									class:window--collection={win.step.content.kind === 'window-collection'}
+									class:window--chromeless={isChromeless(win.step.content)}
 								>
-									{#if !isChromeless(win.content)}
+									{#if !isChromeless(win.step.content)}
 										<WindowChrome
-											title={win.windowTitle}
-											subtitle={win.subtitle}
-											icon={win.icon ?? getWindowIcon(win.content)}
+											title={win.step.windowTitle}
+											subtitle={win.step.subtitle}
+											icon={win.step.icon ?? getWindowIcon(win.step.content)}
 										/>
 									{/if}
 									<div class="window__content">
-										<WindowContent content={win.content} />
+										<WindowContent content={win.step.content} />
 									</div>
 								</div>
 							</div>
@@ -633,6 +669,10 @@
 		text-align: right;
 	}
 	.bubble--user .bubble__tag { color: var(--orange-400); }
+
+	.bubble--round-start {
+		margin-top: 56px;
+	}
 
 	.bubble--ai {
 		align-self: flex-start;

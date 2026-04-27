@@ -26,10 +26,11 @@
 	let blockEditorRefs = $state<(TraceBlockEditor | null)[]>([]);
 
 	const defaultSlideTimings = {
-		prompt: 1500,
-		message: 2000,
-		window: 2000,
-		answer: 5000
+		title: 1000,
+		prompt: 1000,
+		message: 500,
+		window: 1500,
+		answer: 3000
 	};
 
 	function thumbnailPreviewUrl(ref: string | undefined): string | undefined {
@@ -252,6 +253,16 @@
 			<summary>Slide Timing</summary>
 			<div class="form-grid">
 				<div class="timing-grid">
+					<label>
+						<span>Show title duration (seconds)</span>
+						<input
+							type="number"
+							min="0.1"
+							step="0.1"
+							value={slideTimingSeconds('title')}
+							oninput={(e) => setSlideTiming('title', (e.target as HTMLInputElement).value)}
+						/>
+					</label>
 					<label>
 						<span>Prompt (seconds)</span>
 						<input
@@ -511,7 +522,7 @@
 	}
 	.timing-grid {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 0.5rem;
 	}
 

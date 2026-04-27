@@ -8,4 +8,4 @@
 	<title>Slides — {data.tutorial.meta.title.en}</title>
 </svelte:head>
 
-<SlidesPlayer tutorial={data.tutorial} />
+<SlidesPlayer tutorial={data.tutorial} initialTheme={data.theme} />

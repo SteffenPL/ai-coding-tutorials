@@ -32,14 +32,32 @@ export function themesForMode(mode: ThemeMode): ThemeOption[] {
 const STORAGE_KEY = 'ai-tutorials-theme';
 const DEFAULT: ThemeId = 'dark-aubergine';
 
+export function normalizeThemeId(value: string | null): ThemeId | null {
+	if (!value) return null;
+	const aliases: Record<string, ThemeId> = {
+		aubergine: 'dark-aubergine',
+		matrix: 'dark-matrix',
+		blue: 'dark-ocean',
+		ocean: 'dark-ocean',
+		sky: 'light-sky',
+		sunset: 'light-sunset'
+	};
+	const normalized = value.trim().toLowerCase();
+	const theme = aliases[normalized] ?? normalized;
+	return THEMES.some(t => t.id === theme) ? theme as ThemeId : null;
+}
+
 function load(): ThemeId {
 	if (!browser) return DEFAULT;
 	try {
+		const requested = normalizeThemeId(new URLSearchParams(window.location.search).get('theme'));
+		if (requested) return requested;
 		const raw = localStorage.getItem(STORAGE_KEY);
 		if (!raw) return DEFAULT;
 		const parsed = JSON.parse(raw);
 		const id = parsed.theme ?? parsed.colorTheme ?? raw;
-		if (THEMES.some(t => t.id === id)) return id as ThemeId;
+		const stored = normalizeThemeId(id);
+		if (stored) return stored;
 		return DEFAULT;
 	} catch {
 		return DEFAULT;

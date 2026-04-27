@@ -5,7 +5,7 @@
     {
       "id": "r-1",
       "kind": "claude",
-      "prompt": "Open @tests/examples/Osteosarcoma_01.tif with the Fiji-MCP.",
+      "prompt": "Open the Fiji-MCP and load @Osteosarcoma_01.tif.",
       "steps": [
         {
           "id": "ins-1001",
@@ -48,7 +48,7 @@
           "id": "s-3",
           "included": true,
           "displayMode": "full",
-          "comment": "Claude identifies the biological image type automatically — DAPI (blue) for nuclei, green for cytoskeleton. This allows the agent to understand the context properly.",
+          "comment": "Claude identifies the biological image type automatically using build-in visual models.",
           "inserted": {
             "type": "assistant",
             "html": "<p>The image is open — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
@@ -71,7 +71,7 @@
             "type": "assistant",
             "html": "<p>I'll extract the blue channel and try 8 thresholding strategies — from simple Otsu to morphological cleanup with Watershed.</p>"
           },
-          "comment": "With the Fiji-MCP the agent can loop macro design, applying pipelines, fixing errors and inspecting results."
+          "comment": "The agent can apply macros, fixing errors automatically and improve till successful."
         },
         {
           "id": "s-5",
@@ -163,8 +163,7 @@
             },
             "subtitle": "Advanced methods",
             "slideDuration": 2500
-          },
-          "comment": "Here, we could also select some regions and instruct to tune parameter further until successful."
+          }
         },
         {
           "id": "s-7",
@@ -201,7 +200,7 @@
             "final": true,
             "slideDuration": 7000
           },
-          "comment": "Next, we might ask to create a slides to show the used algorithm, write out the macro as a file or apply the pipeline to more images..."
+          "comment": "Next, we might ask to create a PowerPoint or draw a ROI to ask for improvements."
         }
       ]
     }

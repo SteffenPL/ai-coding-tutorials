@@ -6,6 +6,42 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Cantarell:wght@400;700&display=swap" rel="stylesheet" />
+		<script>
+			(() => {
+				const themes = new Set([
+					'dark-aubergine',
+					'dark-matrix',
+					'dark-ocean',
+					'light-aubergine',
+					'light-sky',
+					'light-sunset'
+				]);
+				const aliases = {
+					aubergine: 'dark-aubergine',
+					matrix: 'dark-matrix',
+					blue: 'dark-ocean',
+					ocean: 'dark-ocean',
+					sky: 'light-sky',
+					sunset: 'light-sunset'
+				};
+				const normalize = (value) => {
+					if (!value) return null;
+					const normalized = value.trim().toLowerCase();
+					const theme = aliases[normalized] ?? normalized;
+					return themes.has(theme) ? theme : null;
+				};
+				const requested = normalize(new URLSearchParams(window.location.search).get('theme'));
+				let stored = null;
+				try {
+					const raw = localStorage.getItem('ai-tutorials-theme');
+					const parsed = raw ? JSON.parse(raw) : null;
+					stored = normalize(parsed?.theme ?? parsed?.colorTheme ?? raw);
+				} catch {
+					stored = null;
+				}
+				document.documentElement.setAttribute('data-theme', requested ?? stored ?? 'dark-aubergine');
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body>

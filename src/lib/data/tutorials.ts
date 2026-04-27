@@ -33,6 +33,7 @@ export interface TutorialMeta {
 }
 
 export interface SlideTimingDefaults {
+	title?: number;
 	prompt?: number;
 	message?: number;
 	window?: number;
