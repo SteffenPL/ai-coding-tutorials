@@ -1,5 +1,8 @@
 import type { SessionView, DisplayNode, ToolInvocationResult } from '$lib/session/viewmodel';
 import type { TraceState, TraceRound, TraceStep, DisplayMode } from './types';
+import {
+	validateTerminalRound
+} from '$lib/data/tutorials';
 import type {
 	Step,
 	StepType,
@@ -225,10 +228,12 @@ export function traceStateToTutorialRounds(state: TraceState): TutorialRound[] {
 			const step = traceStepToTutorialStep(ts);
 			if (step) steps.push(step);
 		}
-		return {
+		const tutorialRound: TutorialRound = {
 			kind: round.kind,
 			prompt: round.prompt,
 			steps
 		};
+		validateTerminalRound(tutorialRound);
+		return tutorialRound;
 	});
 }

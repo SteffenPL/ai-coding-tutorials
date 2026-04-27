@@ -320,6 +320,16 @@ export type Step =
 	| ToolCallStep | ToolResultStep | PermissionStep | OutputStep
 	| WindowStep | TableStep | StatusStep | DividerStep;
 
+/**
+ * Step types allowed in terminal rounds. Terminal rounds represent shell
+ * sessions — they have no AI assistant, so AI-specific types (assistant,
+ * thinking, tool_call, tool_result, permission) are not valid.
+ * `question` is allowed because CLI tools can prompt for choices.
+ */
+export type TerminalStepType = 'output' | 'status' | 'window' | 'table' | 'divider' | 'question';
+
+export const TERMINAL_STEP_TYPES = new Set<StepType>(['output', 'status', 'window', 'table', 'divider', 'question']);
+
 export interface TutorialRound {
 	/** Round kind — 'claude' for AI sessions (default), 'terminal' for shell sessions */
 	kind?: 'claude' | 'terminal';
@@ -329,6 +339,17 @@ export interface TutorialRound {
 	cwd?: string;
 	/** Ordered list of steps in the trace for this round */
 	steps: Step[];
+}
+
+/** Filter out steps that are invalid for terminal rounds, logging a warning for each. */
+export function validateTerminalRound(round: TutorialRound): void {
+	if (round.kind !== 'terminal') return;
+	const invalid = round.steps.filter(s => !TERMINAL_STEP_TYPES.has(s.type));
+	if (invalid.length > 0) {
+		const types = invalid.map(s => s.type).join(', ');
+		console.warn(`Terminal round "${round.prompt.slice(0, 40)}" has invalid step types: ${types}`);
+		round.steps = round.steps.filter(s => TERMINAL_STEP_TYPES.has(s.type));
+	}
 }
 
 export interface Tutorial {

@@ -88,6 +88,8 @@ in traces as `inserted` steps (no session source required).
 
 ### Step types (map 1:1 to TS interfaces in `src/lib/data/tutorials.ts`)
 
+**Claude rounds** — all step types allowed:
+
 | type          | key fields                                                  |
 |---------------|-------------------------------------------------------------|
 | `assistant`   | `html`, `final?`                                            |
@@ -100,6 +102,18 @@ in traces as `inserted` steps (no session source required).
 | `window`      | `windowTitle`, `subtitle?`, `icon?`, `content` (below)      |
 | `table`       | `columns`, `rows`, `moreRows?`                              |
 | `status`      | `text`, `variant?` (`success`/`info`/`warning`/`error`)     |
+| `divider`     | `label`                                                     |
+
+**Terminal rounds** — only these step types are valid (AI types are
+filtered out at build time with a warning):
+
+| type          | key fields                                                  |
+|---------------|-------------------------------------------------------------|
+| `output`      | `text`, `stream?` (`stdout`/`stderr`)                       |
+| `status`      | `text`, `variant?` (`success`/`info`/`warning`/`error`)     |
+| `question`    | `html`, `answer` (for CLI prompts)                          |
+| `window`      | `windowTitle`, `subtitle?`, `icon?`, `content` (below)      |
+| `table`       | `columns`, `rows`, `moreRows?`                              |
 | `divider`     | `label`                                                     |
 
 Any step can carry a `comment` (HTML shown in the comment panel). Steps

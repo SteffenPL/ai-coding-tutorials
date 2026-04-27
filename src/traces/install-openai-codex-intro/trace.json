@@ -5,43 +5,18 @@
     {
       "id": "r-1",
       "kind": "terminal",
-      "prompt": "Install the Codex CLI",
+      "prompt": "npm install -g @openai/codex",
       "steps": [
         {
           "id": "s-1",
           "included": true,
           "displayMode": "full",
           "inserted": {
-            "type": "assistant",
-            "html": "<p>Codex CLI is OpenAI's local coding agent for the terminal. Install it globally with npm, then run it from the root of the project you want Codex to inspect or edit.</p>",
+            "type": "status",
+            "text": "Codex CLI installed globally",
+            "variant": "success",
             "comment": {
-              "en": "OpenAI's current CLI getting-started docs list <code>npm install -g @openai/codex</code> as the zero-setup install path."
-            }
-          }
-        },
-        {
-          "id": "s-2",
-          "included": true,
-          "displayMode": "full",
-          "inserted": {
-            "type": "tool_call",
-            "toolName": "Terminal",
-            "code": "npm install -g @openai/codex",
-            "comment": {
-              "en": "This installs the <code>codex</code> command globally so it is available from any project folder."
-            }
-          }
-        },
-        {
-          "id": "s-3",
-          "included": true,
-          "displayMode": "full",
-          "inserted": {
-            "type": "tool_call",
-            "toolName": "Terminal",
-            "code": "codex --version\ncodex --help",
-            "comment": {
-              "en": "Verify that the command is on your PATH and inspect the available subcommands and flags."
+              "en": "Codex CLI is OpenAI's local coding agent for the terminal. Install it globally with npm, then run it from the root of the project you want Codex to inspect or edit."
             }
           }
         }
@@ -50,53 +25,57 @@
     {
       "id": "r-2",
       "kind": "terminal",
-      "prompt": "Sign in and start a first session",
+      "prompt": "codex --version && codex --help",
+      "steps": [
+        {
+          "id": "s-2",
+          "included": true,
+          "displayMode": "full",
+          "inserted": {
+            "type": "output",
+            "text": "codex version 0.1.2504251714\n\nUsage: codex [options] [prompt]\n\nOptions:\n  -m, --model <model>    Model to use (default: codex-mini-latest)\n  -q, --quiet            Non-interactive, quiet mode\n  --full-auto            Skip all confirmations\n  -h, --help             Display help",
+            "comment": {
+              "en": "Verify that the <code>codex</code> command is on your PATH and inspect the available subcommands and flags."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "r-3",
+      "kind": "terminal",
+      "prompt": "codex login",
+      "steps": [
+        {
+          "id": "s-3",
+          "included": true,
+          "displayMode": "full",
+          "inserted": {
+            "type": "status",
+            "text": "Authenticated via browser sign-in",
+            "variant": "success",
+            "comment": {
+              "en": "Follow the browser-based sign-in flow. Codex stores credentials locally so you only need to do this once."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "r-4",
+      "kind": "terminal",
+      "prompt": "cd path/to/your/project && codex",
       "steps": [
         {
           "id": "s-4",
           "included": true,
           "displayMode": "full",
           "inserted": {
-            "type": "assistant",
-            "html": "<p>Authenticate once, then start Codex from a real project directory. Newer Codex CLI versions expose authentication as the <code>codex login</code> subcommand.</p>",
+            "type": "output",
+            "text": "Welcome to Codex!\nWorking directory: /path/to/your/project\n\nType a message to get started.",
             "comment": {
-              "en": "The installed CLI in this workspace uses <code>codex login</code>. Some OpenAI help articles mention older login spellings, so checking <code>codex --help</code> is useful."
+              "en": "Starting Codex inside a project gives it the local files and instructions it needs for a useful coding session. For this tutorial's demo, Codex was started in a small folder named <code>demo2</code> and asked to build a Brownian motion webpage."
             }
-          }
-        },
-        {
-          "id": "s-5",
-          "included": true,
-          "displayMode": "full",
-          "inserted": {
-            "type": "tool_call",
-            "toolName": "Terminal",
-            "code": "codex login",
-            "comment": {
-              "en": "Follow the browser-based sign-in flow and let Codex store credentials locally."
-            }
-          }
-        },
-        {
-          "id": "s-6",
-          "included": true,
-          "displayMode": "full",
-          "inserted": {
-            "type": "tool_call",
-            "toolName": "Terminal",
-            "code": "cd path/to/your/project\ncodex",
-            "comment": {
-              "en": "Starting Codex inside a project gives it the local files and instructions it needs for a useful coding session."
-            }
-          }
-        },
-        {
-          "id": "s-7",
-          "included": true,
-          "displayMode": "full",
-          "inserted": {
-            "type": "assistant",
-            "html": "<p>For this tutorial's imported demo, Codex was started in a small folder named <code>demo2</code> and asked to build a Brownian motion webpage. The next section is the actual imported Codex session trace.</p>"
           }
         }
       ]

@@ -31,8 +31,8 @@ export const myTutorial: Tutorial = {
 
 ### Round kinds
 
-- **`'claude'`** (default) — AI session. Prompt styled with `›` chevron + orange bar. Steps: assistant, thinking, question, tool_call, tool_result, permission, etc.
-- **`'terminal'`** — Shell session. Prompt styled with `$` + green chevron + monospace. Steps: output, status, window, etc.
+- **`'claude'`** (default) — AI session. Prompt styled with `›` chevron + orange bar. All step types allowed.
+- **`'terminal'`** — Shell session. Prompt styled with `$` + green chevron + monospace. **Only** `output`, `status`, `window`, `table`, `divider`, and `question` steps are valid. AI-specific types (`assistant`, `thinking`, `tool_call`, `tool_result`, `permission`) are filtered out at build time with a warning. The prompt IS the shell command; steps are its results.
 
 ### Terminal-side step types
 
