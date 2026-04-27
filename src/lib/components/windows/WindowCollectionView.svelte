@@ -85,6 +85,7 @@
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
+		background: #000;
 	}
 
 	.sub-body :global(.zoom-container) {
