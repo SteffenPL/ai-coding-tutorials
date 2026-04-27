@@ -10,12 +10,14 @@
 		slug,
 		tutorialSlug,
 		roundIndices,
-		ondirty
+		ondirty,
+		showSaveButton = true
 	}: {
 		slug: string;
 		tutorialSlug: string;
 		roundIndices?: number[];
 		ondirty?: () => void;
+		showSaveButton?: boolean;
 	} = $props();
 
 	let curation = $state<TraceState | null>(null);
@@ -257,9 +259,11 @@
 			{#if statusMessage}
 				<span class="block-status">{statusMessage}</span>
 			{/if}
-			<button class="btn-sm" class:btn-accent={dirty} onclick={save} disabled={saving}>
-				{saving ? 'Saving...' : 'Save Trace'}
-			</button>
+			{#if showSaveButton}
+				<button class="btn-sm" class:btn-accent={dirty} onclick={save} disabled={saving}>
+					{saving ? 'Saving...' : 'Save Trace'}
+				</button>
+			{/if}
 		</div>
 		<UnifiedTracePanel
 			slug={tutorialSlug}

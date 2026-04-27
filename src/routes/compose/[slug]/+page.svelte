@@ -17,10 +17,8 @@
 	);
 
 	let saving = $state(false);
-	let exporting = $state(false);
 	let previewing = $state(false);
 	let statusMessage = $state('');
-	let showExportConfirm = $state<string[] | null>(null);
 	let showBlockSearch = $state(false);
 	let expandedBlocks = $state<Set<number>>(new Set());
 	let showThumbnailPicker = $state(false);
@@ -83,36 +81,6 @@
 		setTimeout(() => (statusMessage = ''), 3000);
 	}
 
-	async function doExport(force = false) {
-		exporting = true;
-		statusMessage = '';
-		try {
-			// Save dirty traces before export
-			for (const ref of blockEditorRefs) {
-				if (ref?.isDirty()) await ref.save();
-			}
-
-			const res = await fetch(`/api/compose/${data.slug}/export`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ composition, force })
-			});
-			const json = await res.json();
-			if (json.conflict) {
-				showExportConfirm = json.existingFiles;
-			} else if (json.ok) {
-				statusMessage = `Exported ${json.written.length} rounds`;
-				showExportConfirm = null;
-			} else {
-				statusMessage = 'Export failed';
-			}
-		} catch {
-			statusMessage = 'Export error';
-		}
-		exporting = false;
-		setTimeout(() => (statusMessage = ''), 5000);
-	}
-
 	async function preview() {
 		previewing = true;
 		statusMessage = '';
@@ -165,34 +133,13 @@
 	</div>
 	<div class="toolbar-actions">
 		<button class="btn" onclick={save} disabled={saving}>
-			{saving ? 'Saving...' : 'Save All'}
-		</button>
-		<button class="btn btn-primary" onclick={() => doExport()} disabled={exporting}>
-			{exporting ? 'Exporting...' : 'Export YAML'}
+			{saving ? 'Saving...' : 'Save'}
 		</button>
 		<button class="btn" onclick={preview} disabled={previewing}>
 			{previewing ? 'Loading...' : 'Preview'}
 		</button>
 	</div>
 </header>
-
-{#if showExportConfirm}
-	<div class="overlay" onclick={() => (showExportConfirm = null)}>
-		<div class="dialog" onclick={(e) => e.stopPropagation()}>
-			<h3>Files already exist</h3>
-			<p>The following files will be overwritten:</p>
-			<ul>
-				{#each showExportConfirm as f}
-					<li><code>{f}</code></li>
-				{/each}
-			</ul>
-			<div class="dialog-actions">
-				<button class="btn" onclick={() => (showExportConfirm = null)}>Cancel</button>
-				<button class="btn btn-danger" onclick={() => doExport(true)}>Overwrite All</button>
-			</div>
-		</div>
-	</div>
-{/if}
 
 <main class="compose">
 	<!-- METADATA -->
@@ -323,36 +270,35 @@
 								</div>
 							</div>
 
-							{#if expandedBlocks.has(i)}
-								<div class="block-detail">
-									<div class="block-rounds-filter">
-										<label>
-											<span>Round filter (comma-separated indices, empty = all)</span>
-											<input
-												type="text"
-												value={block.rounds?.join(', ') ?? ''}
-												oninput={(e) => {
-													const val = (e.target as HTMLInputElement).value.trim();
-													if (!val) {
-														block.rounds = undefined;
-													} else {
-														block.rounds = val.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
-													}
-													composition.blocks = [...composition.blocks];
-												}}
-												placeholder="e.g. 0, 1, 3"
-											/>
-										</label>
-									</div>
-									<TraceBlockEditor
-										slug={block.sourceSlug}
-										tutorialSlug={data.slug}
-										roundIndices={block.rounds}
-										ondirty={() => markTraceDirty(block.sourceSlug)}
-										bind:this={blockEditorRefs[i]}
-									/>
+							<div class="block-detail" hidden={!expandedBlocks.has(i)}>
+								<div class="block-rounds-filter">
+									<label>
+										<span>Round filter (comma-separated indices, empty = all)</span>
+										<input
+											type="text"
+											value={block.rounds?.join(', ') ?? ''}
+											oninput={(e) => {
+												const val = (e.target as HTMLInputElement).value.trim();
+												if (!val) {
+													block.rounds = undefined;
+												} else {
+													block.rounds = val.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+												}
+												composition.blocks = [...composition.blocks];
+											}}
+											placeholder="e.g. 0, 1, 3"
+										/>
+									</label>
 								</div>
-							{/if}
+								<TraceBlockEditor
+									slug={block.sourceSlug}
+									tutorialSlug={data.slug}
+									roundIndices={block.rounds}
+									ondirty={() => markTraceDirty(block.sourceSlug)}
+									showSaveButton={false}
+									bind:this={blockEditorRefs[i]}
+								/>
+							</div>
 						</li>
 					{/if}
 				{/each}
