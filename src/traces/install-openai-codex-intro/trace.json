@@ -16,7 +16,7 @@
             "text": "Codex CLI installed globally",
             "variant": "success",
             "comment": {
-              "en": "Codex CLI is OpenAI's local coding agent for the terminal. Install it globally with npm, then run it from the root of the project you want Codex to inspect or edit."
+              "en": "Codex CLI is OpenAI's local coding agent for the terminal. Install it globally with npm, then run it from the root of the project you want Codex to inspect or edit. See the <a href=\"https://developers.openai.com/codex/cli\">Codex CLI docs</a> for current install and auth options."
             }
           }
         }

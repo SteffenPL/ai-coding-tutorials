@@ -24,7 +24,7 @@
     "author": "Steffen Plunder",
     "thumbnail": "shared/codex-bm.mov"
   },
-  "description": "Install the OpenAI Codex CLI, sign in, start a first local coding session, and see how this site can import a real Codex session log as tutorial input. The final trace block is generated from a Codex session recorded in the local `demo2` folder.",
+  "description": "Install the OpenAI Codex CLI, sign in, start a first local coding session, and see how this site can import a real Codex session log as tutorial input.\n\nDocs: [OpenAI Codex CLI](https://developers.openai.com/codex/cli).",
   "requirements": "- macOS or Linux terminal\n- Node.js/npm available on your machine\n- An OpenAI account for authentication\n- A project folder where you want Codex to work",
   "blocks": [
     {

@@ -31,5 +31,5 @@
       "sourceSlug": "install-claude-code"
     }
   ],
-  "description": "A beginner-friendly walkthrough for your very first Claude Code installation: install the CLI with one command, log in for the first time, and make Claude Code build your first tiny webpage. No prior Claude Code experience required.\n\n### What you'll see\n- Installing Claude Code with a single curl command\n- Logging in on first launch\n- Running a first end-to-end prompt (build + open a webpage)"
+  "description": "A concise first-run walkthrough: install Claude Code, sign in, then ask it to create and open a tiny local webpage.\n\nDocs: [Claude Code overview](https://code.claude.com/docs/en/overview) and [getting started guide](https://docs.anthropic.com/en/docs/claude-code/getting-started)."
 }

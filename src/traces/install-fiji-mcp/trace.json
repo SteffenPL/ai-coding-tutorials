@@ -16,7 +16,7 @@
             "type": "output",
             "text": "Cloning into 'fiji-mcp'...\nremote: Enumerating objects: 312, done.\nremote: Counting objects: 100% (312/312), done.\nremote: Compressing objects: 100% (198/198), done.\nremote: Total 312 (delta 142), reused 267 (delta 101)\nReceiving objects: 100% (312/312), 1.82 MiB | 12.4 MiB/s, done.\nResolving deltas: 100% (142/142), done.",
             "comment": {
-              "en": "Clone the <a href=\"https://github.com/SteffenPL/fiji-mcp\">fiji-mcp</a> repository and install its Python dependencies with <a href=\"https://docs.astral.sh/uv/\">uv</a>. You need Python 3.11+ and uv installed beforehand.",
+              "en": "Clone the <a href=\"https://github.com/SteffenPL/fiji-mcp\">fiji-mcp repository</a> and install its Python dependencies with <a href=\"https://docs.astral.sh/uv/\">uv</a>. You need Python 3.11+ and uv installed beforehand.",
               "ja": "<a href=\"https://github.com/SteffenPL/fiji-mcp\">fiji-mcp</a> リポジトリをクローンし、<a href=\"https://docs.astral.sh/uv/\">uv</a> で Python 依存関係をインストールします。事前に Python 3.11+ と uv が必要です。"
             }
           }

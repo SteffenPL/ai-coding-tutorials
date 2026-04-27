@@ -16,8 +16,8 @@
             "type": "output",
             "text": "Downloading Claude Code installer…\nDetected: darwin arm64\nFetching latest release metadata from claude.ai…\n✓ claude v2.0 (darwin-arm64, 18.2 MB)\nVerifying checksum (sha256)…\n✓ checksum OK\nInstalling to /Users/steffen/.local/bin/claude\n✓ installed\nEnsuring ~/.local/bin is on PATH…\n✓ added export to ~/.zshrc\n\nclaude v2.0 installed. Restart your shell or run:\n  source ~/.zshrc",
             "comment": {
-              "en": "One command installs everything. The script auto-detects your OS and architecture, downloads the right binary, verifies its checksum, and adds it to your <code>PATH</code>. See the <a href=\"https://docs.anthropic.com/en/docs/claude-code/getting-started\">Claude Code getting started guide</a> for other installation methods.",
-              "ja": "コマンド一つですべてが完了します。スクリプトがOSとアーキテクチャを自動検出し、適切なバイナリをダウンロード、チェックサムを検証して <code>PATH</code> に追加します。他のインストール方法については <a href=\"https://docs.anthropic.com/en/docs/claude-code/getting-started\">Claude Code getting started guide</a> を参照してください。"
+              "en": "Install Claude Code with the official installer. For alternatives and platform notes, see the <a href=\"https://docs.anthropic.com/en/docs/claude-code/getting-started\">Claude Code getting started guide</a>.",
+              "ja": "公式インストーラーで Claude Code をインストールします。別のインストール方法やプラットフォーム別の注意点は <a href=\"https://docs.anthropic.com/en/docs/claude-code/getting-started\">Claude Code getting started guide</a> を参照してください。"
             }
           }
         },
@@ -29,47 +29,6 @@
             "type": "status",
             "text": "✓ installation complete",
             "variant": "success"
-          }
-        }
-      ]
-    },
-    {
-      "id": "r-source",
-      "kind": "terminal",
-      "prompt": "source ~/.zshrc",
-      "included": true,
-      "steps": []
-    },
-    {
-      "id": "r-which",
-      "kind": "terminal",
-      "prompt": "which claude",
-      "included": true,
-      "steps": [
-        {
-          "id": "s-which-output",
-          "included": true,
-          "displayMode": "normal",
-          "inserted": {
-            "type": "output",
-            "text": "/Users/steffen/.local/bin/claude"
-          }
-        }
-      ]
-    },
-    {
-      "id": "r-version",
-      "kind": "terminal",
-      "prompt": "claude --version",
-      "included": true,
-      "steps": [
-        {
-          "id": "s-version-output",
-          "included": true,
-          "displayMode": "normal",
-          "inserted": {
-            "type": "output",
-            "text": "claude 2.0.0"
           }
         }
       ]
@@ -87,11 +46,7 @@
           "inserted": {
             "type": "status",
             "text": "~/ping-pong",
-            "variant": "info",
-            "comment": {
-              "en": "Claude Code works best when launched from a project folder. Starting in an empty directory keeps things clean and lets us see exactly what Claude creates.",
-              "ja": "Claude Code はプロジェクトフォルダから起動するのが最適です。空のディレクトリから始めることで、Claude が何を生成するかを正確に確認できます。"
-            }
+            "variant": "info"
           }
         }
       ]
@@ -110,8 +65,8 @@
             "type": "output",
             "text": "┌  Claude Code v2.0\n│  First launch — let's get you signed in.\n└",
             "comment": {
-              "en": "Just type <code>claude</code> to launch. On the very first run, it detects there are no saved credentials and walks you through authentication before dropping you into the prompt. Subsequent launches skip straight to the prompt.",
-              "ja": "<code>claude</code> と入力するだけで起動できます。初回実行時は認証情報がないことを検出し、プロンプトに入る前に認証フローを案内します。2回目以降はそのままプロンプトが表示されます。"
+              "en": "Run <code>claude</code> once. First launch opens the sign-in flow; later launches go straight to the prompt.",
+              "ja": "一度 <code>claude</code> を実行します。初回はサインイン手順が開き、次回以降は直接プロンプトに進みます。"
             }
           }
         },
@@ -124,8 +79,8 @@
             "html": "<p>How would you like to authenticate?</p> <ol>\n  <li>Claude subscription (Pro / Max)</li>\n  <li>API billing via Anthropic Console</li>\n</ol>",
             "answer": "1",
             "comment": {
-              "en": "Two billing paths: <strong>Option 1</strong> (Claude subscription) is the easiest if you already have a Pro or Max plan -- your CLI usage draws from the same quota. <strong>Option 2</strong> (API billing) charges per token via the <a href=\"https://console.anthropic.com/\">Anthropic Console</a> and is generally more expensive, but offers finer control -- better suited for advanced users. You can switch later in <code>claude config</code>.",
-              "ja": "課金方法は2つあります。<strong>Option 1</strong>（Claudeサブスクリプション）は、Pro または Max プランをお持ちの場合に最も簡単で、CLIの利用も同じクォータから消費されます。<strong>Option 2</strong>（API課金）は <a href=\"https://console.anthropic.com/\">Anthropic Console</a> 経由のトークン単位の課金で、一般的に割高ですが、より細かい制御が可能なため上級者向けです。後から <code>claude config</code> で切り替えることも可能です。"
+              "en": "Choose the billing path you actually use. Most beginners with a Claude Pro/Max subscription should pick the subscription option; API billing is separate.",
+              "ja": "実際に使う課金方法を選びます。Claude Pro/Max サブスクリプションを持つ初心者は通常サブスクリプションを選びます。API 課金は別枠です。"
             }
           }
         },
@@ -137,8 +92,8 @@
             "type": "output",
             "text": "Opening browser for sign-in…\n✓ Authenticated as plunder.steffen.2a@kyoto-u.ac.jp",
             "comment": {
-              "en": "Your default browser opens for OAuth sign-in. Once you approve the device, the terminal picks up the token automatically -- no copy-pasting keys. The credential is stored locally so you only do this once per machine.",
-              "ja": "デフォルトブラウザが開き、OAuthサインインが始まります。デバイスを承認すると、ターミナル側が自動的にトークンを受け取ります。キーのコピー＆ペーストは不要です。認証情報はローカルに保存されるため、この操作はマシンごとに一度だけです。"
+              "en": "The browser sign-in stores a local credential, so this is normally a one-time setup per machine.",
+              "ja": "ブラウザーでのサインインによりローカル認証情報が保存されるため、通常はマシンごとに一度だけの設定です。"
             }
           }
         },

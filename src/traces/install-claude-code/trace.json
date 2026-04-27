@@ -84,15 +84,15 @@
             "nodeIndex": 3
           },
           "included": true,
-          "displayMode": "full",
+          "displayMode": "normal",
           "overrides": {
             "type": "tool_result",
             "text": "File created successfully at: /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html",
             "_isError": false
           },
           "comment": {
-            "en": "From a single sentence prompt, Claude wrote a complete, self-contained HTML file with CSS, a canvas-based renderer, and interactive controls. Notice we did not specify any implementation details -- Claude chose double-buffering, toroidal wrapping, and <code>requestAnimationFrame</code> on its own.",
-            "ja": "一文のプロンプトから、Claude はCSS、Canvas ベースのレンダラー、インタラクティブなコントロールを含む完全な HTML ファイルを生成しました。実装の詳細は一切指定していませんが、Claude が自らダブルバッファリング、トロイダルラッピング、<code>requestAnimationFrame</code> を選択しています。"
+            "en": "Claude creates the local HTML file from a single prompt. The tutorial shows the artifact, not every intermediate explanation.",
+            "ja": "Claude は一つのプロンプトからローカル HTML ファイルを作成します。このチュートリアルでは途中の説明ではなく成果物に焦点を当てます。"
           }
         },
         {
@@ -107,6 +107,10 @@
               "kind": "source",
               "language": "html",
               "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Conway's Game of Life</title>\n  <style>…</style>\n</head>\n<body>\n  <h1>Conway's Game of Life</h1>\n  <canvas id=\"grid\"></canvas>\n  <div class=\"controls\">…</div>\n  <script>\n    // double-buffered grid, toroidal wrap,\n    // requestAnimationFrame loop, click-to-toggle.\n  </script>\n</body>\n</html>"
+            },
+            "comment": {
+              "en": "The generated page is self-contained: HTML, CSS, canvas rendering, and controls in one file.",
+              "ja": "生成されたページは自己完結型です。HTML、CSS、Canvas 描画、操作 UI が一つのファイルに入っています。"
             }
           }
         },
@@ -116,7 +120,7 @@
             "roundIndex": 0,
             "nodeIndex": 4
           },
-          "included": true,
+          "included": false,
           "displayMode": "full",
           "overrides": {
             "type": "assistant",
@@ -143,15 +147,15 @@
             "nodeIndex": 0
           },
           "included": true,
-          "displayMode": "full",
+          "displayMode": "normal",
           "overrides": {
             "type": "tool_call",
             "toolName": "Bash",
             "code": "open /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html"
           },
           "comment": {
-            "en": "Claude can run shell commands on your machine via its Bash tool. Here it uses macOS's <code>open</code> command to launch the HTML file in your default browser. You will be asked for permission before any command runs.",
-            "ja": "Claude は Bash ツールを通じてマシン上でシェルコマンドを実行できます。ここでは macOS の <code>open</code> コマンドを使い、HTML ファイルをデフォルトブラウザで開いています。コマンドの実行前には必ず許可を求められます。"
+            "en": "Claude can run a shell command after permission. Here it opens the generated HTML file in the default browser.",
+            "ja": "Claude は許可後にシェルコマンドを実行できます。ここでは生成した HTML ファイルをデフォルトブラウザーで開きます。"
           }
         },
         {
@@ -160,7 +164,7 @@
             "roundIndex": 1,
             "nodeIndex": 0
           },
-          "included": true,
+          "included": false,
           "displayMode": "full",
           "overrides": {
             "type": "tool_result",
@@ -181,8 +185,8 @@
               "src": "movie.mov"
             },
             "comment": {
-              "en": "And here is the result -- a fully working Game of Life, built and opened in under a minute. The page runs entirely from the local filesystem with no server or build step. From installation to a running application in three prompts: that is the Claude Code experience.",
-              "ja": "これが結果です。完全に動作する Game of Life が1分以内に作成・表示されました。ページはサーバーもビルドステップも不要で、ローカルファイルシステムからそのまま実行されています。インストールから動くアプリケーションまでわずか3つのプロンプト ── これが Claude Code の体験です。"
+              "en": "That is the core Claude Code loop: install, sign in, ask for a small app, and inspect the running result.",
+              "ja": "これが Claude Code の基本ループです。インストール、サインイン、小さなアプリの依頼、実行結果の確認。"
             }
           }
         },
@@ -192,7 +196,7 @@
             "roundIndex": 1,
             "nodeIndex": 1
           },
-          "included": true,
+          "included": false,
           "displayMode": "full",
           "overrides": {
             "type": "assistant",
