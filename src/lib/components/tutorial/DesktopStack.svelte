@@ -60,6 +60,64 @@
 		return chromeless ? base : `${base};box-shadow:var(--shadow-window-1)`;
 	}
 
+	function isMediaContent(content: WindowStep['content']): boolean {
+		return content.kind === 'fiji-image' || content.kind === 'image' || content.kind === 'video';
+	}
+
+	function hasStatusBar(content: WindowStep['content']): boolean {
+		return content.kind === 'fiji-image' && !!content.statusBar;
+	}
+
+	function fitMediaWindow(node: HTMLElement) {
+		if (!node.classList.contains('media-window')) return {};
+
+		let resizeObserver: ResizeObserver | null = null;
+
+		const update = () => {
+			const media = node.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
+			if (!media) return;
+
+			const naturalWidth = media instanceof HTMLImageElement ? media.naturalWidth : media.videoWidth;
+			const naturalHeight = media instanceof HTMLImageElement ? media.naturalHeight : media.videoHeight;
+			if (!naturalWidth || !naturalHeight) return;
+
+			const headerHeight = node.querySelector<HTMLElement>('.window-header')?.offsetHeight ?? 0;
+			const statusHeight = node.querySelector<HTMLElement>('.statusbar')?.offsetHeight ?? 0;
+			const isMobile = window.matchMedia('(max-width: 900px)').matches;
+			const frame = node.closest<HTMLElement>('.workspace') ?? node.offsetParent as HTMLElement | null;
+			const frameRect = frame?.getBoundingClientRect();
+			const frameWidth = isMobile ? window.innerWidth : (frameRect?.width ?? window.innerWidth);
+			const frameHeight = isMobile ? window.innerHeight : (frameRect?.height ?? window.innerHeight);
+			const availableWidth = Math.max(1, frameWidth - (isMobile ? 12 : 44) - 2);
+			const availableHeight = Math.max(1, frameHeight - (isMobile ? 178 : 36) - headerHeight - statusHeight - 2);
+			const scale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight);
+			const mediaWidth = Math.floor(naturalWidth * scale);
+			const mediaHeight = Math.floor(naturalHeight * scale);
+
+			node.style.setProperty('--fit-media-width', `${mediaWidth}px`);
+			node.style.setProperty('--fit-media-height', `${mediaHeight}px`);
+			node.style.setProperty('--fit-status-height', `${statusHeight}px`);
+		};
+
+		const media = node.querySelector<HTMLImageElement | HTMLVideoElement>('img, video');
+		media?.addEventListener('load', update);
+		media?.addEventListener('loadedmetadata', update);
+		window.addEventListener('resize', update);
+		resizeObserver = new ResizeObserver(update);
+		const frame = node.closest<HTMLElement>('.workspace') ?? node.offsetParent as HTMLElement | null;
+		if (frame) resizeObserver.observe(frame);
+		update();
+
+		return {
+			destroy() {
+				media?.removeEventListener('load', update);
+				media?.removeEventListener('loadedmetadata', update);
+				window.removeEventListener('resize', update);
+				resizeObserver?.disconnect();
+			}
+		};
+	}
+
 	let hasVisibleWindows = $derived(windowSteps.some(w => w.index <= currentStep));
 
 	let descriptionHtml = $state<string | null>(null);
@@ -133,7 +191,13 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="max-backdrop" onclick={onRestore} role="presentation"></div>
-	<div class="window max-window" class:chromeless>
+	<div
+		class="window max-window"
+		class:chromeless
+		class:media-window={isMediaContent(focusedWindow.content)}
+		class:has-status-bar={hasStatusBar(focusedWindow.content)}
+		use:fitMediaWindow
+	>
 		{#if !chromeless}
 			<WindowChrome
 				title={focusedWindow.windowTitle}
@@ -349,9 +413,26 @@
 		animation: maxPopIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
+	.max-window.media-window {
+		inset: auto;
+		left: 50%;
+		top: 50%;
+		width: calc(var(--fit-media-width, 0px) + 2px);
+		height: auto;
+		max-width: calc(100% - 44px);
+		max-height: calc(100% - 36px);
+		transform: translate(-50%, -50%);
+		animation: maxMediaPopIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
 	@keyframes maxPopIn {
 		from { opacity: 0; transform: scale(0.97); }
 		to { opacity: 1; transform: scale(1); }
+	}
+
+	@keyframes maxMediaPopIn {
+		from { opacity: 0; transform: translate(-50%, -50%) scale(0.97); }
+		to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 	}
 
 	.max-body {
@@ -362,10 +443,23 @@
 		overflow: hidden;
 	}
 
+	.max-window.media-window .max-body {
+		flex: 0 1 auto;
+		display: block;
+		width: var(--fit-media-width, auto);
+		height: calc(var(--fit-media-height, 0px) + var(--fit-status-height, 0px));
+	}
+
 	/* Media inside the max-window should fill the available space */
 	.max-body :global(.zoom-container) {
 		flex: 1 1 auto;
 		min-height: 0;
+	}
+
+	.max-window.media-window .max-body :global(.zoom-container) {
+		display: block;
+		width: var(--fit-media-width, auto);
+		height: var(--fit-media-height, auto);
 	}
 
 	.max-body :global(.zoom-content) {
@@ -376,12 +470,26 @@
 		justify-content: center;
 	}
 
+	.max-window.media-window .max-body :global(.zoom-content) {
+		display: block;
+		width: auto;
+		height: auto;
+	}
+
 	.max-body :global(img),
 	.max-body :global(video) {
 		max-width: 100%;
 		max-height: 100%;
 		width: auto;
 		height: auto;
+		object-fit: contain;
+	}
+
+	.max-window.media-window .max-body :global(img),
+	.max-window.media-window .max-body :global(video) {
+		display: block;
+		width: var(--fit-media-width, auto);
+		height: var(--fit-media-height, auto);
 		object-fit: contain;
 	}
 
@@ -407,6 +515,15 @@
 			right: 6px;
 			bottom: 121px;
 			border-radius: 10px;
+		}
+
+		.max-window.media-window {
+			top: 50%;
+			left: 50%;
+			right: auto;
+			bottom: auto;
+			max-width: calc(100vw - 12px);
+			max-height: calc(100dvh - 178px);
 		}
 	}
 </style>
