@@ -51,8 +51,15 @@ function configure() {
 	});
 }
 
+function stripLinkTargets(html: string): string {
+	// Tutorial messages should navigate in-place; keep Markdown links as links,
+	// but do not force new tabs/windows.
+	return html.replace(/(<a\b[^>]*?)\s+target=(['"]).*?\2/gi, '$1');
+}
+
 /** Render markdown text to HTML. Safe to call many times — configures once. */
 export async function renderMarkdown(text: string): Promise<string> {
 	configure();
-	return marked.parse(text, { async: true });
+	const html = await marked.parse(text, { async: true });
+	return stripLinkTargets(html);
 }

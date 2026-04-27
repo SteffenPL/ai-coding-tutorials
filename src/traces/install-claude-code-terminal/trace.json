@@ -36,7 +36,7 @@
     {
       "id": "r-mkdir",
       "kind": "terminal",
-      "prompt": "mkdir ping-pong && cd ping-pong",
+      "prompt": "mkdir game-of-life && cd game-of-life",
       "included": true,
       "steps": [
         {
@@ -45,7 +45,7 @@
           "displayMode": "normal",
           "inserted": {
             "type": "status",
-            "text": "~/ping-pong",
+            "text": "~/game-of-life",
             "variant": "info"
           }
         }

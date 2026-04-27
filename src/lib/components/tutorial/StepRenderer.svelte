@@ -16,6 +16,7 @@
 	import { getStepStyle, compactSummary } from './step-colors';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
+	import { renderMarkdown } from '$lib/utils/markdown';
 
 	const FOLD_LINES = 5;
 
@@ -33,6 +34,33 @@
 
 	let codeExpanded = $state(false);
 	let resultExpanded = $state(false);
+	let assistantHtml = $state('');
+	let questionPromptHtml = $state('');
+	let questionOptions = $state<{ label: string; selected: boolean }[]>([]);
+
+	$effect(() => {
+		if (step.type !== 'assistant') return;
+		let cancelled = false;
+		(async () => {
+			const rendered = await renderMessageMarkdown(step.html);
+			if (!cancelled) assistantHtml = rendered;
+		})();
+		return () => { cancelled = true; };
+	});
+
+	$effect(() => {
+		if (step.type !== 'question') return;
+		let cancelled = false;
+		(async () => {
+			const parsed = parseQuestion(step.html, step.answer);
+			const renderedPrompt = await renderMessageMarkdown(parsed.prompt);
+			if (!cancelled) {
+				questionPromptHtml = renderedPrompt;
+				questionOptions = parsed.options;
+			}
+		})();
+		return () => { cancelled = true; };
+	});
 
 	/* ── JSON-aware tool call/result parsing ── */
 
@@ -100,38 +128,8 @@
 		return { preview: lines.slice(0, FOLD_LINES).join('\n'), hiddenCount: lines.length - FOLD_LINES };
 	}
 
-	function formatAssistantHtml(html: string): string {
-		const hasHtmlBreaks = html.includes('<br>') || html.includes('<br/>') || html.includes('<br />');
-
-		let result = html;
-
-		// Inline markdown: **bold**, *italic* / _italic_, `code`
-		// Skip if content already has <strong>/<em> tags for that segment
-		result = result.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
-		result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-		result = result.replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>');
-		result = result.replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
-
-		// Block-level: heading lines (# … #### at start of line or after <br>/<p>)
-		const headingPrefix = /(?:^|(?<=\n)|(?<=<br>)|(?<=<br\/>)|(?<=<br \/>)|(?<=<p>))/;
-		const h4Re = new RegExp(headingPrefix.source + '#{4}\\s+(.+?)(?=<|$)', 'g');
-		const h123Re = new RegExp(headingPrefix.source + '#{1,3}\\s+(.+?)(?=<|$)', 'g');
-		result = result.replace(h4Re, '<strong>$1</strong>');
-		result = result.replace(h123Re, '<span class="md-heading">$1</span>');
-
-		// Decorative rules: lines that are all ─ or ═ or — (≥3 chars)
-		const ruleRe = new RegExp(headingPrefix.source + '([─═—]{3,})(?=<|\\n|$)', 'g');
-		result = result.replace(ruleRe, '<span class="decorative-rule">$1</span>');
-
-		// ★ Insight headers
-		const insightRe = new RegExp(headingPrefix.source + '(★\\s+\\w[^<\\n]*[─—]+)', 'g');
-		result = result.replace(insightRe, '<span class="decorative-rule">$1</span>');
-
-		if (hasHtmlBreaks) return result;
-		if (!result.includes('\n')) return result;
-		return result
-			.replace(/\n\n+/g, '</p><p>')
-			.replace(/\n/g, '<br>');
+	async function renderMessageMarkdown(text: string): Promise<string> {
+		return renderMarkdown(text);
 	}
 
 	function tryParseJsonResult(raw: string): ParsedJson {
@@ -180,7 +178,7 @@
 		<span class="assistant-dot" class:final-dot={step.final}>●</span>
 		<div class="assistant-content">
 			<div class="assistant-text">
-				{@html formatAssistantHtml(step.html)}
+				{@html assistantHtml}
 			</div>
 			{#if isLast}
 				<span class="cursor"></span>
@@ -200,11 +198,10 @@
 	</div>
 
 {:else if step.type === 'question'}
-	{@const questionParts = parseQuestion(step.html, step.answer)}
 	<div class="question-block">
-		<div class="question-text">{@html questionParts.prompt}</div>
+		<div class="question-text">{@html questionPromptHtml}</div>
 		<div class="question-options">
-			{#each questionParts.options as opt}
+			{#each questionOptions as opt}
 				<div class="question-option" class:selected={opt.selected}>
 					<span class="option-check">{opt.selected ? '[x]' : '[ ]'}</span>
 					<span class="option-label">{opt.label}</span>
@@ -446,6 +443,16 @@
 		margin-bottom: 0;
 	}
 
+	.assistant-text :global(h1),
+	.assistant-text :global(h2),
+	.assistant-text :global(h3),
+	.assistant-text :global(h4) {
+		margin: 10px 0 4px 0;
+		color: var(--orange-300);
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
 	.assistant-text :global(strong) {
 		color: var(--text-primary);
 		font-weight: 600;
@@ -528,6 +535,7 @@
 		font-size: 12px;
 		line-height: 1.5;
 		color: var(--text-primary);
+		text-align: left;
 	}
 
 	.assistant-text :global(pre code),
@@ -1059,8 +1067,10 @@
 
 	/* ── Mobile overrides ── */
 	@media (max-width: 900px) {
+		.assistant-text :global(pre),
+		.code-block { font-size: 10.5px; }
 		.tool-call { padding: 8px 10px; font-size: 11px; }
-		.tool-call .code-block { font-size: 11px; }
+		.tool-call .code-block { font-size: 10.5px; }
 		.tool-result { padding: 6px 10px; font-size: 10px; }
 		.results-table { font-size: 10px; }
 

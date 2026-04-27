@@ -10,6 +10,8 @@
 	document-level pointerdown dismisses it; that listener lives on the page.
 -->
 <script lang="ts">
+	import { renderMarkdown } from '$lib/utils/markdown';
+
 	let {
 		commentHtml,
 		currentStep,
@@ -39,15 +41,26 @@
 		onTogglePlay: () => void;
 		onSetDetailMode: (mode: 'steps' | 'tutorial' | 'round') => void;
 	} = $props();
+
+	let renderedCommentHtml = $state('');
+
+	$effect(() => {
+		let cancelled = false;
+		(async () => {
+			const rendered = await renderMarkdown(commentHtml);
+			if (!cancelled) renderedCommentHtml = rendered;
+		})();
+		return () => { cancelled = true; };
+	});
 </script>
 
 <div class="bottom-panel">
 	<div class="comment-panel">
 		<div class="comment-header">Tutorial ({currentTutorialGlobal + 1} / {totalTutorialStops})</div>
 		<div class="comment-scroll">
-			{#key commentHtml}
+			{#key renderedCommentHtml}
 				<div class="comment-text comment-fade">
-					{@html commentHtml}
+					{@html renderedCommentHtml}
 				</div>
 			{/key}
 		</div>
@@ -359,6 +372,23 @@
 		font-size: 16px;
 		line-height: 1.7;
 		color: var(--text-secondary);
+	}
+
+	.comment-text :global(p) {
+		margin: 0 0 10px;
+	}
+
+	.comment-text :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.comment-text :global(a) {
+		color: var(--orange-300);
+		text-decoration: none;
+	}
+
+	.comment-text :global(a:hover) {
+		text-decoration: underline;
 	}
 
 

@@ -33,7 +33,7 @@
           "overrides": {
             "type": "tool_call",
             "toolName": "Bash",
-            "code": "ls /Users/SteffenPlunder/Documents/Workspace/ping-pong/"
+            "code": "ls /Users/SteffenPlunder/Documents/Workspace/game-of-life/"
           }
         },
         {
@@ -74,7 +74,7 @@
           "overrides": {
             "type": "tool_call",
             "toolName": "Write",
-            "code": "/Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html"
+            "code": "/Users/SteffenPlunder/Documents/Workspace/game-of-life/game-of-life.html"
           }
         },
         {
@@ -87,7 +87,7 @@
           "displayMode": "normal",
           "overrides": {
             "type": "tool_result",
-            "text": "File created successfully at: /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html",
+            "text": "File created successfully at: /Users/SteffenPlunder/Documents/Workspace/game-of-life/game-of-life.html",
             "_isError": false
           },
           "comment": {
@@ -151,7 +151,7 @@
           "overrides": {
             "type": "tool_call",
             "toolName": "Bash",
-            "code": "open /Users/SteffenPlunder/Documents/Workspace/ping-pong/game-of-life.html"
+            "code": "open /Users/SteffenPlunder/Documents/Workspace/game-of-life/game-of-life.html"
           },
           "comment": {
             "en": "Claude can run a shell command after permission. Here it opens the generated HTML file in the default browser.",

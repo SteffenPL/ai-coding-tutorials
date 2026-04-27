@@ -99,6 +99,7 @@
 		font-family: var(--font-mono);
 		font-size: 12px;
 		line-height: 1.6;
+		text-align: left;
 	}
 
 	/* Shiki output wrapper — override Shiki's theme background, keep its colors */
@@ -115,6 +116,7 @@
 	.shiki-wrap :global(pre.shiki code) {
 		display: block;
 		min-width: fit-content;
+		text-align: left;
 	}
 
 	/*
@@ -196,6 +198,25 @@
 	.copy-btn svg {
 		width: 13px;
 		height: 13px;
+	}
+
+	@media (max-width: 900px) {
+		.source-body,
+		.shiki-wrap :global(pre.shiki) {
+			font-size: 10.5px;
+			line-height: 1.55;
+		}
+
+		.shiki-wrap :global(.line::before) {
+			width: 1.8rem;
+			padding-right: 8px;
+			margin-right: 8px;
+			font-size: 9.5px;
+		}
+
+		.plain {
+			padding: 10px 12px 10px 0;
+		}
 	}
 
 	/* Scrollbars — same look as sibling window components */
