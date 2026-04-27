@@ -183,6 +183,7 @@
 	function insertWindowStep(roundId: string, afterStepId: string | null, kind: WindowContentData['kind']) {
 		const contentMap: Record<string, WindowContentData> = {
 			'fiji-image': { kind: 'fiji-image', src: '' },
+			'fiji-main': { kind: 'fiji-main' },
 			image: { kind: 'image', src: '' },
 			video: { kind: 'video', src: '' },
 			markdown: { kind: 'markdown', text: '' },

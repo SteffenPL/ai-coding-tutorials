@@ -111,6 +111,22 @@
       "included": true,
       "steps": [
         {
+          "id": "s-open-fiji-main",
+          "included": true,
+          "displayMode": "normal",
+          "inserted": {
+            "type": "window",
+            "windowTitle": "(Fiji Is Just) ImageJ",
+            "content": {
+              "kind": "fiji-main"
+            },
+            "comment": {
+              "en": "When Claude Code starts a session with fiji-mcp registered, the MCP server auto-launches Fiji and connects the bridge plugin. This is what you'll see — the Fiji main window with the log confirming the WebSocket bridge is active.",
+              "ja": "fiji-mcp が登録された状態で Claude Code のセッションを開始すると、MCP サーバーが自動的に Fiji を起動し、ブリッジプラグインを接続します。ここに表示されているのが、WebSocket ブリッジがアクティブであることを確認する Fiji のメインウィンドウとログです。"
+            }
+          }
+        },
+        {
           "id": "s-open-1",
           "included": true,
           "displayMode": "normal",

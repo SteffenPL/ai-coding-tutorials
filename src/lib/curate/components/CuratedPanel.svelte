@@ -57,6 +57,7 @@
 		<button onclick={() => onInsertDividerStep(roundId, afterStepId)}>Divider</button>
 		<span class="insert-sep">Windows:</span>
 		<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'fiji-image')}>Fiji Image</button>
+		<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'fiji-main')}>Fiji Main</button>
 		<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'image')}>Image</button>
 		<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'video')}>Video</button>
 		<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'source')}>Source</button>

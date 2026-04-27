@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Tutorial, Step, WindowStep, AssistantStep, TutorialRound } from '$lib/data/tutorials';
 	import { getTutorialTitle, getWindowIcon, isChromeless } from '$lib/data/tutorials';
-	import { langStore } from '$lib/stores/lang.svelte';
+	import { langStore, t } from '$lib/stores/lang.svelte';
 	import { themeStore, THEMES } from '$lib/stores/theme.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -72,14 +72,16 @@
 		: totalItems > 0 ? itemsShown / totalItems : 0
 	);
 
+	let isActive = $derived(phase === 'playing' || phase === 'done');
+
 	let activePrompt = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return null;
+		if (!isActive || currentScene >= scenes.length) return null;
 		if (currentItemInScene < 0) return null;
 		return scenes[currentScene][0]?.kind === 'prompt' ? scenes[currentScene][0] : null;
 	});
 
 	let activeWindows = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return [];
+		if (!isActive || currentScene >= scenes.length) return [];
 		const items = scenes[currentScene];
 		const wins: WindowStep[] = [];
 		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
@@ -89,7 +91,7 @@
 	});
 
 	let activeMessages = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return [];
+		if (!isActive || currentScene >= scenes.length) return [];
 		const items = scenes[currentScene];
 		const msgs: Step[] = [];
 		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
@@ -99,12 +101,20 @@
 	});
 
 	let activeAnswer = $derived.by(() => {
-		if (phase !== 'playing' || currentScene >= scenes.length) return null;
+		if (!isActive || currentScene >= scenes.length) return null;
 		const items = scenes[currentScene];
 		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
 			if (items[i].kind === 'answer' && items[i].step) return items[i].step as AssistantStep;
 		}
 		return null;
+	});
+
+	let activeComment = $derived.by(() => {
+		if (!isActive || currentScene >= scenes.length || currentItemInScene < 0) return null;
+		const item = scenes[currentScene][currentItemInScene];
+		if (!item?.step?.comment) return null;
+		const c = item.step.comment;
+		return typeof c === 'string' ? c : t(c);
 	});
 
 	function stepToHtml(step: Step): string {
@@ -138,7 +148,13 @@
 		if (currentItemInScene >= items.length) {
 			currentScene++;
 			currentItemInScene = -1;
-			if (currentScene >= scenes.length) { phase = 'done'; return; }
+			if (currentScene >= scenes.length) {
+				currentScene = scenes.length - 1;
+				currentItemInScene = scenes[currentScene].length - 1;
+				phase = 'done';
+				paused = true;
+				return;
+			}
 			timerId = setTimeout(advance, SCENE_GAP);
 			return;
 		}
@@ -151,12 +167,14 @@
 		if (phase === 'done') return;
 		const items = scenes[currentScene];
 		if (currentItemInScene + 1 >= items.length) {
+			if (currentScene + 1 >= scenes.length) {
+				phase = 'done';
+				paused = true;
+				return;
+			}
 			currentScene++;
-			currentItemInScene = -1;
-			itemsShown++;
-			if (currentScene >= scenes.length) { phase = 'done'; return; }
 			currentItemInScene = 0;
-			itemsShown++;
+			itemsShown += 2;
 		} else {
 			currentItemInScene++;
 			itemsShown++;
@@ -171,10 +189,6 @@
 		clearTimer();
 		if (phase === 'done') {
 			phase = 'playing';
-			currentScene = scenes.length - 1;
-			currentItemInScene = scenes[currentScene].length - 1;
-			itemsShown = Math.max(0, itemsShown - 1);
-			return;
 		}
 		if (phase === 'title') return;
 		if (currentItemInScene > 0) {
@@ -310,60 +324,70 @@
 	<!-- Main layout: left chat + right content -->
 	{#if phase === 'playing' || phase === 'done'}
 		<div class="layout">
-			<!-- Left: chat frame -->
-			<div class="chat-frame">
-				<div class="chat-frame__inner">
-					{#if activePrompt}
-						{#key `${currentScene}-prompt`}
-							<SlidesStep kind="prompt">
-								<div class="bubble bubble--user">
-									<span class="bubble__tag">You</span>
-									<span class="bubble__text">{activePrompt.round.prompt}</span>
+			<div class="layout__top">
+				<!-- Left: chat frame -->
+				<div class="chat-frame">
+					<div class="chat-frame__inner">
+						<div class="chat-watermark">AI Agent Chat</div>
+						{#if activePrompt}
+							{#key `${currentScene}-prompt`}
+								<SlidesStep kind="prompt">
+									<div class="bubble bubble--user">
+										<span class="bubble__tag">You</span>
+										<span class="bubble__text">{activePrompt.round.prompt}</span>
+									</div>
+								</SlidesStep>
+							{/key}
+						{/if}
+
+						{#each activeMessages as msg, mi (mi + '-' + currentScene)}
+							<SlidesStep kind="step">
+								<div class="bubble bubble--ai bubble--brief">
+									<div class="bubble__html">{@html stepToHtml(msg)}</div>
 								</div>
 							</SlidesStep>
-						{/key}
-					{/if}
+						{/each}
 
-					{#each activeMessages as msg, mi (mi + '-' + currentScene)}
-						<SlidesStep kind="step">
-							<div class="bubble bubble--ai bubble--brief">
-								<div class="bubble__html">{@html stepToHtml(msg)}</div>
+						{#if activeAnswer}
+							{#key `${currentScene}-answer`}
+								<SlidesStep kind="final">
+									<div class="bubble bubble--ai">
+										<span class="bubble__tag">AI Agent</span>
+										<div class="bubble__html">{@html activeAnswer.html}</div>
+									</div>
+								</SlidesStep>
+							{/key}
+						{/if}
+					</div>
+				</div>
+
+				<!-- Right: window content -->
+				<div class="content-area">
+					{#if activeWindows.length > 0}
+						{#each activeWindows as win, wi (wi + '-' + currentScene)}
+							<div class="stack-window" style={windowStackStyle(wi, activeWindows.length)}>
+								<div class="window" class:window--collection={win.content.kind === 'window-collection'}>
+									{#if !isChromeless(win.content)}
+										<WindowChrome
+											title={win.windowTitle}
+											subtitle={win.subtitle}
+											icon={win.icon ?? getWindowIcon(win.content)}
+										/>
+									{/if}
+									<div class="window__content">
+										<WindowContent content={win.content} />
+									</div>
+								</div>
 							</div>
-						</SlidesStep>
-					{/each}
-
-					{#if activeAnswer}
-						{#key `${currentScene}-answer`}
-							<SlidesStep kind="final">
-								<div class="bubble bubble--ai">
-									<span class="bubble__tag">AI Agent</span>
-									<div class="bubble__html">{@html activeAnswer.html}</div>
-								</div>
-							</SlidesStep>
-						{/key}
+						{/each}
 					{/if}
 				</div>
 			</div>
 
-			<!-- Right: window content -->
-			<div class="content-area">
-				{#if activeWindows.length > 0}
-					{#each activeWindows as win, wi (wi + '-' + currentScene)}
-						<div class="stack-window" style={windowStackStyle(wi, activeWindows.length)}>
-							<div class="window" class:window--collection={win.content.kind === 'window-collection'}>
-								{#if !isChromeless(win.content)}
-									<WindowChrome
-										title={win.windowTitle}
-										subtitle={win.subtitle}
-										icon={win.icon ?? getWindowIcon(win.content)}
-									/>
-								{/if}
-								<div class="window__content">
-									<WindowContent content={win.content} />
-								</div>
-							</div>
-						</div>
-					{/each}
+			<!-- Bottom: comment strip spanning full width -->
+			<div class="comment-strip">
+				{#if activeComment}
+					<div class="comment-text">{@html activeComment}</div>
 				{/if}
 			</div>
 		</div>
@@ -381,6 +405,8 @@
 		overflow: hidden;
 		font-family: var(--font-display);
 		touch-action: pan-y;
+		--chat-glass-bg: color-mix(in srgb, var(--bg-primary) 55%, transparent);
+		--chat-glass-border: color-mix(in srgb, var(--text-primary) 8%, transparent);
 	}
 
 	/* ─── Controls ─── */
@@ -510,32 +536,39 @@
 		position: relative;
 		z-index: 1;
 		display: flex;
+		flex-direction: column;
 		height: 100vh;
+	}
+
+	.layout__top {
+		height: 80vh;
+		display: flex;
+		padding: 24px 32px 0;
+		gap: 24px;
 	}
 
 	/* ─── Left: chat frame ─── */
 	.chat-frame {
-		width: 40%;
-		flex-shrink: 0;
-		height: 100vh;
+		width: 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 32px 24px 32px 40px;
 	}
 
 	.chat-frame__inner {
+		position: relative;
 		width: 100%;
-		max-width: 480px;
-		height: 520px;
+		max-width: 520px;
+		height: 100%;
+		max-height: 560px;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
 		gap: 12px;
 		padding: 24px;
 		border-radius: 16px;
-		background: rgba(0, 0, 0, 0.35);
-		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: var(--chat-glass-bg);
+		border: 1px solid var(--chat-glass-border);
 		backdrop-filter: blur(10px);
 		overflow-y: auto;
 	}
@@ -575,32 +608,31 @@
 	.bubble--user {
 		align-self: flex-end;
 		margin-left: 32px;
-		background: rgba(233, 84, 32, 0.25);
-		border: 1px solid rgba(233, 84, 32, 0.35);
+		background: color-mix(in srgb, var(--accent) 30%, var(--bg-primary));
+		border: 1px solid var(--accent-border);
 		border-radius: 14px 14px 4px 14px;
 		text-align: right;
 	}
-	.bubble--user .bubble__tag { color: var(--orange-400, #E95420); }
+	.bubble--user .bubble__tag { color: var(--orange-400); }
 
 	.bubble--ai {
 		align-self: flex-start;
 		margin-right: 32px;
-		background: rgba(42, 161, 152, 0.22);
-		border: 1px solid rgba(42, 161, 152, 0.3);
+		background: color-mix(in srgb, var(--teal) 22%, var(--bg-primary));
+		border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
 		border-radius: 14px 14px 14px 4px;
 	}
-	.bubble--ai .bubble__tag { color: var(--teal, #2AA198); }
+	.bubble--ai .bubble__tag { color: var(--teal); }
 
 	.bubble--brief {
 		padding: 10px 14px;
 		font-size: 0.85rem;
-		opacity: 0.85;
 	}
 
 	/* ─── Right: content area ─── */
 	.content-area {
-		flex: 1;
-		height: 100vh;
+		width: 50%;
+		height: 100%;
 		position: relative;
 	}
 
@@ -623,13 +655,13 @@
 	}
 
 	.window__content {
-		max-height: 65vh;
+		max-height: 55vh;
 		overflow: hidden;
 	}
 
 	.window--collection .window__content {
-		max-height: 90vh;
-		height: 90vh;
+		max-height: 75vh;
+		height: 75vh;
 	}
 
 	.window--collection {
@@ -648,6 +680,46 @@
 
 	.window--collection .window__content :global(.collection-grid) {
 		gap: 4px;
+	}
+
+	/* ─── Chat watermark ─── */
+	.chat-watermark {
+		position: absolute;
+		top: 20px;
+		left: 24px;
+		right: 24px;
+		font-size: 1.6rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		color: var(--text-primary);
+		opacity: 0.08;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	/* ─── Comment strip ─── */
+	.comment-strip {
+		height: 20vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0 48px;
+	}
+
+	.comment-text {
+		font-size: 1.35rem;
+		font-style: italic;
+		line-height: 1.4;
+		color: var(--text-secondary);
+		text-align: center;
+		max-width: 900px;
+		animation: commentIn 0.4s ease both;
+	}
+	.comment-text :global(p) { margin: 0; }
+
+	@keyframes commentIn {
+		from { opacity: 0; transform: translateY(8px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 
 	/* ─── Pause ─── */

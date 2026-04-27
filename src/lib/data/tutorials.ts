@@ -239,6 +239,16 @@ export interface VideoContent {
 }
 
 /**
+ * Decorative Fiji main window with toolbar and a log sub-window.
+ * Shows that the Fiji MCP server connected — purely visual, not editable.
+ */
+export interface FijiMainContent {
+	kind: 'fiji-main';
+	/** Log lines shown in the sub-window (defaults to MCP bridge messages) */
+	logLines?: string[];
+}
+
+/**
  * A collection of sub-windows arranged in a rows×cols grid.
  * Rendered directly in the desktop stack without an outer chrome —
  * each sub-window gets its own WindowChrome.
@@ -263,12 +273,14 @@ export type WindowContentData =
 	| SourceContent
 	| FolderContent
 	| VideoContent
+	| FijiMainContent
 	| WindowCollectionContent;
 
 /** Default icon text for each window content kind */
 export function getWindowIcon(content: WindowContentData): string {
 	switch (content.kind) {
 		case 'fiji-image': return 'Fj';
+		case 'fiji-main': return 'Fj';
 		case 'image': return 'Im';
 		case 'markdown': return 'Md';
 		case 'source': return '</>';
@@ -280,7 +292,7 @@ export function getWindowIcon(content: WindowContentData): string {
 
 /** Whether a window content kind renders its own chrome (no outer chrome needed). */
 export function isChromeless(content: WindowContentData): boolean {
-	return content.kind === 'window-collection';
+	return content.kind === 'window-collection' || content.kind === 'fiji-main';
 }
 
 /**

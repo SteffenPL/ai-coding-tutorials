@@ -315,7 +315,7 @@
 	--bg-secondary: #e8ddd8;
 	--bg-surface: rgba(240, 232, 228, 0.8);
 	--bg-hover: #ddd0ca;
-	--bg-terminal: #faf6f4;
+	--bg-terminal: #ede4de;
 	--bg-dialog: #f4eeea;
 	--bg-deep: #faf8f6;
 	--bg-inset: #ffffff;
@@ -414,7 +414,7 @@
 	--bg-secondary: #dce6f0;
 	--bg-surface: rgba(232, 240, 248, 0.8);
 	--bg-hover: #ccdae8;
-	--bg-terminal: #f6f9fc;
+	--bg-terminal: #e0eaf4;
 	--bg-dialog: #eef4fa;
 	--bg-deep: #f8fafc;
 	--bg-inset: #ffffff;
@@ -513,7 +513,7 @@
 	--bg-secondary: #ece0d4;
 	--bg-surface: rgba(244, 236, 226, 0.8);
 	--bg-hover: #e0d2c4;
-	--bg-terminal: #fcf8f4;
+	--bg-terminal: #f0e8de;
 	--bg-dialog: #f6f0e8;
 	--bg-deep: #faf8f4;
 	--bg-inset: #ffffff;

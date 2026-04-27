@@ -35,6 +35,7 @@
           "id": "s-3",
           "included": true,
           "displayMode": "full",
+          "comment": "Claude identifies the fluorescence channels automatically — DAPI (blue) for nuclei, green for cytoskeleton.",
           "inserted": {
             "type": "assistant",
             "html": "<p>The image is open — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",

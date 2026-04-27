@@ -844,6 +844,7 @@
 									const kind = (e.target as HTMLSelectElement).value;
 									if (kind === 'image') entry.content = { kind: 'image', src: '' };
 									else if (kind === 'fiji-image') entry.content = { kind: 'fiji-image', src: '' };
+									else if (kind === 'fiji-main') entry.content = { kind: 'fiji-main' };
 									else if (kind === 'markdown') entry.content = { kind: 'markdown', text: '' };
 									else if (kind === 'source') entry.content = { kind: 'source', text: '' };
 									else if (kind === 'video') entry.content = { kind: 'video', src: '' };
@@ -853,6 +854,7 @@
 							>
 								<option value="image">Image</option>
 								<option value="fiji-image">Fiji Image</option>
+								<option value="fiji-main">Fiji Main</option>
 								<option value="video">Video</option>
 								<option value="markdown">Markdown</option>
 								<option value="source">Source</option>

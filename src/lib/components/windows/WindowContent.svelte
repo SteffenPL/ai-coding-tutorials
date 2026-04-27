@@ -11,6 +11,7 @@
 <script lang="ts">
 	import type { WindowContentData } from '$lib/data/tutorials';
 	import FijiImageView from './FijiImageView.svelte';
+	import FijiMainView from './FijiMainView.svelte';
 	import ImageView from './ImageView.svelte';
 	import MarkdownView from './MarkdownView.svelte';
 	import SourceView from './SourceView.svelte';
@@ -23,6 +24,8 @@
 
 {#if content.kind === 'fiji-image'}
 	<FijiImageView {content} />
+{:else if content.kind === 'fiji-main'}
+	<FijiMainView {content} />
 {:else if content.kind === 'image'}
 	<ImageView {content} />
 {:else if content.kind === 'markdown'}

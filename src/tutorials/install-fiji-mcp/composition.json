@@ -1,0 +1,54 @@
+{
+  "formatVersion": "1.0.0",
+  "slug": "install-fiji-mcp",
+  "meta": {
+    "slug": "install-fiji-mcp",
+    "title": {
+      "en": "Install fiji-mcp",
+      "ja": "fiji-mcp のインストール"
+    },
+    "tags": [
+      "beginner",
+      "getting-started",
+      "setup",
+      "fiji",
+      "mcp"
+    ],
+    "author": "Steffen Plunder"
+  },
+  "welcome": {
+    "heading": {
+      "en": "Connect Claude Code to Fiji",
+      "ja": "Claude Code と Fiji を接続する"
+    },
+    "description": {
+      "en": "Install the fiji-mcp bridge so Claude Code can run ImageJ macros, inspect images, and control Fiji interactively via MCP tools.",
+      "ja": "fiji-mcp ブリッジをインストールして、Claude Code が MCP ツールを通じて ImageJ マクロの実行、画像の検査、Fiji のインタラクティブな操作を行えるようにします。"
+    },
+    "learnings": [
+      {
+        "en": "Clone and install fiji-mcp with uv",
+        "ja": "uv を使って fiji-mcp をクローン・インストール"
+      },
+      {
+        "en": "Install the Fiji bridge plugin",
+        "ja": "Fiji ブリッジプラグインのインストール"
+      },
+      {
+        "en": "Register fiji-mcp as a Claude Code MCP server",
+        "ja": "fiji-mcp を Claude Code の MCP サーバーとして登録"
+      },
+      {
+        "en": "Run your first ImageJ macro through Claude Code",
+        "ja": "Claude Code から最初の ImageJ マクロを実行"
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "kind": "trace",
+      "sourceSlug": "install-fiji-mcp"
+    }
+  ],
+  "description": "Step-by-step guide to installing fiji-mcp — the MCP bridge that lets Claude Code control Fiji/ImageJ. Covers cloning the repository, installing the bridge plugin into Fiji, registering the MCP server in Claude Code, and running a first macro to verify everything works.\n\n### What you'll see\n- Three terminal commands to install everything\n- The Fiji main window with the MCP bridge log\n- Claude Code running an ImageJ macro and retrieving a thumbnail"
+}

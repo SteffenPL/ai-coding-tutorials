@@ -356,9 +356,31 @@
 	}
 
 	.comment-text {
-		font-size: 15px;
+		font-size: 16px;
 		line-height: 1.7;
 		color: var(--text-secondary);
+	}
+
+	.comment-text::before {
+		content: '\201C';
+		font-size: 2.2em;
+		line-height: 0;
+		vertical-align: -0.25em;
+		margin-right: 2px;
+		color: var(--orange-300);
+		opacity: 0.5;
+		font-family: Georgia, serif;
+	}
+
+	.comment-text::after {
+		content: '\201D';
+		font-size: 2.2em;
+		line-height: 0;
+		vertical-align: -0.25em;
+		margin-left: 2px;
+		color: var(--orange-300);
+		opacity: 0.5;
+		font-family: Georgia, serif;
 	}
 
 	.comment-fade {

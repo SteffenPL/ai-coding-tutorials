@@ -2,7 +2,7 @@ export const STACK_PARAMS = {
 	txStep: 50,
 	tyStep: -22,
 	scaleDecay: 0.04,
-	opacityDecay: 0.18,
+	opacityDecay: 0.3,
 	brightnessDecay: 0.12,
 	minScale: 0.7,
 	minOpacity: 0.1,
