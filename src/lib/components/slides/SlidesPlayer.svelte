@@ -110,11 +110,19 @@
 	});
 
 	let activeComment = $derived.by(() => {
-		if (!isActive || currentScene >= scenes.length || currentItemInScene < 0) return null;
-		const item = scenes[currentScene][currentItemInScene];
-		if (!item?.step?.comment) return null;
-		const c = item.step.comment;
-		return typeof c === 'string' ? c : t(c);
+		if (!isActive || currentScene >= scenes.length) return null;
+		for (let sceneIndex = currentScene; sceneIndex >= 0; sceneIndex--) {
+			const items = scenes[sceneIndex];
+			const startIndex =
+				sceneIndex === currentScene
+					? Math.min(currentItemInScene, items.length - 1)
+					: items.length - 1;
+			for (let itemIndex = startIndex; itemIndex >= 0; itemIndex--) {
+				const c = items[itemIndex]?.step?.comment;
+				if (c) return typeof c === 'string' ? c : t(c);
+			}
+		}
+		return null;
 	});
 
 	function stepToHtml(step: Step): string {
@@ -712,7 +720,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0 48px;
+		padding: 0 clamp(24px, 4vw, 64px);
 	}
 
 	.comment-text {
@@ -721,7 +729,7 @@
 		line-height: 1.5;
 		color: var(--text-primary);
 		text-align: center;
-		max-width: 900px;
+		max-width: min(1180px, 100%);
 		padding: 20px 32px;
 		border-radius: 14px;
 		background: color-mix(in srgb, var(--bg-primary) 50%, transparent);
