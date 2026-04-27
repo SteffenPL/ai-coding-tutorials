@@ -290,6 +290,7 @@
 			onEditStep={handleEditStep}
 			onResetStep={resetStep}
 			onResetRound={resetRound}
+			onDirty={markDirty}
 		/>
 	</div>
 

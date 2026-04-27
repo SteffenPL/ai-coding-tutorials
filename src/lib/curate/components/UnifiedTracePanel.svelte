@@ -31,7 +31,8 @@
 		onToggleHidden,
 		onEditStep,
 		onResetStep,
-		onResetRound
+		onResetRound,
+		onDirty
 	}: {
 		slug: string;
 		curation: TraceState;
@@ -56,6 +57,7 @@
 		onEditStep: (roundId: string, stepId: string) => void;
 		onResetStep: (roundId: string, stepId: string) => void;
 		onResetRound: (roundId: string) => void;
+		onDirty?: () => void;
 	} = $props();
 
 	let showExcluded = $state(true);
@@ -99,6 +101,7 @@
 			step.comment = undefined;
 		}
 		editingCommentId = null;
+		onDirty?.();
 	}
 
 	function cancelCommentEdit(step?: TraceStep) {
@@ -111,6 +114,7 @@
 	function addComment(step: TraceStep) {
 		step.comment = '';
 		startCommentEdit(step);
+		onDirty?.();
 	}
 
 	function handleCommentKeydown(e: KeyboardEvent, step: TraceStep) {
@@ -176,6 +180,12 @@
 			step.shortenedText = inlineEditValues.content;
 		}
 		inlineEditingStep = null;
+		onDirty?.();
+	}
+
+	function removeComment(step: TraceStep) {
+		step.comment = undefined;
+		onDirty?.();
 	}
 
 	function cancelInlineEdit() {
@@ -426,7 +436,7 @@
 				</div>
 			{/if}
 			{#if step.comment && editingCommentId !== step.id}
-				<button class="comment-remove" title="Remove comment" onclick={() => { step.comment = undefined; }}>✕</button>
+				<button class="comment-remove" title="Remove comment" onclick={() => removeComment(step)}>✕</button>
 			{/if}
 		</div>
 	{/if}

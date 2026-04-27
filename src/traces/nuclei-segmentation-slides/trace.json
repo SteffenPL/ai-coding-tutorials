@@ -48,7 +48,7 @@
           "id": "s-3",
           "included": true,
           "displayMode": "full",
-          "comment": "Claude identifies the fluorescence channels automatically — DAPI (blue) for nuclei, green for cytoskeleton.",
+          "comment": "Claude identifies the biological image type automatically — DAPI (blue) for nuclei, green for cytoskeleton. This allows the agent to understand the context properly.",
           "inserted": {
             "type": "assistant",
             "html": "<p>The image is open — a fluorescence micrograph of osteosarcoma cells. Blue (DAPI) marks nuclei, green marks cytoskeleton.</p>",
@@ -70,7 +70,8 @@
           "inserted": {
             "type": "assistant",
             "html": "<p>I'll extract the blue channel and try 8 thresholding strategies — from simple Otsu to morphological cleanup with Watershed.</p>"
-          }
+          },
+          "comment": "With the Fiji-MCP the agent can loop macro design, applying pipelines, fixing errors and inspecting results."
         },
         {
           "id": "s-5",
@@ -162,7 +163,8 @@
             },
             "subtitle": "Advanced methods",
             "slideDuration": 2500
-          }
+          },
+          "comment": "Here, we could also select some regions and instruct to tune parameter further until successful."
         },
         {
           "id": "s-7",
@@ -198,7 +200,8 @@
             "html": "<p><strong>103 nuclei</strong> segmented using <strong>Approach #7</strong> — Gaussian blur + Otsu threshold + Morphological Open + Watershed.</p><p>#7's morphological Open step removed debris and thin bridges before Watershed, producing the cleanest nucleus shapes out of all 10 approaches.</p>",
             "final": true,
             "slideDuration": 7000
-          }
+          },
+          "comment": "Next, we might ask to create a slides to show the used algorithm, write out the macro as a file or apply the pipeline to more images..."
         }
       ]
     }

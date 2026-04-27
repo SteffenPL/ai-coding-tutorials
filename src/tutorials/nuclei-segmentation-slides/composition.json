@@ -15,7 +15,7 @@
     "author": "Steffen Plunder",
     "visibility": "draft"
   },
-  "description": "AI-driven nuclei segmentation: two prompts, automatic algorithm selection and parameter tuning.",
+  "description": "AI-driven nuclei segmentation with two prompts and no mouse clicks: automatic algorithm selection and parameter tuning.",
   "blocks": [
     {
       "kind": "trace",
