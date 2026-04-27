@@ -85,11 +85,31 @@
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #000;
+	}
+
+	.sub-body :global(.zoom-container) {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.sub-body :global(.zoom-content) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.sub-body :global(img) {
 		display: block;
-		width: 100%;
+		max-width: 100%;
+		max-height: 100%;
+		width: auto;
 		height: auto;
 		object-fit: contain;
 		image-rendering: auto;
