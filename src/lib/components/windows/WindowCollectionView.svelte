@@ -85,26 +85,21 @@
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		background: #000;
 	}
 
+	/* Override ZoomableView scoped styles — !important needed to beat
+	   the Svelte hash-scoped selectors on .zoom-container/.zoom-content */
 	.sub-body :global(.zoom-container) {
-		width: 100%;
-		height: 100%;
-		display: flex;
+		display: flex !important;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
+		height: 100%;
 	}
 
 	.sub-body :global(.zoom-content) {
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: contents !important;
 	}
 
 	.sub-body :global(img) {
