@@ -28,10 +28,6 @@ steps:
           content:
             kind: fiji-image
             src: tutorials/nuclei-segmentation/assets/step_006.png
-        - title: "#5 Gauss + Otsu + WS"
-          content:
-            kind: fiji-image
-            src: tutorials/nuclei-segmentation/assets/step_007.png
     subtitle: Basic thresholding methods
     slideDuration: 2500
   - type: window
