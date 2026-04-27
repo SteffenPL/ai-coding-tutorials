@@ -21,6 +21,7 @@
 	import { getTutorialTitle } from '$lib/data/tutorials';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
+	import { computeStackStyle } from '$lib/components/windows/stack-constants';
 	import { renderMarkdown } from '$lib/utils/markdown';
 	import { langStore } from '$lib/stores/lang.svelte';
 
@@ -54,22 +55,9 @@
 		if (depth < 0) {
 			return 'opacity:0;transform:translate(-50%,-50%) translateY(6px) scale(0.98);pointer-events:none';
 		}
-		if (chromeless) {
-			const tx = depth * 50;
-			const ty = depth * -22;
-			const scale = Math.max(0.7, 1 - depth * 0.04);
-			const brightness = Math.max(0.35, 1 - depth * 0.12);
-			const opacity = Math.max(0.1, 1 - depth * 0.18);
-			const z = Math.max(2, 30 - depth * 5);
-			return `opacity:${opacity};transform:translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(${scale});filter:brightness(${brightness});z-index:${z};pointer-events:auto`;
-		}
-		const tx = depth * 50;
-		const ty = depth * -22;
-		const scale = Math.max(0.7, 1 - depth * 0.04);
-		const opacity = Math.max(0.1, 1 - depth * 0.18);
-		const brightness = Math.max(0.35, 1 - depth * 0.12);
-		const z = Math.max(2, 30 - depth * 5);
-		return `opacity:${opacity};transform:translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(${scale});filter:brightness(${brightness});z-index:${z};pointer-events:auto;box-shadow:var(--shadow-window-1)`;
+		const s = computeStackStyle(depth);
+		const base = `opacity:${s.opacity};transform:translate(calc(-50% + ${s.tx}px),calc(-50% + ${s.ty}px)) scale(${s.scale});filter:brightness(${s.brightness});z-index:${s.z};pointer-events:auto`;
+		return chromeless ? base : `${base};box-shadow:var(--shadow-window-1)`;
 	}
 
 	let hasVisibleWindows = $derived(windowSteps.some(w => w.index <= currentStep));

@@ -280,6 +280,7 @@
 			<button onclick={() => onInsertAssistantStep(roundId, afterStepId)}>Assistant</button>
 			<button onclick={() => onInsertOutputStep(roundId, afterStepId)}>Output</button>
 			<button onclick={() => onInsertStep(roundId, afterStepId, { type: 'question', html: '<p>Question?</p>', answer: '1' })}>Question</button>
+			<button onclick={() => onInsertStep(roundId, afterStepId, { type: 'permission', tool: '', description: '', granted: true })}>Permission</button>
 			<button onclick={() => onInsertStatusStep(roundId, afterStepId)}>Status</button>
 			<button onclick={() => onInsertDividerStep(roundId, afterStepId)}>Divider</button>
 		</div>
@@ -289,12 +290,18 @@
 			<button onclick={() => onInsertStep(roundId, afterStepId, { type: 'tool_result', text: '' })}>Tool Result</button>
 		</div>
 		<div class="insert-row">
+			<span class="insert-cat">Data</span>
+			<button onclick={() => onInsertStep(roundId, afterStepId, { type: 'table', columns: ['Column 1'], rows: [['Value']], moreRows: 0 })}>Table</button>
+		</div>
+		<div class="insert-row">
 			<span class="insert-cat">Content</span>
 			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'fiji-image')}>Fiji Image</button>
 			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'image')}>Image</button>
 			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'video')}>Video</button>
 			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'source')}>Source</button>
 			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'markdown')}>Markdown</button>
+			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'folder')}>Folder</button>
+			<button onclick={() => onInsertWindowStep(roundId, afterStepId, 'window-collection')}>Collection</button>
 		</div>
 	</div>
 {/snippet}

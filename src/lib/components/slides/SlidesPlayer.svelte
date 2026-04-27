@@ -9,6 +9,7 @@
 	import Wallpaper from '$lib/components/Wallpaper.svelte';
 	import WindowChrome from '$lib/components/windows/WindowChrome.svelte';
 	import WindowContent from '$lib/components/windows/WindowContent.svelte';
+	import { computeStackStyle } from '$lib/components/windows/stack-constants';
 	import SlidesProgress from './SlidesProgress.svelte';
 	import SlidesStep from './SlidesStep.svelte';
 
@@ -44,6 +45,8 @@
 					items.push({ kind: 'window', round, step, duration: step.slideDuration ?? WINDOW_DURATION });
 				} else if (step.type === 'assistant' && (step as AssistantStep).final) {
 					items.push({ kind: 'answer', round, step, duration: step.slideDuration ?? ANSWER_DURATION });
+				} else if (step.slideDuration && step.slideDuration > 0) {
+					items.push({ kind: 'message', round, step, duration: step.slideDuration });
 				}
 			}
 			result.push(items);
@@ -88,9 +91,9 @@
 	let activeMessages = $derived.by(() => {
 		if (phase !== 'playing' || currentScene >= scenes.length) return [];
 		const items = scenes[currentScene];
-		const msgs: AssistantStep[] = [];
+		const msgs: Step[] = [];
 		for (let i = 0; i <= currentItemInScene && i < items.length; i++) {
-			if (items[i].kind === 'message' && items[i].step) msgs.push(items[i].step as AssistantStep);
+			if (items[i].kind === 'message' && items[i].step) msgs.push(items[i].step!);
 		}
 		return msgs;
 	});
@@ -104,16 +107,22 @@
 		return null;
 	});
 
+	function stepToHtml(step: Step): string {
+		if ('html' in step && step.html) return step.html as string;
+		if (step.type === 'tool_call') return `<p><strong>${(step as import('$lib/data/tutorials').ToolCallStep).toolName}</strong></p><pre>${(step as import('$lib/data/tutorials').ToolCallStep).code}</pre>`;
+		if (step.type === 'tool_result') return `<pre>${(step as import('$lib/data/tutorials').ToolResultStep).text}</pre>`;
+		if (step.type === 'thinking') return `<p><em>${(step as import('$lib/data/tutorials').ThinkingStep).text.slice(0, 200)}${(step as import('$lib/data/tutorials').ThinkingStep).text.length > 200 ? '…' : ''}</em></p>`;
+		if (step.type === 'output') return `<pre>${(step as import('$lib/data/tutorials').OutputStep).text}</pre>`;
+		if (step.type === 'status') return `<p>${(step as import('$lib/data/tutorials').StatusStep).text}</p>`;
+		if (step.type === 'permission') return `<p><strong>${(step as import('$lib/data/tutorials').PermissionStep).tool}</strong>: ${(step as import('$lib/data/tutorials').PermissionStep).description}</p>`;
+		return `<p>[${step.type}]</p>`;
+	}
+
 	function windowStackStyle(index: number, total: number): string {
 		const depth = total - 1 - index;
 		if (depth === 0) return 'opacity:1;transform:translate(-50%,-50%) scale(1);z-index:30;';
-		const tx = depth * 40;
-		const ty = depth * -18;
-		const scale = Math.max(0.75, 1 - depth * 0.04);
-		const opacity = Math.max(0.15, 1 - depth * 0.25);
-		const brightness = Math.max(0.4, 1 - depth * 0.15);
-		const z = Math.max(2, 30 - depth * 5);
-		return `opacity:${opacity};transform:translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(${scale});filter:brightness(${brightness});z-index:${z};`;
+		const s = computeStackStyle(depth);
+		return `opacity:${s.opacity};transform:translate(calc(-50% + ${s.tx}px),calc(-50% + ${s.ty}px)) scale(${s.scale});filter:brightness(${s.brightness});z-index:${s.z};`;
 	}
 
 	/* ─── Playback engine ────────────────────── */
@@ -318,7 +327,7 @@
 					{#each activeMessages as msg, mi (mi + '-' + currentScene)}
 						<SlidesStep kind="step">
 							<div class="bubble bubble--ai bubble--brief">
-								<div class="bubble__html">{@html msg.html}</div>
+								<div class="bubble__html">{@html stepToHtml(msg)}</div>
 							</div>
 						</SlidesStep>
 					{/each}

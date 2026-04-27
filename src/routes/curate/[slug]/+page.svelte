@@ -182,7 +182,8 @@
 			video: { kind: 'video', src: '' },
 			markdown: { kind: 'markdown', text: '' },
 			source: { kind: 'source', text: '' },
-			folder: { kind: 'folder', entries: [] }
+			folder: { kind: 'folder', entries: [] },
+			'window-collection': { kind: 'window-collection', rows: 1, cols: 2, windows: [] }
 		};
 		const step: Step = {
 			type: 'window',

@@ -25,6 +25,7 @@
 	} = $props();
 
 	let showAssetPicker = $state(false);
+	let folderJsonError = $state('');
 
 	let previewTick = $state(0);
 	function bumpPreview() { previewTick++; }
@@ -332,6 +333,76 @@
 				bumpPreview();
 			}}>+ Add option</button>
 		</div>
+	{:else if type === 'permission'}
+		<label class="field">
+			<span class="field-label">Tool Name</span>
+			<input
+				type="text"
+				value={(o.tool as string) ?? ''}
+				oninput={(e) => {
+					o.tool = (e.target as HTMLInputElement).value;
+					bumpPreview();
+				}}
+			/>
+		</label>
+		<label class="field">
+			<span class="field-label">Description</span>
+			<textarea
+				rows="4"
+				value={step.shortenedText ?? (o.description as string)}
+				oninput={(e) => {
+					step.shortenedText = (e.target as HTMLTextAreaElement).value;
+					bumpPreview();
+				}}
+			></textarea>
+		</label>
+		<label class="field-check">
+			<input
+				type="checkbox"
+				checked={o.granted as boolean ?? true}
+				onchange={(e) => {
+					o.granted = (e.target as HTMLInputElement).checked;
+					bumpPreview();
+				}}
+			/>
+			<span>Permission granted</span>
+		</label>
+	{:else if type === 'table'}
+		<label class="field">
+			<span class="field-label">Columns (comma-separated)</span>
+			<input
+				type="text"
+				value={((o.columns as string[]) ?? []).join(', ')}
+				oninput={(e) => {
+					o.columns = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean);
+					bumpPreview();
+				}}
+			/>
+		</label>
+		<label class="field">
+			<span class="field-label">Rows (one per line, tab-separated cells)</span>
+			<textarea
+				rows="8"
+				class="mono"
+				value={((o.rows as string[][]) ?? []).map(r => r.join('\t')).join('\n')}
+				oninput={(e) => {
+					o.rows = (e.target as HTMLTextAreaElement).value.split('\n').map(line => line.split('\t'));
+					bumpPreview();
+				}}
+			></textarea>
+		</label>
+		<label class="field">
+			<span class="field-label">Additional rows (count, shown as "+N more")</span>
+			<input
+				type="number"
+				min="0"
+				value={(o.moreRows as number) ?? 0}
+				oninput={(e) => {
+					o.moreRows = parseInt((e.target as HTMLInputElement).value) || 0;
+					bumpPreview();
+				}}
+			/>
+		</label>
 	{:else if type === 'window'}
 		<label class="field">
 			<span class="field-label">Window Title</span>
@@ -344,18 +415,165 @@
 				}}
 			/>
 		</label>
+		<label class="field">
+			<span class="field-label">Subtitle</span>
+			<input
+				type="text"
+				value={(o.subtitle as string) ?? ''}
+				oninput={(e) => {
+					o.subtitle = (e.target as HTMLInputElement).value || undefined;
+					bumpPreview();
+				}}
+			/>
+		</label>
 		{@const content = o.content as Record<string, unknown> | undefined}
-		{#if content && ('src' in content)}
-			<div class="field">
-				<span class="field-label">Source file</span>
-				<div class="file-upload-row">
-					<span class="file-ref">{(content.src as string) || '(none)'}</span>
-					<button
-						class="btn-sm"
-						onclick={() => (showAssetPicker = true)}
-					>Select / Upload</button>
+		{#if content}
+			{@const kind = content.kind as string}
+			{#if kind === 'fiji-image' || kind === 'image' || kind === 'video'}
+				<div class="field">
+					<span class="field-label">Source file</span>
+					<div class="file-upload-row">
+						<span class="file-ref">{(content.src as string) || '(none)'}</span>
+						<button
+							class="btn-sm"
+							onclick={() => (showAssetPicker = true)}
+						>Select / Upload</button>
+					</div>
 				</div>
-			</div>
+				{#if kind === 'fiji-image'}
+					<label class="field">
+						<span class="field-label">Status Bar</span>
+						<input
+							type="text"
+							value={(content.statusBar as string) ?? ''}
+							oninput={(e) => {
+								content.statusBar = (e.target as HTMLInputElement).value || undefined;
+								bumpPreview();
+							}}
+							placeholder="256x254 pixels; 8-bit"
+						/>
+					</label>
+				{/if}
+			{:else if kind === 'markdown'}
+				<label class="field">
+					<span class="field-label">Markdown</span>
+					<textarea
+						rows="10"
+						value={(content.text as string) ?? ''}
+						oninput={(e) => {
+							content.text = (e.target as HTMLTextAreaElement).value;
+							bumpPreview();
+						}}
+					></textarea>
+				</label>
+			{:else if kind === 'source'}
+				<label class="field">
+					<span class="field-label">Source Code</span>
+					<textarea
+						rows="14"
+						class="mono"
+						value={(content.text as string) ?? ''}
+						oninput={(e) => {
+							content.text = (e.target as HTMLTextAreaElement).value;
+							bumpPreview();
+						}}
+					></textarea>
+				</label>
+				<label class="field">
+					<span class="field-label">Language</span>
+					<input
+						type="text"
+						value={(content.language as string) ?? ''}
+						oninput={(e) => {
+							content.language = (e.target as HTMLInputElement).value || undefined;
+							bumpPreview();
+						}}
+						placeholder="python"
+					/>
+				</label>
+			{:else if kind === 'folder'}
+				<label class="field">
+					<span class="field-label">Entries (JSON)</span>
+					<textarea
+						rows="10"
+						class="mono"
+						value={JSON.stringify(content.entries ?? [], null, 2)}
+						oninput={(e) => {
+							try {
+								const parsed = JSON.parse((e.target as HTMLTextAreaElement).value);
+								if (Array.isArray(parsed)) {
+									content.entries = parsed;
+									folderJsonError = '';
+									bumpPreview();
+								} else {
+									folderJsonError = 'Must be a JSON array';
+								}
+							} catch {
+								folderJsonError = 'Invalid JSON';
+							}
+						}}
+					></textarea>
+					{#if folderJsonError}
+						<span class="field-error">{folderJsonError}</span>
+					{/if}
+				</label>
+			{:else if kind === 'window-collection'}
+				<label class="field">
+					<span class="field-label">Grid Layout</span>
+					<div class="grid-layout-row">
+						<label class="field-inline">
+							<span>Rows</span>
+							<input type="number" min="1"
+								value={(content.rows as number) ?? 1}
+								oninput={(e) => { content.rows = parseInt((e.target as HTMLInputElement).value) || 1; bumpPreview(); }}
+							/>
+						</label>
+						<label class="field-inline">
+							<span>Cols</span>
+							<input type="number" min="1"
+								value={(content.cols as number) ?? 2}
+								oninput={(e) => { content.cols = parseInt((e.target as HTMLInputElement).value) || 2; bumpPreview(); }}
+							/>
+						</label>
+					</div>
+				</label>
+				<label class="field">
+					<span class="field-label">Sub-windows (JSON)</span>
+					<textarea
+						rows="10"
+						class="mono"
+						value={JSON.stringify(content.windows ?? [], null, 2)}
+						oninput={(e) => {
+							try {
+								const parsed = JSON.parse((e.target as HTMLTextAreaElement).value);
+								if (Array.isArray(parsed)) {
+									content.windows = parsed;
+									folderJsonError = '';
+									bumpPreview();
+								} else {
+									folderJsonError = 'Must be a JSON array';
+								}
+							} catch {
+								folderJsonError = 'Invalid JSON';
+							}
+						}}
+					></textarea>
+					{#if folderJsonError}
+						<span class="field-error">{folderJsonError}</span>
+					{/if}
+				</label>
+			{:else if 'src' in content}
+				<div class="field">
+					<span class="field-label">Source file</span>
+					<div class="file-upload-row">
+						<span class="file-ref">{(content.src as string) || '(none)'}</span>
+						<button
+							class="btn-sm"
+							onclick={() => (showAssetPicker = true)}
+						>Select / Upload</button>
+					</div>
+				</div>
+			{/if}
 		{/if}
 	{/if}
 
@@ -472,6 +690,52 @@
 			<span class="field-label">Label</span>
 			<input type="text" bind:value={ins.label} oninput={bumpPreview} />
 		</label>
+	{:else if ins.type === 'permission'}
+		<label class="field">
+			<span class="field-label">Tool Name</span>
+			<input type="text" bind:value={ins.tool} oninput={bumpPreview} />
+		</label>
+		<label class="field">
+			<span class="field-label">Description</span>
+			<textarea rows="4" bind:value={ins.description} oninput={bumpPreview}></textarea>
+		</label>
+		<label class="field-check">
+			<input type="checkbox" bind:checked={ins.granted} onchange={bumpPreview} />
+			<span>Permission granted</span>
+		</label>
+	{:else if ins.type === 'table'}
+		<label class="field">
+			<span class="field-label">Columns (comma-separated)</span>
+			<input
+				type="text"
+				value={ins.columns.join(', ')}
+				oninput={(e) => {
+					ins.columns = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean);
+					bumpPreview();
+				}}
+			/>
+		</label>
+		<label class="field">
+			<span class="field-label">Rows (one per line, tab-separated cells)</span>
+			<textarea
+				rows="8"
+				class="mono"
+				value={ins.rows.map(r => r.join('\t')).join('\n')}
+				oninput={(e) => {
+					ins.rows = (e.target as HTMLTextAreaElement).value.split('\n').map(line => line.split('\t'));
+					bumpPreview();
+				}}
+			></textarea>
+		</label>
+		<label class="field">
+			<span class="field-label">Additional rows (shown as "+N more")</span>
+			<input
+				type="number"
+				min="0"
+				bind:value={ins.moreRows}
+				oninput={bumpPreview}
+			/>
+		</label>
 	{:else if ins.type === 'window'}
 		<label class="field">
 			<span class="field-label">Window Title</span>
@@ -517,6 +781,114 @@
 				<span class="field-label">Language</span>
 				<input type="text" bind:value={ins.content.language} oninput={bumpPreview} placeholder="python" />
 			</label>
+		{:else if ins.content.kind === 'folder'}
+			{@const fc = ins.content as import('$lib/data/tutorials').FolderContent}
+			<label class="field">
+				<span class="field-label">Entries (JSON)</span>
+				<textarea
+					rows="10"
+					class="mono"
+					value={JSON.stringify(fc.entries, null, 2)}
+					oninput={(e) => {
+						try {
+							const parsed = JSON.parse((e.target as HTMLTextAreaElement).value);
+							if (Array.isArray(parsed)) {
+								fc.entries = parsed;
+								folderJsonError = '';
+								bumpPreview();
+							} else {
+								folderJsonError = 'Must be a JSON array';
+							}
+						} catch {
+							folderJsonError = 'Invalid JSON';
+						}
+					}}
+				></textarea>
+				{#if folderJsonError}
+					<span class="field-error">{folderJsonError}</span>
+				{/if}
+			</label>
+		{:else if ins.content.kind === 'window-collection'}
+			{@const wc = ins.content as import('$lib/data/tutorials').WindowCollectionContent}
+			<div class="field">
+				<span class="field-label">Grid Layout</span>
+				<div class="grid-layout-row">
+					<label class="field-inline">
+						<span>Rows</span>
+						<input type="number" min="1" bind:value={wc.rows} oninput={bumpPreview} />
+					</label>
+					<label class="field-inline">
+						<span>Cols</span>
+						<input type="number" min="1" bind:value={wc.cols} oninput={bumpPreview} />
+					</label>
+				</div>
+			</div>
+			<div class="field">
+				<span class="field-label">Sub-windows ({wc.windows.length})</span>
+				{#each wc.windows as entry, i}
+					<div class="sub-window-entry">
+						<div class="sub-window-header">
+							<input
+								type="text"
+								placeholder="Title"
+								bind:value={entry.title}
+								oninput={bumpPreview}
+							/>
+							<select
+								value={entry.content.kind}
+								onchange={(e) => {
+									const kind = (e.target as HTMLSelectElement).value;
+									if (kind === 'image') entry.content = { kind: 'image', src: '' };
+									else if (kind === 'fiji-image') entry.content = { kind: 'fiji-image', src: '' };
+									else if (kind === 'markdown') entry.content = { kind: 'markdown', text: '' };
+									else if (kind === 'source') entry.content = { kind: 'source', text: '' };
+									else if (kind === 'video') entry.content = { kind: 'video', src: '' };
+									else if (kind === 'folder') entry.content = { kind: 'folder', entries: [] };
+									bumpPreview();
+								}}
+							>
+								<option value="image">Image</option>
+								<option value="fiji-image">Fiji Image</option>
+								<option value="video">Video</option>
+								<option value="markdown">Markdown</option>
+								<option value="source">Source</option>
+								<option value="folder">Folder</option>
+							</select>
+							<button class="btn-sm btn-icon" onclick={() => {
+								wc.windows.splice(i, 1);
+								wc.windows = wc.windows;
+								bumpPreview();
+							}}>&times;</button>
+						</div>
+						{#if 'src' in entry.content}
+							<input
+								type="text"
+								placeholder="Asset path"
+								value={entry.content.src}
+								oninput={(e) => {
+									(entry.content as { src: string }).src = (e.target as HTMLInputElement).value;
+									bumpPreview();
+								}}
+							/>
+						{:else if 'text' in entry.content}
+							<textarea
+								rows="3"
+								class="mono"
+								value={entry.content.text}
+								oninput={(e) => {
+									(entry.content as { text: string }).text = (e.target as HTMLTextAreaElement).value;
+									bumpPreview();
+								}}
+							></textarea>
+						{/if}
+					</div>
+				{/each}
+				<button class="btn-sm" onclick={() => {
+					wc.windows.push({ title: 'Window', content: { kind: 'image', src: '' } });
+					wc.windows = wc.windows;
+					bumpPreview();
+				}}>+ Add sub-window</button>
+			</div>
 		{/if}
 	{/if}
 {/snippet}
@@ -831,5 +1203,52 @@
 		padding: 0.2rem 0.45rem;
 		font-size: 1rem;
 		line-height: 1;
+	}
+
+	.field-error {
+		color: #e74c3c;
+		font-size: 0.78rem;
+		margin-top: 0.2rem;
+	}
+
+	.grid-layout-row {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.field-inline {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.82rem;
+		color: var(--text-secondary);
+	}
+
+	.field-inline input[type="number"] {
+		width: 4rem;
+	}
+
+	.sub-window-entry {
+		padding: 0.5rem;
+		margin-bottom: 0.4rem;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 6px;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.sub-window-header {
+		display: flex;
+		gap: 0.4rem;
+		align-items: center;
+	}
+
+	.sub-window-header input {
+		flex: 1;
+	}
+
+	.sub-window-header select {
+		width: auto;
 	}
 </style>
