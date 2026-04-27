@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Tutorial, Step, WindowStep, AssistantStep, TutorialRound } from '$lib/data/tutorials';
+	import type { Tutorial, Step, WindowStep, AssistantStep, TutorialRound, WindowContentData } from '$lib/data/tutorials';
 	import { getTutorialTitle, getWindowIcon, isChromeless } from '$lib/data/tutorials';
 	import { langStore, t } from '$lib/stores/lang.svelte';
 	import { themeStore, THEMES } from '$lib/stores/theme.svelte';
@@ -126,6 +126,18 @@
 		if (step.type === 'status') return `<p>${(step as import('$lib/data/tutorials').StatusStep).text}</p>`;
 		if (step.type === 'permission') return `<p><strong>${(step as import('$lib/data/tutorials').PermissionStep).tool}</strong>: ${(step as import('$lib/data/tutorials').PermissionStep).description}</p>`;
 		return `<p>[${step.type}]</p>`;
+	}
+
+	const IMAGE_KINDS = new Set(['fiji-image', 'image', 'video']);
+
+	function slidesContent(content: WindowContentData): WindowContentData {
+		if (content.kind !== 'window-collection') return content;
+		const imageWindows = content.windows.filter(w => IMAGE_KINDS.has(w.content.kind));
+		if (imageWindows.length === 0) return content;
+		if (imageWindows.length === 1) return imageWindows[0].content;
+		const cols = Math.min(imageWindows.length, content.cols);
+		const rows = Math.ceil(imageWindows.length / cols);
+		return { ...content, windows: imageWindows, cols, rows };
 	}
 
 	function windowStackStyle(index: number, total: number): string {
@@ -365,17 +377,18 @@
 				<div class="content-area">
 					{#if activeWindows.length > 0}
 						{#each activeWindows as win, wi (wi + '-' + currentScene)}
+							{@const sc = slidesContent(win.content)}
 							<div class="stack-window" style={windowStackStyle(wi, activeWindows.length)}>
-								<div class="window" class:window--collection={win.content.kind === 'window-collection'}>
-									{#if !isChromeless(win.content)}
+								<div class="window" class:window--collection={sc.kind === 'window-collection'}>
+									{#if !isChromeless(sc)}
 										<WindowChrome
 											title={win.windowTitle}
 											subtitle={win.subtitle}
-											icon={win.icon ?? getWindowIcon(win.content)}
+											icon={win.icon ?? getWindowIcon(sc)}
 										/>
 									{/if}
 									<div class="window__content">
-										<WindowContent content={win.content} />
+										<WindowContent content={sc} />
 									</div>
 								</div>
 							</div>
