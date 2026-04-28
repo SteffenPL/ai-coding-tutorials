@@ -609,14 +609,12 @@ html {
 	--safe-area-right: env(safe-area-inset-right, 0px);
 	--safe-area-bottom: env(safe-area-inset-bottom, 0px);
 	--safe-area-left: env(safe-area-inset-left, 0px);
-	--browser-chrome-bleed: 0px;
 	--nav-content-height: 56px;
 	--nav-total-height: calc(var(--nav-content-height) + var(--safe-area-top));
 }
 
 @media (max-width: 640px) {
 	html {
-		--browser-chrome-bleed: 64px;
 		--nav-content-height: 52px;
 	}
 }

@@ -120,7 +120,7 @@
             "roundIndex": 0,
             "nodeIndex": 4
           },
-          "included": false,
+          "included": true,
           "displayMode": "full",
           "overrides": {
             "type": "assistant",
@@ -196,7 +196,7 @@
             "roundIndex": 1,
             "nodeIndex": 1
           },
-          "included": false,
+          "included": true,
           "displayMode": "full",
           "overrides": {
             "type": "assistant",

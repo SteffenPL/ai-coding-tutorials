@@ -85,11 +85,11 @@
 <style>
 	.nav {
 		position: fixed;
-		top: calc(-1 * var(--browser-chrome-bleed));
+		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
-		padding-top: calc(var(--safe-area-top) + var(--browser-chrome-bleed));
+		padding-top: var(--safe-area-top);
 		padding-left: var(--safe-area-left);
 		padding-right: var(--safe-area-right);
 		background: var(--nav-bg);
