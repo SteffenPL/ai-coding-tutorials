@@ -567,19 +567,24 @@
 		animation: titleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 	.title-card__heading {
-		font-size: 2.8rem;
+		font-size: 5.2rem;
 		font-weight: 700;
 		color: var(--text-primary);
 		margin: 0;
-		letter-spacing: -0.02em;
-		line-height: 1.2;
+		letter-spacing: 0;
+		line-height: 1.05;
 	}
 	.title-card__sub {
-		font-size: 1.2rem;
+		font-size: 1.75rem;
 		color: var(--text-secondary);
-		margin-top: 16px;
-		max-width: 600px;
-		line-height: 1.5;
+		margin-top: 24px;
+		max-width: 920px;
+		line-height: 1.35;
+	}
+	@media (max-width: 720px) {
+		.title-card { padding: 0 28px; }
+		.title-card__heading { font-size: 3.4rem; }
+		.title-card__sub { font-size: 1.3rem; max-width: 520px; }
 	}
 	@keyframes titleIn {
 		from { opacity: 0; transform: translateY(24px); }
