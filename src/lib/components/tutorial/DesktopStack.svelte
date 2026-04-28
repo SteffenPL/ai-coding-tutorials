@@ -380,16 +380,20 @@
 	}
 
 	.fiji-window.media-window :global(.zoom-content) {
-		display: block;
-		width: auto;
-		height: auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
 	}
 
 	.fiji-window.media-window :global(img),
 	.fiji-window.media-window :global(video) {
 		display: block;
-		width: var(--fit-media-width, auto);
-		height: var(--fit-media-height, auto);
+		max-width: 100%;
+		max-height: 100%;
+		width: auto;
+		height: auto;
 		object-fit: contain;
 	}
 
@@ -502,9 +506,11 @@
 	}
 
 	.max-window.media-window .max-body :global(.zoom-content) {
-		display: block;
-		width: auto;
-		height: auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
 	}
 
 	.max-body :global(img),
@@ -519,8 +525,10 @@
 	.max-window.media-window .max-body :global(img),
 	.max-window.media-window .max-body :global(video) {
 		display: block;
-		width: var(--fit-media-width, auto);
-		height: var(--fit-media-height, auto);
+		max-width: 100%;
+		max-height: 100%;
+		width: auto;
+		height: auto;
 		object-fit: contain;
 	}
 
