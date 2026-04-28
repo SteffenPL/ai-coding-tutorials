@@ -60,11 +60,14 @@
 			items.push({ kind: 'prompt', round, duration: slideTimings.prompt });
 			for (const step of round.steps) {
 				if (step.hidden) continue;
-				if (step.type === 'assistant' && !(step as AssistantStep).final) {
+				const final = 'final' in step && step.final;
+				if (step.type === 'assistant' && !final) {
+					items.push({ kind: 'message', round, step, duration: step.slideDuration ?? slideTimings.message });
+				} else if (step.type === 'output' && !final) {
 					items.push({ kind: 'message', round, step, duration: step.slideDuration ?? slideTimings.message });
 				} else if (step.type === 'window') {
 					items.push({ kind: 'window', round, step, duration: step.slideDuration ?? slideTimings.window });
-				} else if (step.type === 'assistant' && (step as AssistantStep).final) {
+				} else if ((step.type === 'assistant' || step.type === 'output') && final) {
 					items.push({ kind: 'answer', round, step, duration: step.slideDuration ?? slideTimings.answer });
 				} else if (step.slideDuration && step.slideDuration > 0) {
 					items.push({ kind: 'message', round, step, duration: step.slideDuration });
@@ -404,7 +407,7 @@
 								<SlidesStep kind="final">
 									<div class="bubble bubble--ai">
 										<span class="bubble__tag">AI Agent</span>
-										<div class="bubble__html">{@html (item.step as AssistantStep).html}</div>
+										<div class="bubble__html">{@html stepToHtml(item.step)}</div>
 									</div>
 								</SlidesStep>
 							{/if}
