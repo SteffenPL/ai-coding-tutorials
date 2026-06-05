@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>orchestrator.md — The Execution Spec</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .file-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .segment { margin-bottom: 7vh; }
+
+  /* ── Document panel (for agent file content) ── */
+  .doc-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #16a34a;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .doc-panel::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #16a34a;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .doc-panel p {
+    color: #1f2937;
+    font-size: 1.08rem;
+    line-height: 1.75;
+    margin-bottom: 0.8rem;
+  }
+  .doc-panel p:last-child { margin-bottom: 0; }
+  .doc-panel .dim {
+    color: #8b95a5;
+  }
+  .doc-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+    background: #e5e7eb;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    color: #64748b;
+  }
+
+  /* ── Diagram panel ── */
+  .diagram-panel {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 2;
+    color: #64748b;
+    text-align: center;
+  }
+  .diagram-panel .bright {
+    color: #111827;
+  }
+
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child { margin-bottom: 0; }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <div class="exhibit-header">
+    <div class="file-path">docs/agent_prompts/orchestrator.md</div>
+    <h1>The Execution Spec</h1>
+    <div class="subtitle">
+      The document that a fresh agent reads to run the entire pipeline. This is what persistent, session-independent infrastructure looks like.
+    </div>
+  </div>
+
+  <!-- 1. Opening + pipeline diagram -->
+  <div class="segment">
+    <div class="doc-panel" data-label="ORCHESTRATOR.MD">
+      <p><span class="dim">You are the orchestrator for a multi-stage scRNA-seq database curation pipeline. You sequence the stages, run scripts between them, dispatch subagents, and present results to the user.</span></p>
+    </div>
+    <div class="diagram-panel">
+      <span class="bright">Stage 1 (Search)</span> &rarr; you run scripts &rarr;<br>
+      <span class="bright">Stage 2 (Triage)</span> &rarr; you run scripts &rarr;<br>
+      <span class="bright">Stage 3 (Paper read)</span> &rarr; you run scripts &rarr;<br>
+      <span class="bright">Stage 4 (Feedback audit)</span> &rarr; report to user &rarr; apply corrections
+    </div>
+    <div class="doc-panel" data-label="ORCHESTRATOR.MD">
+      <p>You are the ONLY agent that runs scripts or modifies the database. Subagents are pure readers that return structured output.</p>
+    </div>
+    <div class="commentary">
+      <p>The first thing any orchestrator agent sees. Two rules: here's the pipeline, and here's who's allowed to touch the database. One agent writes; everyone else reads.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. Simultaneity -->
+  <div class="segment">
+    <div class="doc-panel" data-label="ORCHESTRATOR.MD">
+      <p>Stage 3 is strict simultaneity. It confirms that at least one piece of data at the accession is <em>simultaneously</em> human scRNA-seq, published, and public. <span class="dim">It does not summarize papers, observe, or enumerate data units. The unit-enumeration work that older stage 5 prompts did is archived in <code>archive/agent_prompts/</code> for possible future resurrection as a downstream stage.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The simultaneity rule&mdash;first noticed in the design session as <em>"we want all of these things at once"</em>&mdash;is now a single sentence in the orchestrator spec. The archived stage 5 reference is a trace of the pipeline's own history: features that were tried, retired, and preserved rather than deleted.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 4. Error handling / lessons learned -->
+  <div class="segment">
+    <div class="doc-panel" data-label="ERROR HANDLING">
+      <p><span class="dim">If the user interrupts at any point, save progress by applying whatever decisions have been made so far.</span></p>
+      <p><span class="dim">If a major part of the pipeline is not working out, consult with the user rather than silently skipping or redoing batches.</span> Entire batches have been lost historically because orchestrators chose to press on through a broken stage instead of pausing.</p>
+    </div>
+    <div class="commentary">
+      <p>The last sentence is a scar. That happened. The instruction exists because the next agent shouldn't make the same mistake.</p>
+    </div>
+  </div>
+
+  <!-- 5. Agents write to disk -->
+  <div class="segment">
+    <div class="doc-panel" data-label="LESSONS LEARNED">
+      <p>Agents write to disk. <span class="dim">Stage 3 agents write to <code>data/stage3_output/&lt;accession&gt;.json</code>.</span> Do not rely on parsing agent conversation output&mdash;always use the disk files.</p>
+    </div>
+    <div class="doc-panel" data-label="LESSONS LEARNED">
+      <p>Subagent write permissions: <span class="dim">Agents that need to write files (stage 3, paper recovery) may be blocked by permission prompts they cannot accept.</span> Before dispatching any batch of file-writing agents:</p>
+      <p><span class="dim">1. <code>mkdir -p</code> the output directory.</span></p>
+      <p>2. Write a trivial seed file <span class="dim">(e.g. <code>data/stage3_output/.warmup</code>)</span> using the Write tool. This triggers the user's permission approval, which then carries through to subagents in the same session.</p>
+    </div>
+    <div class="commentary">
+      <p>Two rules born from operational pain. The first: agent output goes to files, not conversation text, because conversation text disappears when context overflows. The second: the "permission warming" trick&mdash;invented by the user in a later session when subagents couldn't write their results&mdash;is now baked into the spec.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 6. What NOT to delegate -->
+  <div class="segment">
+    <div class="doc-panel" data-label="ORCHESTRATOR.MD">
+      <p>What NOT to delegate to subagents:</p>
+      <p><span class="dim">&bull; Running scripts (<code>db_update.py</code>, <code>build_database.py</code>, <code>fetch_papers.py</code>, <code>apply_stage3.py</code>, <code>apply_triage_batch.py</code>, etc.)</span></p>
+      <p>&bull; Selecting the audit sample (you choose which entries stage 4 sees)</p>
+      <p><span class="dim">&bull; Applying corrections to the database</span></p>
+      <p>&bull; Deciding whether to proceed after errors</p>
+    </div>
+    <div class="commentary">
+      <p>The orchestrator picks what gets audited. Not the subagents, not chance. And when something breaks, the orchestrator asks the user&mdash;it doesn't push through. Both of these rules were written after sessions where the opposite happened.</p>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <h2>What this document is</h2>
+    <p>This is 400 lines of instructions that any fresh Claude Code session can read cold and immediately run a multi-stage curation pipeline on thousands of database entries. No prior conversation needed. No summary of what happened last time. The document <strong>is</strong> the context.</p>
+    <p>Every rule in the "lessons learned" section is a scar from a real session. Permission warming, disk-first output, don't press on through errors&mdash;all of these were discovered the hard way and then written down so the next agent wouldn't have to rediscover them.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

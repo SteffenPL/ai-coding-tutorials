@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5042bb4c — "Playing whack-a-mole"</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  /* ── Header ── */
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .session-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Segment ── */
+  .segment {
+    margin-bottom: 7vh;
+  }
+
+  /* ── Prompt panel ── */
+  .prompt-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .prompt-panel::before {
+    content: 'USER';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #2563eb;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .prompt-panel p {
+    color: #1f2937;
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+  .prompt-panel .dim {
+    color: #8b95a5;
+  }
+
+  /* ── Response panel ── */
+  .response-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #64748b;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .response-panel::before {
+    content: 'CLAUDE';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .response-panel p {
+    color: #52596a;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .response-panel strong {
+    color: #374151;
+    font-weight: 500;
+  }
+  .response-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+    color: #64748b;
+    background: #e5e7eb;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+  }
+
+  /* ── Exchange ── */
+  .exchange .prompt-panel { margin-bottom: 0.5rem; }
+  .exchange .response-panel { margin-bottom: 0; }
+  .exchange { margin-bottom: 1.5rem; }
+
+  /* ── Doc panel (green, for file excerpts) ── */
+  .doc-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #16a34a;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .doc-panel::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #16a34a;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .doc-panel p {
+    color: #1f2937;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .doc-panel .dim {
+    color: #8b95a5;
+  }
+  .doc-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+    color: #64748b;
+    background: #e5e7eb;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+  }
+
+  /* ── Commentary ── */
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  /* ── Ellipsis ── */
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  /* ── Closing panel ── */
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child {
+    margin-bottom: 0;
+  }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <!-- Header -->
+  <div class="exhibit-header">
+    <div class="session-id">Session 5042bb4c</div>
+    <h1>&ldquo;Playing whack-a-mole&rdquo;</h1>
+    <div class="subtitle">
+      A one-line prompt produces a comprehensive project audit. The reason it works is not Claude&mdash;it&rsquo;s what the user built into the project before this session ever started.
+    </div>
+  </div>
+
+  <!-- 1. The opening prompt -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Hey. Could you take a look at @PROJECT_HISTORY.md for me and help do sort of an audit of this whole project? I feel like I&rsquo;ve been playing whack-a-mole for a while, fixing problems and trying to pump out results. <span class="dim">Results are still good, obviously. I have people actually using the browser right now to collect data.</span> I&rsquo;m looking for things in order of importance: straight up mistakes / errors, structural oversights, gaps in the subagent prompts, and finally maybe some improvements to the browser and ease of use for collaborators. In any case, let me know what you think.</p>
+    </div>
+    <div class="commentary">
+      <p>The prompt is vague by design. <em>&ldquo;Do sort of an audit.&rdquo;</em> No specific files, no bug reports, no line numbers. The user is tired, knows something is off, and trusts the system to find it. What makes this work is not the prompt&mdash;it&rsquo;s what the prompt is pointing at.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2. What PROJECT_HISTORY.md looks like -->
+  <div class="segment">
+    <div class="doc-panel" data-label="PROJECT_HISTORY.MD">
+      <p>An append-only session log. Every session that modifies the pipeline writes a structured entry at the end: what changed, why, what was left unfinished. <span class="dim">The file is referenced in CLAUDE.md as required reading for any orchestrator agent.</span></p>
+    </div>
+    <div class="commentary">
+      <p>This is the infrastructure that makes the vague prompt possible. PROJECT_HISTORY.md isn&rsquo;t documentation <em>about</em> the project&mdash;it&rsquo;s the project&rsquo;s memory. Every session&rsquo;s agent is instructed to write an entry here before ending. The result is a cumulative record of decisions, fixes, known issues, and deferred work that any future session can read cold.</p>
+    </div>
+  </div>
+
+  <!-- 3. What CLAUDE.md says -->
+  <div class="segment">
+    <div class="doc-panel" data-label="CLAUDE.MD &mdash; ORCHESTRATOR INSTRUCTIONS">
+      <p>The orchestrator must read <code>PROJECT_HISTORY.md</code> at session start. It must write a closeout entry at session end. <span class="dim">The entry should include: what was attempted, what succeeded, what failed, what was deferred, and any prompt refinements applied with their historical justification.</span></p>
+    </div>
+    <div class="commentary">
+      <p>This instruction exists in CLAUDE.md, which Claude reads at the start of every session. The audit prompt works because the history it&rsquo;s pointing at has been dutifully maintained by dozens of previous sessions. The user didn&rsquo;t have to explain the project&rsquo;s state&mdash;the project explains itself.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 4. The audit dispatches -->
+  <div class="segment">
+    <div class="response-panel">
+      <p>I&rsquo;ll do a thorough audit. I&rsquo;ve launched three parallel audit agents to examine: <strong>agent prompts</strong> (contradictions, stale references, gaps), <strong>core scripts</strong> (bugs, unresolved issues), and <strong>browser &amp; UX</strong> (collaborator-facing problems).</p>
+    </div>
+    <div class="commentary">
+      <p>Claude reads PROJECT_HISTORY.md, identifies the key subsystems, and dispatches three parallel subagents to investigate. The history file gives each agent enough context to know what to look for&mdash;known pain points, past bug fixes, deferred work items.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 5. The audit report (selected findings) -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><strong>Live data errors:</strong> 6 entries with string-valued <code>cell_type_relevance</code> (the exact same bug that broke the browser before). 387 orphaned <code>geo_metadata</code> entries invisible to the pipeline. 358 entries where <code>paper.md</code> exists on disk but the JSON says <code>paper_text: no</code>.</p>
+    </div>
+    <div class="response-panel">
+      <p><strong>Script bugs:</strong> <code>apply_triage_batch.py</code> spawns ~100 subprocess JSON rewrites per batch. This has caused at least 3 documented corruption incidents. No atomic writes. No file locking.</p>
+    </div>
+    <div class="response-panel">
+      <p><strong>Prompt issues:</strong> Stage 2 line 46 contradicts line 194 (<code>unclear</code> vs <code>unchecked</code>). No PROJECT_HISTORY.md prohibition in the Stage 3 prompt. Orchestrator still references <code>paywalled</code> as a paper_text code, eliminated weeks ago.</p>
+    </div>
+    <div class="commentary">
+      <p>None of these were mentioned in the prompt. Each finding was surfaced by cross-referencing the current codebase against what PROJECT_HISTORY.md says <em>should</em> be true. The history says <code>geo_metadata</code> was migrated on April 10; the audit finds 387 entries still there. The history says <code>paywalled</code> was retired on April 23; the orchestrator prompt still mentions it.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 6. Fixing everything -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Yes, lets get right into them.</p>
+      </div>
+      <div class="response-panel">
+        <p><code>apply_triage_batch.py</code> rewritten to single load-modify-save. <code>save_db_path</code> now uses atomic writes (temp file + fsync + <code>os.replace</code>). Browser field mismatches fixed. Stage 2 prompt contradiction resolved. 102 tests pass throughout.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. And another pass -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Sure, let&rsquo;s just go in order.</p>
+      </div>
+      <div class="response-panel">
+        <p>Dead unit data cleared (75 entries). <code>export_csv.py</code> now reads from the master JSON with <code>cell_type_relevance</code> and <code>platform</code> columns. Spatial tech list added to Stage 3 prompt. Periodic checkpoint saves in <code>fetch_papers.py</code>. Neuron regex narrowed to stop false-flagging non-neural organoids.</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>Two user messages. Two passes through the entire project. The session is 32 minutes long and touches data fixes, script rewrites, browser improvements, prompt corrections, and export tooling. The user&rsquo;s contribution is <em>&ldquo;yes&rdquo;</em> and <em>&ldquo;go in order.&rdquo;</em></p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 8. One more thing -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>We might need one more pass on &ldquo;cell type relevance.&rdquo; <span class="dim">Some of the arguments in the pulldown browser list have quotes or brackets in the string.</span></p>
+    </div>
+    <div class="response-panel">
+      <p>Fixed 25 entries with <code>germline</code> &rarr; <code>germ</code>, 1 with bracket/quote corruption, near-duplicates merged. The dropdown now shows 31 clean values.</p>
+    </div>
+    <div class="commentary">
+      <p>The user catches one more thing&mdash;they&rsquo;re actively using the browser and spot junk in the filter dropdown. A collaborator-visible problem that the code-level audit didn&rsquo;t surface because it lives in the data, not the code.</p>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <h2>Why a vague prompt can work</h2>
+    <p>This session works because the user invested in infrastructure long before it. <strong>CLAUDE.md</strong> tells every session&rsquo;s agent to read the project history and write a closeout entry. <strong>PROJECT_HISTORY.md</strong> accumulates a machine-readable record of what happened, what broke, and what was deferred. When the user finally says <em>&ldquo;do an audit,&rdquo;</em> the agent doesn&rsquo;t need to ask <em>&ldquo;of what?&rdquo;</em>&mdash;the project&rsquo;s own documentation tells it where to look.</p>
+    <p>The audit found issues the user didn&rsquo;t know about (orphaned entries, prompt contradictions, the JSON corruption vector in <code>apply_triage_batch.py</code>). It found them by comparing what the history says should be true against what actually is. <strong>The project&rsquo;s memory is what made the project auditable.</strong></p>
+  </div>
+
+</div>
+
+</body>
+</html>

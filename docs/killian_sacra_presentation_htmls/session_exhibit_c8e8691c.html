@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session c8e8691c — "Focused instruction sets for each stage"</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .session-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .segment { margin-bottom: 7vh; }
+
+  .prompt-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .prompt-panel::before {
+    content: 'USER';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #2563eb;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .prompt-panel p {
+    color: #1f2937;
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+  .prompt-panel .dim {
+    color: #8b95a5;
+  }
+
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child { margin-bottom: 0; }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <div class="exhibit-header">
+    <div class="session-id">Session c8e8691c</div>
+    <h1>"Focused instruction sets for each stage"</h1>
+    <div class="subtitle">
+      Four weeks after the first session. The database exists but its classifications are unreliable. Instead of pushing through, the user stops to design the system that should have existed from the start.
+    </div>
+  </div>
+
+  <!-- 1. Opening -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>At some point we are going to start pulling collecting data into this database which does not have a restriction on cell type. <span class="dim">Look at the current database, fields, and goals for data organization. I'd like to do some test runs on, for example, heart cells, where we search for some of the scRNA-seq data, pull it, classify it, and make sure the pipeline generalizes.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The prompt that started it. The user knows the current approach won't scale past germ cells&mdash;they need a general pipeline. Claude responds with a 4-stage decomposition: search, triage, deep-read, audit.</p>
+    </div>
+  </div>
+
+  <!-- 2. The thesis statement -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Your 4-step decomposition is excellent. Let's also think forward then in terms of writing extremely focused instruction sets for each stage so as to make them as accurate as possible. In the future we'd also like to diagnose which stage is responsible for any given database mistake. <span class="dim">When we're through, I'd like these to be documents we can reference, not just instructions that exist in the context of this session.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The entire presentation in two sentences. Focused instructions per stage. Blame boundaries so you can diagnose errors. And&mdash;the last line&mdash;documents that outlive the session. This is someone who has learned that context is temporary.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. Designing stage 4 -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p><span class="dim">Yes.</span> This is a tricky point, and has been through the whole process. A triage stage with high confidence removals is very helpful and resource saving. But some random sampling in stage 4 to check rejections would be another confidence booster and, over time, would hopefully catch mis-categorizations <span class="dim">that originate further up the pipeline, maybe even to the search itself.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The user designing the audit stage as a feedback loop&mdash;not just checking work, but catching systemic errors that propagate from earlier stages. This is the architecture of trust: you don't assume the pipeline is right, you build in the mechanism to find out when it's wrong.</p>
+    </div>
+  </div>
+
+  <!-- 4. Cell type tagging nuance -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p><span class="dim">A is ideal, but there are a few entries that I do want from B.</span> Basically, the usage of this database will be filtering and subselecting certain data. Cell type is a big one for this, <span class="dim">as you can see that our initial searches were on germ and then kidney, so we may still very much want to subselect by cell type.</span> So rather than a "cell types" field, maybe we should have a "cell type relevance" tag which, in the case of our germ search, would be "germ".</p>
+    </div>
+    <div class="commentary">
+      <p>A field name being negotiated in dialogue. The <code>cell_type_relevance</code> tag&mdash;which later became one of the most important fields in the browser&mdash;was invented here, live, as a compromise between exhaustive enumeration and no tagging at all.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 5. Writing the prompts -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Yeah, how do you see us writing these instructions? I could imagine it as an overarching instruction set for the agent managing these subagents, and then the four sets of subinstructions that should be passed down. <span class="dim">The managing agent could check completion of tasks and then run the intermediate scripts, for example.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The orchestrator/subagent architecture being sketched out loud. One managing agent, four sets of subinstructions, scripts run between stages. This is the structure that <code>docs/agent_prompts/</code> eventually becomes: <code>orchestrator.md</code>, <code>stage1_search.md</code>, <code>stage2_triage.md</code>, <code>stage3_paper_read.md</code>, <code>stage4_feedback.md</code>.</p>
+    </div>
+  </div>
+
+  <!-- 6. Batch size negotiation -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>I agree that one entry per deep-read agent is probably safest. <span class="dim">This is probably a Sonnet-level task, do you think? Since it will only be spot-checking,</span> we could give phase-4 agents a bit more power and decide after some trials if this seems like the right balance.</p>
+    </div>
+    <div class="prompt-panel">
+      <p><span class="dim">Let's vet the decision to have one agent review one paper. Part of me thinks that the main context filler is actually the expectations on the agent for what to understand and classify.</span> While 10 papers per agent definitely seems like overkill, I wonder if they wouldn't perform even better in a window of, say, three? <span class="dim">A bit of a batch effect as they get a feel for the task.</span></p>
+    </div>
+    <div class="prompt-panel">
+      <p>I agree. Let's do three as default. The orchestrator should be able to be told to adjust this.</p>
+    </div>
+    <div class="commentary">
+      <p>Batch size as a design parameter, not a guess. One per agent is safest but wasteful. Ten is overkill. Three gives a "batch effect" where the agent calibrates across entries. The user is reasoning about how agents learn within a context window&mdash;and making that configurable.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 7. Simultaneity -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Quick thought. The gate instructions make it sound like we need mention of human data, and mention of scRNA-seq, etc. But of course, in the end, we want to collect data that is all of these things simultaneously. Do you think there is a slight wording update we could push which encourages agents to confirm that the same data is all of these things at once?</p>
+    </div>
+    <div class="commentary">
+      <p>The simultaneity problem, noticed mid-design. It's not enough for an accession to mention human data <em>and</em> scRNA-seq&mdash;the same dataset has to be both. This distinction later became important enough to warrant its own pipeline redesign, two weeks after this session.</p>
+    </div>
+  </div>
+
+  <!-- 8. Alignment check -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Does the current state of the database align with these new search instructions we've made, or is there a need to make passes over the existing accessions to bring them in line?</p>
+    </div>
+    <div class="commentary">
+      <p>The question that opens the door to the biggest decision in the session.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 9. The wipe -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>I wonder if we should just fire up an orchestrator and have it skip the search phase. <span class="dim">Then we could ask it to go through the existing database and essentially ignore existing classifications&mdash;</span>just do a complete full reset. My confidence in the current database classifications are quite low, and let's just face the music and redo this in the way that makes sense going forward.</p>
+    </div>
+    <div class="commentary">
+      <p><em>"Let's just face the music."</em> The user decides to wipe all existing classifications and re-run the entire database through the new pipeline. Everything produced by the ad hoc sessions&mdash;the work from <code>91c32933</code> and its descendants&mdash;gets thrown out in favor of doing it right.</p>
+    </div>
+  </div>
+
+  <!-- 10. Confirmation -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>This feels like the right move. Let's wipe the unreliable fields and just redo the lot of it. I've pushed the current state of the directory so all the existing classifications are backed up in the event that we really wanted them back.</p>
+    </div>
+    <div class="commentary">
+      <p>Git push before the wipe. Back up the old state, then start clean. The user is already treating persistence seriously&mdash;even the data they're about to discard gets preserved.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 11. Running it -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Yup. I think this sampling rate is good, too. As we're documenting when a paper has been spot-checked, we can always continue with a deeper sample later if it seems necessary.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>If you wind up having to problem solve something that can't be fixed locally, you can always add your realizations to the orchestrator instruction document to help out in the future.</p>
+    </div>
+    <div class="commentary">
+      <p>The pipeline is running. And the user's instinct is already to feed operational lessons back into the documentation&mdash;not just fix problems, but update the instructions so the next agent doesn't hit the same thing.</p>
+    </div>
+  </div>
+
+  <!-- 12. Closing -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Thanks for all your hard work!</p>
+    </div>
+  </div>
+
+  <!-- Closing panel -->
+  <div class="closing">
+    <h2>What this session is</h2>
+    <p>Everything that was one agent's job in session <code>91c32933</code>&mdash;searching, classifying, reading papers, auditing quality&mdash;now has a dedicated stage, a dedicated instruction document, and a dedicated blame boundary. The agent prompts written here became the files in <code>docs/agent_prompts/</code> that every subsequent session references.</p>
+    <p>The user also made two decisions that defined the project going forward: <strong>wipe the old classifications and start fresh</strong>, and <strong>write the instructions as persistent documents, not session context</strong>. The first took courage. The second is what made the pipeline reproducible.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

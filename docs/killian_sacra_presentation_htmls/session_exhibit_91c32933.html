@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 91c32933 — "Build me a database"</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  /* ── Header ── */
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .session-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Segment ── */
+  .segment {
+    margin-bottom: 7vh;
+  }
+
+  /* ── Prompt panel ── */
+  .prompt-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .prompt-panel::before {
+    content: 'USER';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #2563eb;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .prompt-panel p {
+    color: #1f2937;
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+  .prompt-panel .dim {
+    color: #8b95a5;
+  }
+
+  /* ── Repeated prompt variant ── */
+  .prompt-panel.repeated {
+    border-left-color: #dc2626;
+    padding: 1.2rem 2rem;
+  }
+  .prompt-panel.repeated::before {
+    color: #dc2626;
+  }
+  .prompt-panel.repeated p {
+    color: #52596a;
+  }
+
+  /* ── Stacked prompts (no gap) ── */
+  .prompt-stack .prompt-panel {
+    margin-bottom: 0.35rem;
+  }
+  .prompt-stack {
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Commentary ── */
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  /* ── Ellipsis divider ── */
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  /* ── Section divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  /* ── Closing panel ── */
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child {
+    margin-bottom: 0;
+  }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <!-- Header -->
+  <div class="exhibit-header">
+    <div class="session-id">Session 91c32933</div>
+    <h1>"Build me a database"</h1>
+    <div class="subtitle">
+      The first-ever session in the scRNA-seq database project. User prompts only&mdash;no assistant responses preserved. One agent, one session, trying to do everything at once.
+    </div>
+  </div>
+
+  <!-- 1. The opening -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>I'd like to build a database of single-cell RNA-seq data by publication. <span class="dim">See @reference/germ_datalist.xlsx as reference. This document was made by browsing GEO and looking for scRNA-seq data sets with the following conditions. They are data for homo sapiens, germ cells, in vitro. Sometimes this information is clear from the GEO page, but other times it requires parsing of the text itself to understand if the data sequenced is of the type we are interested in.</span> Can you browse GEO to, as a starting point, recreate this list and check for any incorrect additions or missed entries that qualify and create a similar document?</p>
+    </div>
+    <div class="commentary">
+      <p>The opening prompt. A single instruction that asks Claude to search a public database, cross-reference a collaborator's spreadsheet, classify entries by multiple criteria, and produce a structured document. No pipeline, no stages, no documentation&mdash;just <em>"do all of it."</em></p>
+    </div>
+  </div>
+
+  <!-- 2. The repeated question -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Yeah, let's talk about your criteria and what kind of edge cases you are finding so far.</p>
+    </div>
+    <div class="prompt-stack">
+      <div class="prompt-panel repeated">
+        <p>Let's talk about your current process. Can you describe for me the search progress right now?</p>
+      </div>
+      <div class="prompt-panel repeated">
+        <p>Let's talk about your current process. Can you describe for me the search progress right now?</p>
+      </div>
+      <div class="prompt-panel repeated">
+        <p>Let's talk about your current process. Can you describe for me the search progress right now?</p>
+      </div>
+    </div>
+    <div class="prompt-panel">
+      <p>Do not continue searching at the moment. Can you comment on the search so far? How often have you encountered a fringe case, for example?</p>
+    </div>
+    <div class="commentary">
+      <p>The same question, asked three times. The agent is searching, the user can't tell what it's doing or how far it's gotten. The fourth attempt is a full stop: <em>"Do not continue searching."</em></p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. The seven-decisions message -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Let's make a document characterizing these questions and what our current answers are to them. Such a document would be referenced in the future for any subsequent searches. <span class="dim">When you make this document, please make a section for "germ" data, as in the future this is a restriction that we might broaden.</span> Otherwise, I have some answers for you. <span class="dim">3. You are correct that we want only scRNA-seq data, not epigenomic. 4. Save this distinction somewhere, but maybe do not exclude either type in the search. 5. These seem ok to include as well if the data is unique. 2. I would think we would rather reference the original paper. 6. Maybe it should be in the broadest sense, then.</span> 7. Let's focus on in vitro.</p>
+    </div>
+    <div class="commentary">
+      <p>The user is answering numbered questions from the agent, out of order, while simultaneously asking for a criteria document. Seven different classification decisions are being made in one message. This is the design phase, implementation phase, and documentation phase happening at the same time.</p>
+    </div>
+  </div>
+
+  <!-- 4. Realizing resumability -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>For context: this is not my list, but a collaborator's. A final document of all high and medium probability candidates that they can further parse with ease is the optimal output here.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>It seems then that we want an exhaustive list from which we can then parse to make the good-candidate list. The exhaustive list should also make it easy to stop and resume searches by being able to check which entries you have already seen.</p>
+    </div>
+    <div class="commentary">
+      <p>Realizing mid-session that the output needs to support resumability&mdash;but there's no persistent state structure yet, just an accumulating CSV.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 5. The formatting avalanche -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Please update @geo_search_log.csv with the following changes. Please put a link to the paper. Please make a column for the ENA url. Finally, if the paper was in the original reference document, please update status to be IN_REFERENCE_LIST_ followed by the SHEET ID that it had in the original list.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>You previously mentioned that some inclusions into the reference list did NOT adhere to the current search criteria. If this is still true after the clarifications we have made so far, please make those comments in the "rejection_reason" column.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>There are some accessions which are ENA type but are not in the ena_accessions column. Please move them over. Please also recheck new candidates for their ena accession.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>Add to the criteria that all data candidates must be linked to a published paper. Specifically, we are searching GEO, very strongly prefer an ENA accession, and also require a paper.</p>
+    </div>
+    <div class="commentary">
+      <p>Four messages in a row of formatting fixes, column corrections, and criteria updates being applied to a live, in-progress search. The criteria document and the search results are being written at the same time, by the same agent, in the same session.</p>
+    </div>
+  </div>
+
+  <!-- 6. Debugging the agent -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Some entries in this list do not have a GEO accession (their ENA accession fills both accession columns). Was this simply not recorded, or were these data sets found outside of the GEO search?</p>
+    </div>
+    <div class="commentary">
+      <p>The user is debugging the agent's work mid-stream, unsure whether discrepancies are data issues or agent errors.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 7. Review 177 -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Review the 177 NEEDS_REVIEW entries.</p>
+    </div>
+    <div class="commentary">
+      <p>A one-line instruction asking the agent to re-evaluate 177 entries against criteria that have been changing throughout the session.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 8. Reverting -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>I'd like to revert an earlier change I requested. Please have the status column just print "IN_REFERENCE_LIST" without the original index (as that is already written down in another column).</p>
+    </div>
+    <div class="commentary">
+      <p>Reverting a decision from earlier in the session. The criteria are still being designed.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 9. The mega-message -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p><span class="dim">Item 55 is reusing data from an existing entry. Item 62 does not actually include any scRNA-seq data. Some entries, such as 26, do use new data but are flagged as not doing so.</span> Furthermore, we have search criteria updates: all data we are interested in should be scRNA-seq. This MUST be present for the entry to be considered valid. <span class="dim">There is no need to list included cell types in the criteria document (section 3).</span> We definitively do NOT need in vivo data. <span class="dim">Questions 9 and 18: these strategies are alright for now, but we will be dropping the cell-type limitation later, so don't put too much work into this yet. 20: tentatively include.</span> There. Please implement or talk to me about each of these points. The criteria should be updated first, and then the classification problems will be worked on next.</p>
+    </div>
+    <div class="commentary">
+      <p>The biggest single message. Spot-checking individual entries by number, updating search criteria, answering outstanding questions, and giving implementation ordering instructions&mdash;all in one block. The user is doing quality control, requirements definition, and project management simultaneously.</p>
+    </div>
+  </div>
+
+  <!-- 10. Belated -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Belated additional instructions for the search criteria: data with papers that are ONLY on pubmed or another preprint archive should be rejected. The data must have an attached published paper.</p>
+    </div>
+    <div class="commentary">
+      <p><em>"Belated."</em> A new exclusion gate, added after the search and classification are already underway.</p>
+    </div>
+  </div>
+
+  <!-- 11. Discovering public data rule -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Then, I have a criteria adjustment. Even if 62 does claim to have scRNA-seq, there is no publicly available data on its ENA accession. This alone is cause for rejection in our case, as we are looking for usable data. Please confirm that I am right about there being no publicly available data. Then, add this to the criteria and update the list.</p>
+    </div>
+    <div class="commentary">
+      <p>Discovering a new exclusion rule&mdash;public data availability&mdash;from a single entry's failure. The criteria are still emerging.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 12. Final -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Please run that batch API call on the NEW_CANDIDATE and FRINGE entries and update their status accordingly.</p>
+    </div>
+    <div class="prompt-panel">
+      <p>Also, considering the mistake on entry 26, please check other entries from the reference list with similar comments and confirm that there is in fact new data or else confirm that as far as you can tell they are purely algorithmic. It is unlikely for entries in the reference list to have made this mistake, but still possible, so be thorough.</p>
+    </div>
+    <div class="commentary">
+      <p>The final messages. The agent is now doing bulk re-classification against criteria that have been revised at least four times during the session.</p>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <h2>What this session is</h2>
+    <p>Everything that later became four separate pipeline stages&mdash;searching, metadata triage, paper reading, and auditing&mdash;is being done by one agent in one conversation. The search criteria are being designed at the same time they're being applied. The data format is being revised while it's being populated. Quality control is happening on the same entries that are still being classified.</p>
+    <p><strong>This worked.</strong> The database got built. And then for weeks afterward, sessions were spent untangling the inconsistencies this approach produced.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

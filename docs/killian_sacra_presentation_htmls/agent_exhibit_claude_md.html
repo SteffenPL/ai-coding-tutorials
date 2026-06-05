@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLAUDE.md — The Project's Standing Instructions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .file-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .segment { margin-bottom: 7vh; }
+
+  /* ── Raw markdown file panel ── */
+  .md-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #16a34a;
+    border-radius: 0 8px 8px 0;
+    padding: 2rem 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88rem;
+    line-height: 1.9;
+    color: #64748b;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .md-panel::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #16a34a;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .md-panel .h1 {
+    color: #111827;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .md-panel .h2 {
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  .md-panel .h3 {
+    color: #4b5563;
+    font-weight: 500;
+  }
+  .md-panel .bright {
+    color: #1f2937;
+  }
+  .md-panel .dim {
+    color: #8b95a5;
+  }
+  .md-panel .hl {
+    color: #111827;
+    font-weight: 500;
+  }
+
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child { margin-bottom: 0; }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <div class="exhibit-header">
+    <div class="file-path">scrna_database/CLAUDE.md</div>
+    <h1>The Standing Instructions</h1>
+    <div class="subtitle">
+      Every Claude Code session in this project opens by reading this file. It&rsquo;s the document that turns a general-purpose model into one that knows this project&rsquo;s tools, rules, and history.
+    </div>
+  </div>
+
+  <!-- 1. Opening + Project Overview -->
+  <div class="segment">
+    <div class="md-panel" data-label="CLAUDE.MD">
+<span class="h1"># CLAUDE.md</span>
+
+<span class="dim">This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.</span>
+
+<span class="h2">## Project Overview</span>
+
+<span class="bright">A curated database of scRNA-seq datasets from NCBI BioProject.</span> <span class="dim">Accessions are organized into per-accession directories (`database/PRJNAxxxxxx/`) with structured metadata.</span> <span class="bright">The master JSON lives at `data/bioproject_search_data.json`.</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2. Commands — the full block -->
+  <div class="segment">
+    <div class="md-panel" data-label="CLAUDE.MD">
+<span class="h2">## Commands</span>
+
+```bash
+<span class="dim"># Package management (always use uv, never pip)</span>
+<span class="bright">uv add &lt;package&gt;</span>
+
+<span class="dim"># Run any script</span>
+<span class="dim">uv run python3 scripts/&lt;script&gt;.py [args]</span>
+
+<span class="dim"># Run tests</span>
+<span class="dim">uv run pytest tests/</span>
+
+<span class="dim"># BioProject search (collect new entries)</span>
+uv run python3 scripts/bioproject_search.py
+
+# Common db_update.py operations
+<span class="bright">uv run python3 scripts/db_update.py set-gate &lt;gate&gt; &lt;value&gt; &lt;accession&gt;</span>
+<span class="bright">uv run python3 scripts/db_update.py set-field &lt;accession&gt; &lt;field&gt; &lt;value&gt;</span>
+uv run python3 scripts/db_update.py add-tags &lt;accession&gt; key="value"
+uv run python3 scripts/db_update.py add-notes &lt;accession&gt; "note text"
+<span class="bright">uv run python3 scripts/db_update.py counts</span>
+uv run python3 scripts/db_update.py rebuild-index
+
+<span class="dim"># Three-step workflow for building/updating the database</span>
+<span class="dim">uv run python3 scripts/build_database.py --skip-summarize   # 1. Build INDEX.md stubs</span>
+<span class="dim">uv run python3 scripts/fetch_papers.py                       # 2. Fetch paper text/figures</span>
+<span class="dim">ANTHROPIC_API_KEY=... uv run python3 scripts/build_database.py --force  # 3. Summarize via Claude API</span>
+
+<span class="dim"># Cache metadata for entries (generates METADATA.md per accession)</span>
+<span class="dim">uv run python3 scripts/cache_metadata.py</span>
+
+<span class="dim"># Auto-resolve gates from cached metadata</span>
+uv run python3 scripts/auto_resolve_gates.py                 # report only
+uv run python3 scripts/auto_resolve_gates.py --apply-high    # apply HIGH confidence
+uv run python3 scripts/auto_resolve_gates.py --apply-all     # apply HIGH+MEDIUM
+
+<span class="dim"># Build the HTML database browser</span>
+<span class="dim">uv run python3 scripts/build_browser.py</span>
+
+<span class="dim"># Apply browser edits to the database</span>
+<span class="dim">uv run python3 scripts/apply_edits.py pending_edits.json</span>
+<span class="dim">uv run python3 scripts/apply_edits.py pending_edits.json --delete-after</span>
+```</div>
+    <div class="commentary">
+      <p>The agent&rsquo;s cheat sheet. Every script it needs, with exact invocations. The mundane parts are most of it&mdash;and that&rsquo;s the point. A CLAUDE.md that covers the boring stuff means the agent never has to guess how to run a test or update a field.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. Architecture — big merged chunk -->
+  <div class="segment">
+    <div class="md-panel" data-label="CLAUDE.MD">
+<span class="h2">## Architecture</span>
+
+<span class="h3">### Gate-Based Schema</span>
+
+<span class="bright">Four binary exclusion gates determine entry status:</span>
+- `is_human`, `has_scrnaseq`, `has_publication`, `has_public_data`
+- <span class="dim">Values: `yes` / `no` / `unclear` / `unchecked`</span>
+- <span class="hl">**Derived status** (never stored, always computed):</span>
+  - <span class="dim">PASS = all gates `yes`</span>
+  - <span class="dim">FAIL = any gate `no`</span>
+  - <span class="dim">INCOMPLETE = no `no` but some `unclear`/`unchecked`</span>
+- <span class="bright">Everything else (cell_type_relevance, tumor, platform, etc.) is a **descriptive tag**, not an exclusion gate.</span>
+- <span class="dim">Structural fields (not gates, not tags): `review_depth`, `in_reference_list`, `parent_bioproject`</span>
+
+<span class="h3">### Data Flow</span>
+
+<span class="dim">`data/search_queries_bioproject.json` &rarr; `bioproject_search.py` (NCBI API) &rarr; `data/bioproject_search_data.json` &rarr; `build_database.py` &rarr; `database/PRJNAxxxxxx/INDEX.md`</span>
+
+<span class="dim">The master JSON (`bioproject_search_data.json`) is the single source of truth. INDEX.md files are generated from it. All mutations go through `db_update.py` which updates both the JSON and the INDEX.md.</span>
+
+<span class="h3">### Key Directories</span>
+
+- `src/scrna_database/` &mdash; Python package (NCBI API wrapper, CSV generation)
+- `scripts/` &mdash; All operational scripts (the primary interface for database operations)
+- `database/` &mdash; Per-accession directories using PRJNA IDs (INDEX.md, METADATA.md, paper.md, figures/)
+- `data/` &mdash; Master JSON and search queries
+- `archive/` &mdash; Old tissue-specific runs (germ_cell, kidney)
+- `reference/` &mdash; Collaborator reference data
+
+<span class="h3">### Script Philosophy</span>
+
+<span class="hl">Always use pre-built scripts in `scripts/` for database operations. Do not write ad-hoc Python to manipulate `bioproject_search_data.json` directly.</span> <span class="dim">The scripts handle JSON/INDEX.md synchronization and validation.</span>
+
+<span class="h3">### NCBI API</span>
+
+<span class="dim">Rate-limited to 0.35s between requests (NCBI compliance). UIDs are cached in `bioproject_search_data.json` to avoid re-querying. Batch fetching uses 100 UIDs per esummary request.</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 4. Subagent Pipeline — one big chunk -->
+  <div class="segment">
+    <div class="md-panel" data-label="CLAUDE.MD">
+<span class="h2">## Subagent Pipeline</span>
+
+<span class="dim">Database curation uses a 4-stage subagent pipeline, orchestrated by a managing agent. Agent instruction prompts: `docs/agent_prompts/`. The retired stage-5/6 unit-extraction prompts live at `archive/agent_prompts/` for possible future resurrection as a downstream stage.</span>
+
+<span class="h3">### Stages</span>
+
+| Stage         | Role                                                    | Model  | Batch size      |
+|---|---|---|---|
+| 1. Search     | Construct BioProject queries, collect UIDs              | Sonnet | 1 per tissue    |
+| 2. Triage     | Metadata gate-setting, reject obvious non-matches       | Sonnet | 20&ndash;30 entries   |
+| 3. Paper Read | Confirm simultaneous human scRNA-seq + published + public; emit 2 paper-level tags | Sonnet | ~10 entries |
+| 4. Feedback   | Audit samples from stages 2 and 3 until no mistakes remain | Opus | 3&ndash;5 entries |
+
+<span class="h3">### Reference lists are for validation, not input</span>
+
+<span class="hl">When a collaborator provides a reference list of datasets, it is a **benchmark**, not an import list. Do not add entries to the database because they appear on a reference list.</span> <span class="dim">Instead, run the normal pipeline and check afterward how many reference entries surfaced naturally.</span> Discrepancies are diagnostic:
+
+<span class="dim">- **Reference entry not found by pipeline** &rarr; query coverage gap. Investigate whether search terms, database scope, or filters need adjustment.</span>
+- <span class="bright">**Reference entry found but classified differently** &rarr; check carefully. The reference list can be mistaken.</span> <span class="dim">Explain the discrepancy fully; if the pipeline&rsquo;s classification is correct, document why.</span>
+<span class="dim">- **Reference entry found and matches** &rarr; validation success.</span>
+
+<span class="dim">The `in_reference_list` flag marks entries that appear on a collaborator&rsquo;s list, for tracking purposes only. It has no effect on pipeline behavior.</span>
+
+<span class="h3">### Key principles</span>
+
+- <span class="hl">**Orchestrator runs all scripts**</span> &mdash; <span class="bright">subagents are pure readers/classifiers that produce structured output. They never call `db_update.py` or modify files.</span>
+- <span class="hl">**Stage 3 is rigid**</span> &mdash; <span class="bright">it confirms that at least one piece of data at the accession is *simultaneously* human scRNA-seq, published, and publicly available.</span> <span class="dim">No summarization, no narrative, no unit enumeration. Four gates + two tags (`data_origin`, `cell_type_relevance`) and that is all.</span>
+- <span class="hl">**Stage 3 does not trust triage**</span> &mdash; <span class="bright">it re-confirms every gate from the paper.</span>
+- <span class="dim">**Traceability** &mdash; each stage has clear blame boundaries. Wrong gate on a classified entry = stage 3&rsquo;s fault. False negative rejection = stage 2&rsquo;s fault.</span>
+- <span class="hl">**Stage 4 is self-obsolescing**</span> &mdash; <span class="bright">it audits stage-2 rejections, stage-2 accepts, stage-3 PASS, and stage-3 FAIL samples. Its value is proportional to how many mistakes it surfaces; it runs until it stops finding them.</span></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 6. The closing — PROJECT_HISTORY instruction -->
+  <div class="segment">
+    <div class="md-panel" data-label="CLAUDE.MD">
+<span class="h3">### Careful documentation of all modifications.</span>
+
+<span class="bright">When a script is updated, when agent prompt files are updated, when some step of the orchestrator pipeline is completed on a batch of data, when realizations of systematic errors are found by the phase 3 or 4 agents; the main agent MUST update PROJECT_HISTORY.md.</span> <span class="dim">(Subagents, from the orchestration pipeline for example, are NOT to make updates to PROJECT_HISTORY.md.)</span>
+
+<span class="hl">Updates should be prefaced by a date and agent self-identifier (related to what you consider your role to be in this directory), such that repeat modifications by the same agent will be identifiable.</span>
+
+<span class="bright">Updates should be added linearly. Do not edit previous entries.</span> <span class="dim">If a previous entry shows some mistake in understanding or implementation that we have fixed, simply note as much down in your own entry.</span>
+
+<span class="hl">Do not wax overly verbose, but summarize changes (or even pontifications on todos and the like) how you see fit.</span></div>
+    <div class="commentary">
+      <p>The last section of the file. The agent is told to keep a journal&mdash;dated, signed with a self-chosen name, appended linearly, never revised. If an earlier agent was wrong, the current agent notes the correction below it. The permission to include <em>&ldquo;pontifications on todos and the like&rdquo;</em> is deliberate: the log is for thinking out loud, not just recording facts.</p>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <h2>What a CLAUDE.md is</h2>
+    <p>A file in the root of a project directory. Every time Claude Code opens a session there, it reads this first. The mundane parts&mdash;the commands, the file paths, the test runner&mdash;mean the agent never has to guess how to do routine work. The interesting parts are the <strong>prohibitions</strong>: don&rsquo;t write ad-hoc code, don&rsquo;t trust the previous stage, don&rsquo;t import the reference list. Each one exists because, at some point, the opposite happened.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

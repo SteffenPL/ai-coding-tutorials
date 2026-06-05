@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sessions fd80b335 &amp; 3174b856 — "Three things to think about"</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    color: #374151;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.7;
+  }
+
+  .scroll-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6vh 1.5rem 12vh;
+  }
+
+  /* ── Header ── */
+  .exhibit-header {
+    text-align: center;
+    padding: 8vh 0 6vh;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 6vh;
+  }
+  .exhibit-header .session-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .exhibit-header .subtitle {
+    font-size: 1.05rem;
+    color: #6b7280;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Segment ── */
+  .segment {
+    margin-bottom: 7vh;
+  }
+
+  /* ── Prompt panel (user) ── */
+  .prompt-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .prompt-panel::before {
+    content: 'USER';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #2563eb;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .prompt-panel p {
+    color: #1f2937;
+    font-size: 1.08rem;
+    line-height: 1.75;
+  }
+  .prompt-panel .dim {
+    color: #8b95a5;
+  }
+
+  /* ── Response panel (Claude) ── */
+  .response-panel {
+    background: #f7f8fa;
+    border-left: 3px solid #64748b;
+    border-radius: 0 8px 8px 0;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .response-panel::before {
+    content: 'CLAUDE';
+    position: absolute;
+    top: -0.55rem;
+    left: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    background: #f7f8fa;
+    padding: 0 0.5rem;
+  }
+  .response-panel p {
+    color: #52596a;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .response-panel strong {
+    color: #374151;
+    font-weight: 500;
+  }
+  .response-panel code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+    color: #64748b;
+    background: #e5e7eb;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+  }
+
+  /* ── Exchange (tight prompt → response) ── */
+  .exchange .prompt-panel { margin-bottom: 0.5rem; }
+  .exchange .response-panel { margin-bottom: 0; }
+  .exchange { margin-bottom: 1.5rem; }
+
+  /* ── Commentary ── */
+  .commentary {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .commentary p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .commentary em {
+    color: #4b5563;
+    font-style: italic;
+  }
+
+  /* ── Ellipsis divider ── */
+  .ellipsis {
+    text-align: center;
+    padding: 2vh 0;
+    color: #d1d5db;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    user-select: none;
+  }
+
+  /* ── Section divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 5vh 0;
+  }
+
+  /* ── Session break ── */
+  .session-break {
+    text-align: center;
+    padding: 4vh 0;
+    margin: 6vh 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .session-break .session-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .session-break .session-desc {
+    font-size: 0.95rem;
+    color: #6b7280;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Closing panel ── */
+  .closing {
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 2.5rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 6vh;
+  }
+  .closing h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  .closing p {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .closing p:last-child {
+    margin-bottom: 0;
+  }
+  .closing strong {
+    color: #374151;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+
+  <!-- Header -->
+  <div class="exhibit-header">
+    <div class="session-id">Sessions fd80b335, 4da6b918 &amp; 3174b856</div>
+    <h1>&ldquo;Three things to think about&rdquo;</h1>
+    <div class="subtitle">
+      Three sessions discover, from opposite ends of the pipeline, that thousands of publications are invisible to the machine. The same blind spot, found from three directions, fixed in layers.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SESSION 1: fd80b335 — The audit discovery   -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <div class="session-break">
+    <div class="session-label">Session fd80b335 &mdash; April 18</div>
+    <div class="session-desc">A trial batch of 100 neuron entries through the full pipeline. The audit finds something unexpected.</div>
+  </div>
+
+  <!-- 1. The trial -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p><span class="dim">Could you set yourself up as an orchestrator a la @docs/agent_prompts/orchestrator.md ?</span> I&rsquo;d like to go wide for phase 1, then do phases 2, 3, 4 on a trial batch of 100 entries with 10% audit to see if we encounter major mistakes, and from there we&rsquo;ll discuss scaling up to try to categorize the rest.</p>
+    </div>
+    <div class="commentary">
+      <p>A clean, well-scoped instruction. The batch size and audit rate are chosen for signal: small enough to review, large enough to surface systematic issues.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 2. The audit finding -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><strong>Major finding from audit s2reject batch 2 &mdash; 4/4 disagree, high severity.</strong></p>
+      <p>All four entries have publications, despite NCBI BioProject not having pubmedids linked. This is a systematic false-negative pattern: triage relied solely on the <code>pubmedids</code> field, missing publications that exist but aren&rsquo;t linked from the BioProject record.</p>
+    </div>
+    <div class="commentary">
+      <p>The audit agent (Opus) is sampling triage rejections and checking whether they were correct. Four entries were rejected for <em>&ldquo;no publication.&rdquo;</em> All four have findable, published papers. The field the triage agent trusted&mdash;<code>pubmedids</code>&mdash;is frequently empty even when a paper exists.</p>
+    </div>
+  </div>
+
+  <!-- 3. The diagnosis -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><strong>4/4 disagreements, all driven by the same root cause</strong> &mdash; the triage prompt collapses <code>pubmedids: []</code> directly to <code>has_publication: no</code>, which is a high-severity false-negative pattern because BioProject records frequently lack curated PubMed cross-links even when a paper exists.</p>
+      <p><strong>Fix:</strong> empty <code>pubmedids</code> should yield <code>has_publication: unclear</code> (forwarding to Stage 3, which has more signals), never <code>no</code>.</p>
+    </div>
+    <div class="commentary">
+      <p>The triage prompt is doing exactly what it says. The problem is that what it says is wrong. An empty metadata field doesn&rsquo;t mean &ldquo;no publication&rdquo;&mdash;it means &ldquo;NCBI hasn&rsquo;t curated this link yet.&rdquo;</p>
+    </div>
+  </div>
+
+  <!-- 4. Fix the prompt, but hit a wall -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Lets do all four of those.</p>
+      </div>
+      <div class="response-panel">
+        <p>Stage 2 prompt updated. Empty <code>pubmedids</code> now yields <code>unclear</code>, not <code>no</code>. Re-triaging the four false negatives.</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>The prompt fix is immediate. But there&rsquo;s a second problem nobody has noticed yet.</p>
+    </div>
+  </div>
+
+  <!-- 5. The tooling wall -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><strong>0/21 papers fetched</strong> &mdash; <code>fetch_papers.py</code> uses PMID &rarr; PMC lookup, and these entries have no curated PMID. The prompt fix correctly defers them to Stage 3, but our paper-fetch tooling can&rsquo;t actually retrieve papers without a PMID seed.</p>
+      <p><strong>Real workflow limitation surfaced:</strong> the prompt fix is the right behavior, but <code>fetch_papers.py</code> can&rsquo;t carry them through Stage 3 without a paper. They stay at <code>metadata</code> depth in an INCOMPLETE state.</p>
+    </div>
+    <div class="commentary">
+      <p>Fixing the prompt was the easy part. The triage agent now correctly says <em>&ldquo;I don&rsquo;t know&rdquo;</em> instead of <em>&ldquo;no.&rdquo;</em> But the fetch script still can&rsquo;t find papers without a PMID&mdash;and these entries don&rsquo;t have one. The entries are no longer rejected, but they&rsquo;re stuck.</p>
+    </div>
+  </div>
+
+  <!-- 6. The handoff -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Could you write up a quick document about the required paper-fetch fix and I can have another agent cook that up? Or would you prefer to delegate that to a subagent yourself?</p>
+      </div>
+      <div class="response-panel">
+        <p>Spec written at <code>docs/TODO-fetch-papers-title-lookup.md</code>. It covers motivation, the high-level flow, CLI surface, edge cases, a built-in benchmark (the 21 stuck trial entries), and acceptance criteria. Should be enough for another agent to implement without needing to reconstruct context.</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>The session exports its findings into a spec document. The problem was found here; the solution will be built elsewhere. The 21 stuck entries become a built-in test suite for the implementer.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SESSION 2: 4da6b918 — The implementation       -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <div class="session-break">
+    <div class="session-label">Session 4da6b918 &mdash; same day, fresh agent</div>
+    <div class="session-desc">The spec is handed off. A new session implements it, tests it, and runs the benchmark. The results are honest.</div>
+  </div>
+
+  <!-- 7. Picking up the spec -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Hi. Could you look at the spec @docs/TODO-fetch-papers-title-lookup.md and we can go forward with implementing it?</p>
+    </div>
+    <div class="commentary">
+      <p>A different session, a fresh context window, one line pointing at the spec document. Everything this agent needs to know was exported by the previous session.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 8. Smoke test catches a real bug -->
+  <div class="segment">
+    <div class="response-panel">
+      <p>Found a bug. Quoting the long title breaks NCBI&rsquo;s match &mdash; unquoted <code>[TITLE]</code> tokenizes correctly and finds the paper.</p>
+    </div>
+    <div class="commentary">
+      <p>A live smoke test against one benchmark entry catches an API bug that unit tests with mocked I/O cannot. The mock returns whatever you tell it to, regardless of how the real Entrez API tokenizes the query.</p>
+    </div>
+  </div>
+
+  <!-- 9. The honest benchmark -->
+  <div class="segment">
+    <div class="response-panel">
+      <p>Headline numbers below acceptance target &mdash; let me report honestly.</p>
+      <p><strong>Results: 6/21 PMIDs recovered, 5/21 paper.md written.</strong> Spec target was &ge;10. We hit 5&ndash;6. The framework works correctly; the bottleneck has shifted.</p>
+    </div>
+    <div class="commentary">
+      <p>The script works. It just doesn&rsquo;t work enough. 13 of 21 entries return zero PubMed hits&mdash;mostly 2024&ndash;2026 deposits where the paper isn&rsquo;t indexed yet. Title-lookup against PubMed alone can&rsquo;t help with papers that PubMed doesn&rsquo;t know about.</p>
+    </div>
+  </div>
+
+  <!-- 10. The pivot question -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Do you think that this can&rsquo;t really be done by a script, and it might be better to have an agent manually parse accessions and try to identify paper existence?</p>
+      </div>
+      <div class="response-panel">
+        <p>Honestly: <strong>both, layered</strong>, not either-or. The script is the right <strong>floor</strong> (deterministic, free, catches the easy 25%), and an agent is the right <strong>ceiling</strong> (handles the 75% requiring judgment or non-PubMed sources).</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>The user asks whether the entire approach is wrong. The answer splits the problem: scripts for mechanical lookup, agents for judgment. Neither replaces the other. A paper-recovery agent prompt is written and slotted into the orchestrator as Step 5b.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SESSION 3: 3174b856 — The fetch overhaul    -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <div class="session-break">
+    <div class="session-label">Session 3174b856 &mdash; April 23</div>
+    <div class="session-desc">Five days later. A neuron pipeline run discovers the same problem from a third direction.</div>
+  </div>
+
+  <!-- 7. Starting with orchestration, not papers -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p><span class="dim">Hi, can we do some orchestration @docs/agent_prompts/orchestrator.md on &ldquo;neuron related&rdquo; accessions in our database?</span></p>
+    </div>
+    <div class="commentary">
+      <p>This session starts as a routine triage dispatch. Papers aren&rsquo;t on anyone&rsquo;s mind yet.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 8. The paywalled landscape -->
+  <div class="segment">
+    <div class="response-panel">
+      <p>842 entries need paper fetching. Running <code>fetch_papers.py</code> with <code>--title-lookup</code> on these accessions.</p>
+    </div>
+    <div class="commentary">
+      <p>Triage is done. Now the session moves to paper fetching&mdash;and paywalled papers start piling up.</p>
+    </div>
+  </div>
+
+  <!-- 9. Can you tell if papers are failing? -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>Can you tell during the search if papers are being skipped or abandoned by error messages? If so, we could try to resolve those while we&rsquo;re waiting.</p>
+      </div>
+      <div class="response-panel">
+        <p>Yes &mdash; lots to work with. Of the 842 entries: <strong>537 <code>paywalled</code></strong> (PMID exists but PMC full text unavailable), <strong>178 in progress</strong>, and the rest mixed outcomes.</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>537 entries labeled &ldquo;paywalled.&rdquo; The user starts thinking about what that actually means.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 10. The decomposition -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Lets think about the paywalled papers for a second. In this case, is the pubmed version or some other archive version usually available? There are basically three things to think about here. 1: does a paper exist. 2: can we provide the paper link to the users of the browser, even if we cannot access it. 3: can we download ANY version of the paper, archive included, in order to help the subagents parse it with a deep read.</p>
+    </div>
+    <div class="commentary">
+      <p>A fuzzy problem&mdash;<em>&ldquo;paywalled papers&rdquo;</em>&mdash;decomposed into three precise levels. Each has different requirements and different solutions. Does it exist? Can users see it? Can agents read it?</p>
+    </div>
+  </div>
+
+  <!-- 11. The user's fix instructions -->
+  <div class="segment">
+    <div class="prompt-panel">
+      <p>Yes. Lets do a few things here. First, multiple fallbacks to get something, ending at the abstract if nothing else. <span class="dim">Second, we&rsquo;ll need a new field, even if hidden, for passing entries telling us WHAT version of the paper was obtained.</span></p>
+    </div>
+    <div class="commentary">
+      <p>The user doesn&rsquo;t just want a workaround&mdash;they want the system to know <em>what kind of paper it has.</em> An abstract is better than nothing, but the pipeline should know it&rsquo;s working with an abstract.</p>
+    </div>
+  </div>
+
+  <div class="ellipsis">&middot; &middot; &middot;</div>
+
+  <!-- 12. The catch-all discovery -->
+  <div class="segment">
+    <div class="response-panel">
+      <p>Those <strong>2,677 entries</strong> without PMID/DOI should never have been labeled &ldquo;paywalled&rdquo; &mdash; they were victims of the catch-all bug. The script&rsquo;s error handling treated every failure as a paywall, including entries that simply had no publication identifier at all.</p>
+    </div>
+    <div class="commentary">
+      <p>The second discovery. The first session found that triage was rejecting entries with real publications. This session finds that the fetch script was labeling entries &ldquo;paywalled&rdquo; when they had no identifiers at all. Same blind spot, different symptom.</p>
+    </div>
+  </div>
+
+  <!-- 13. The fallback chain -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><code>fetch_papers.py</code> enhanced with a 5-level fallback chain: <strong>PMC HTML &rarr; DOI publisher &rarr; Europe PMC &rarr; Unpaywall API &rarr; PubMed abstract.</strong> New <code>paper_source</code> field tracks which level succeeded.</p>
+    </div>
+    <div class="commentary">
+      <p>The solution addresses all three levels from the user&rsquo;s decomposition. Full text where possible, abstract as a last resort, and a metadata field recording what the pipeline is actually working with.</p>
+    </div>
+  </div>
+
+  <!-- 14. The result -->
+  <div class="segment">
+    <div class="response-panel">
+      <p><strong>Re-fetch complete:</strong> 1,542 of 1,556 previously-paywalled entries recovered. <strong>99.1% success rate.</strong></p>
+      <p>Paper coverage jumped from 4,221 to 5,763 &mdash; a 37% increase in a single session.</p>
+    </div>
+    <div class="commentary">
+      <p>One user prompt, three precise questions, five fallback levels. Fifteen hundred papers that the pipeline thought were inaccessible.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 15. The audit catches more -->
+  <div class="segment">
+    <div class="exchange">
+      <div class="prompt-panel">
+        <p>We haven&rsquo;t done an audit in a while, is that right?</p>
+      </div>
+      <div class="response-panel">
+        <p>Right &mdash; the last audits were back on April 18&ndash;19. Since then we&rsquo;ve pushed through 422 entries at Stage 3 with no audit.</p>
+      </div>
+    </div>
+    <div class="commentary">
+      <p>A simple question that triggers one more discovery. The audit finds Stage 3 confusing &ldquo;paywalled/abstract-only&rdquo; with &ldquo;unpublished&rdquo;&mdash;setting <code>has_publication: no</code> despite a PMID existing. The same false-negative pattern from fd80b335, now appearing at a different pipeline stage.</p>
+    </div>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing">
+    <h2>The same problem, three times</h2>
+    <p>Session fd80b335 finds the blind spot at triage: entries rejected as &ldquo;no publication&rdquo; because a metadata field is empty. Session 4da6b918 implements the script-level fix and discovers its limits&mdash;mechanical lookup catches 25%, but judgment calls need agents. Session 3174b856 finds the problem again at fetch: entries labeled &ldquo;paywalled&rdquo; because an error handler treats every failure the same way. Three sessions, three angles on a single truth: <strong>publications are invisible to the machine</strong> not because they don&rsquo;t exist, but because the metadata linking them is unreliable.</p>
+    <p>The fix isn&rsquo;t a single change. It&rsquo;s a prompt correction at Stage 2, a spec document handed off between sessions, a title-lookup script layered with a paper-recovery agent, a 5-level fallback chain in the fetch script, and a new schema field to track provenance. <strong>Each session contributed a piece. Each piece required the ones before it.</strong></p>
+    <p>The user&rsquo;s three-part decomposition in session 3174b856&mdash;does it exist, can users see it, can agents read it&mdash;is the moment the problem stopped being about &ldquo;paywalled papers&rdquo; and became an engineering question with a layered solution.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
